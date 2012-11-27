@@ -187,9 +187,8 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 					case STATE_READ_DATA:{
 						bodyContentStream = new ByteArrayOutputStream();
 						boolean[] passes = new boolean[4];
-						for (boolean b:passes) {
+						for (boolean b:passes) 
 							b = false;
-						}
 						while(!passes[3]){
 							int ch = input.read();
 							if(!passes[0]) {
@@ -379,6 +378,26 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				// Header
 				output.print("<HEAD><TITLE>Hybrid Cloud Information Viewer</TITLE>" +
 						//"<meta http-equiv=\"refresh\" content=\"5\" />" +
+						"<script language=\"JavaScript\">function onSelectChange(){" +
+						"var j = document.getElementById(\"javaParameter\");"+
+						"var h = document.getElementById(\"hadoopParameter\");"+
+						"j.style.visibility=\"hidden\";"+
+						"h.style.visibility=\"hidden\";"+
+						"var value = document.getElementById(\"jobType\").selectedIndex;"+
+						"if(value==0)"+
+						"{j.style.visibility=\"visible\";}"+
+						"else if(value==1)"+
+						"{h.style.visibility=\"visible\";}}"+
+						"</script>"+
+						""+
+						""+
+						""+
+						""+
+						""+
+						""+
+						""+
+						""+
+						""+
 						"</HEAD>");
 				
 				// Start of Body
@@ -387,17 +406,19 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				// LOGOS
 				output.print("<DIV>");
 				//output.print("<H1><img src=\"http://dmclab.csie.ntpu.edu.tw/web/media/logo_action.gif\" />Hybrid Cloud Information Viewer</H1>");
-				output.print("<h3>Copyright: C.T.Fan</h3>");
+				output.print("<div style=\"float:right;\"><h3>Copyright: C.T.Fan</h3></div>");
 				output.print("<h3>Uptime: "+ m_initTime.toString() +"</h3>");
 				output.print("</DIV>");
 				output.print("<HR/>");
 
 				// Submit form
-				output.print("<DIV>");
+				output.print("<DIV style=\"border: 1px black solid;\">");
 				output.print("<H3>Submit Job</H3><BR/>");
 				output.print("<FORM action=\"submit\" method=\"post\" enctype=\"multipart/form-data\">");
-				output.print("Binary File: <INPUT type=\"file\" name=\"binaryFile\" accept=\"application/java-archive\" />");
-				output.print("Parameter: <INPUT type=\"text\" name=\"parameter\" />");
+				output.print("Job Type: <select name=\"jobType\" id=\"jobType\" onchange=\"onSelectChange()\"><option value=\"Java\">Java</option><option value=\"Hadoop\">Hadoop</option></select>");
+				output.print("Binary File: <INPUT type=\"file\" name=\"binaryFile\" accept=\"application/java-archive\" /><br/>");
+				output.print("<div id=\"javaParameter\">Parameter: <INPUT type=\"text\" name=\"parameter\" /></div>");
+				output.print("<div id=\"hadoopParameter\" style=\"visibility:hidden;\">Input Folder: <INPUT type=\"text\" name=\"hadoopInput\" /> Output Folder: <INPUT type=\"text\" name=\"hadoopOutput\" /></div>");
 				output.print("<INPUT type=\"submit\" value=\"submit\" />");
 				output.print("</FORM>");
 				output.print("</DIV>");
