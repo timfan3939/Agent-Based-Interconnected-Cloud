@@ -9,6 +9,7 @@ import java.util.Date;
 
 import tw.idv.ctfan.cloud.middleware.policy.Policy;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
+import tw.idv.ctfan.cloud.middleware.policy.data.JavaJobNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.JobNodeBase;
 import tw.idv.ctfan.cloud.middleware.policy.data.VMMasterNode;
 
@@ -51,7 +52,6 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 			BufferedInputStream input = new BufferedInputStream(client.getInputStream());
 			
 			int connectionType = 0;
-			long contentLength = 0;
 			String file = "";
 			String boundary = "";
 			int line = 0;
@@ -89,32 +89,29 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 						connectionType = HTTP_POST;
 						file = info[1];
 					} else {
-						myAgent.addBehaviour(new Error501Response(myAgent, client));
+						myAgent.AddTbfBehaviour(new Error501Response(myAgent, client));
 						return;
 					}
 				} else {
-					if(info[0].matches("Content-Length:")) {
-						contentLength = Long.parseLong(info[1]);
-					}
-					else if(info[0].matches("Content-Type:")) {
+					if(info[0].matches("Content-Type:")) {
 						if(info[1].matches("multipart/form-data;")) {
 							String bound[] = info[2].split("=");
 							if(bound.length == 2 && bound[0].matches("boundary"))
 								boundary = bound[1];
 							else {
-								myAgent.addBehaviour(new Error501Response(myAgent, client));
+								myAgent.AddTbfBehaviour(new Error501Response(myAgent, client));
 								return;
 							}
 						}
 						else {
-							myAgent.addBehaviour(new Error501Response(myAgent, client));
+							myAgent.AddTbfBehaviour(new Error501Response(myAgent, client));
 							return;
 						}							
 					}
 				}				
 			} while(!endOfHeader);
 			
-			System.out.println("Reading header done");
+//			System.out.println("Reading header done");
 			
 			// Read body content
 			ByteArrayOutputStream bodyContentStream;
@@ -122,11 +119,14 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 			
 			if(connectionType==HTTP_POST) {
 				boolean endOfMessage = false;
+				
+				// parcing POST multiform state
 				int state = 0x301;
 				final int STATE_BOUNDARY = 0x301;
 				final int STATE_DESCRIPTOR = 0x302;
 				final int STATE_READ_DATA = 0x303;
 				
+				// parcing multiple message state
 				int handling = 0;
 				final int HANDLE_JOB_TYPE = 0x401;
 //				final int HANDLE_JOB_NAME = 0x402;
@@ -135,6 +135,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				final int HANDLE_JOB_PARAMETER = 0x405;
 				final int HANDLE_BINARY_FILE = 0x406;
 				
+				// datas receieved
 				String jobType = "";
 				String jobName = "";
 				String jobInputFolder = "";
@@ -161,16 +162,16 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 						}
 						String b = new String(bodyContentStream.toByteArray());
 						if(b.compareTo("--"+boundary)==0) {
-							System.out.println("--"+boundary);
+//							System.out.println("--"+boundary);
 							state = STATE_DESCRIPTOR;
 						} else if(b.compareTo("--"+boundary+"--")==0){
-							System.out.println("--"+boundary+"--");
+//							System.out.println("--"+boundary+"--");
 							endOfMessage = true;
 						} else if(b.compareTo(boundary)==0){
-							System.out.println(boundary);
+//							System.out.println(boundary);
 							state = STATE_DESCRIPTOR;
 						} else if(b.compareTo(boundary+"--")==0){
-							System.out.println(boundary+"--");
+//							System.out.println(boundary+"--");
 							endOfMessage = true;
 						}
 						bodyContentStream = null;
@@ -193,19 +194,19 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 						
 						if(bodyContentStream.size()==0)
 							state = STATE_READ_DATA;
-						else
-							System.out.println(new String(bodyContentStream.toByteArray()));
+//						else
+//							System.out.println(new String(bodyContentStream.toByteArray()));
 						String info = new String(bodyContentStream.toByteArray());
 						String subInfo[] = info.split(" ");
 						if(subInfo[0].matches("Content-Disposition:")&&subInfo[1].matches("form-data;")) {
 							String tag = subInfo[2].split("=")[1].split("\"")[1];
-							System.out.println("tag: " + tag);
+//							System.out.println("tag: " + tag);
 							if(tag.matches("jobType")) {
 								handling = HANDLE_JOB_TYPE;
 							} else if(tag.matches("binaryFile")) {
 								handling = HANDLE_BINARY_FILE;
 								jobName = subInfo[3].split("=")[1].split("\"")[1];
-								System.out.println("jobName: " + jobName);
+//								System.out.println("jobName: " + jobName);
 							} else if(tag.matches("parameter")) {
 								handling = HANDLE_JOB_PARAMETER;
 							} else if(tag.matches("hadoopInput")) {
@@ -214,10 +215,6 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 								handling = HANDLE_JOB_OUTPUT_FOLDER;
 							}
 						}
-						
-						
-						
-						
 						bodyContentStream = null;
 					}	break;
 					case STATE_READ_DATA:{
@@ -265,61 +262,69 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 								}
 							}
 						}
-						System.out.println("Got Binary size " + bodyContentStream.size());
+//						System.out.println("Got Binary size " + bodyContentStream.size());
 						
 						switch(handling) {
 						case HANDLE_JOB_TYPE:
 							jobType = new String(bodyContentStream.toByteArray());
-							System.out.println("jobType: " + jobType);
+//							System.out.println("jobType: " + jobType);
 							break;
 						case HANDLE_BINARY_FILE:
 							binaryFile = bodyContentStream.toByteArray();
-							System.out.println("binaryFile");
+//							System.out.println("binaryFile");
 							break;
 						case HANDLE_JOB_PARAMETER:
 							jobParameter = new String(bodyContentStream.toByteArray());
-							System.out.println("jobParameter: " + jobParameter);
+//							System.out.println("jobParameter: " + jobParameter);
 							break;
 						case HANDLE_JOB_INPUT_FOLDER:
 							jobInputFolder = new String(bodyContentStream.toByteArray());
-							System.out.println("jobInputFolder: " + jobInputFolder);
+//							System.out.println("jobInputFolder: " + jobInputFolder);
 							break;
 						case HANDLE_JOB_OUTPUT_FOLDER:
 							jobOutputFolder = new String(bodyContentStream.toByteArray());
-							System.out.println("jobOutputFolder: " + jobOutputFolder);
+//							System.out.println("jobOutputFolder: " + jobOutputFolder);
 							break;
 						default:
 							break;
-						}
-						
+						}						
 						bodyContentStream = null;
 						state = STATE_BOUNDARY;
 					}	break;
 					}					
 					
 				} while (!endOfMessage);
+				
+				if(binaryFile != null) {
+					if(jobType.matches("java")) {
+						JavaJobNode javaNewJob = new JavaJobNode(JavaJobNode.JOBTYPENAME, client.toString(), jobParameter, binaryFile);
+						javaNewJob.inputData = jobParameter;
+						javaNewJob.jobName = jobName;
+						javaNewJob.deadline = 10000000;
+						myAgent.SubmitJob(javaNewJob);
+					}
+				}				
 			}
 			
-			System.out.println("Got " + size + " bytes of message");
-			System.out.println("Reading message done");
-			
+//			System.out.println("Got " + size + " bytes of message");
+//			System.out.println("Reading message done");			
 			
 			if(connectionType==HTTP_GET ) {
 				if(file.equals("/")) {
-					System.out.println("StatusResponse");
-					myAgent.addBehaviour(new StatusResponse(myAgent, client));
-				}
-//				else {
-//					myAgent.addBehaviour(new GetFileResponse(myAgent, client));
-//				}
-			} else if(connectionType==HTTP_POST) {
-				if(file.equals("/submit") && !boundary.isEmpty()){
-					System.out.println("UploadFileResponse");
-					myAgent.addBehaviour(new UploadFileResponse(myAgent, client, new byte[0], boundary));
+//					System.out.println("StatusResponse");
+					myAgent.AddTbfBehaviour(new StatusResponse(myAgent, client));
 				}
 				else {
-					System.out.println("StatusResponse");
-					myAgent.addBehaviour(new StatusResponse(myAgent, client));
+					myAgent.AddTbfBehaviour(new StatusResponse(myAgent, client));
+				}
+			} else if(connectionType==HTTP_POST) {
+				if(file.equals("/submit") && !boundary.isEmpty()){
+//					System.out.println("UploadFileResponse");
+					myAgent.AddTbfBehaviour(new StatusResponse(myAgent, client));
+				}
+				else {
+//					System.out.println("StatusResponse");
+					myAgent.AddTbfBehaviour(new StatusResponse(myAgent, client));
 				}
 			}
 			
@@ -363,51 +368,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				}
 			}
 		}		
-	}
-	
-	private class UploadFileResponse extends OneShotBehaviour {
-		private static final long serialVersionUID =1L;
-		Socket client;
-		byte[] inputByte;
-		byte[] boundaryByte;
-		String boundary;
-		
-		public UploadFileResponse(Agent a, Socket s, byte[] in, String bound){
-			super(a);
-			client = s;
-			inputByte = in.clone();
-			boundary = bound;
-			boundaryByte = boundary.getBytes();
-		}
-
-		@Override
-		public void action() {
-			System.out.println("Start UploadFileResponse");
-			try {
-				System.out.println("Boundary: " + boundary);
-				
-//				int start, end = 0;
-//				int line=0;
-//				boolean bound = true;
-//				
-//				for(int i=0; i<inputByte.length; i++) {
-//					if(bound = true) {
-//						for(int j=0; j<inputB; j++) {
-//							
-//						}
-//					}
-//				}
-				
-								
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			finally {
-				myAgent.addBehaviour(new StatusResponse(myAgent, client));
-			}
-			
-		}
-	}
+	}	
 	
 	private class StatusResponse extends OneShotBehaviour {
 		private static final long serialVersionUID = 1L;
@@ -421,7 +382,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 		@Override
 		public void action() {
 			try {
-				System.out.println("StatusResponse Start");
+//				System.out.println("StatusResponse Start");
 				PrintStream output = new PrintStream(client.getOutputStream());
 				
 				//=====
@@ -468,7 +429,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				output.print("<DIV style=\"border: 1px black solid;\">");
 				output.print("<H3>Submit Job</H3><BR/>");
 				output.print("<FORM action=\"submit\" method=\"post\" enctype=\"multipart/form-data\">");
-				output.print("Job Type: <select name=\"jobType\" id=\"jobType\" onchange=\"onSelectChange()\"><option value=\"Java\">Java</option><option value=\"Hadoop\">Hadoop</option></select>");
+				output.print("Job Type: <select name=\"jobType\" id=\"jobType\" onchange=\"onSelectChange()\"><option value=\""+JavaJobNode.JOBTYPENAME+"\">Java</option><option value=\"Hadoop\">Hadoop</option></select>");
 				output.print("Binary File: <INPUT type=\"file\" name=\"binaryFile\" accept=\"application/java-archive\" /><br/>");
 				output.print("<div id=\"javaParameter\">Parameter: <INPUT type=\"text\" name=\"parameter\" /></div>");
 				output.print("<div id=\"hadoopParameter\" style=\"visibility:hidden;\">Input Folder: <INPUT type=\"text\" name=\"hadoopInput\" /> Output Folder: <INPUT type=\"text\" name=\"hadoopOutput\" /></div>");

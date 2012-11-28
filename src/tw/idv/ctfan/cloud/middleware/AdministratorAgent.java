@@ -1,14 +1,9 @@
 package tw.idv.ctfan.cloud.middleware;
 
-import java.io.BufferedInputStream;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Date;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -19,10 +14,9 @@ import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.HadoopJobNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.JavaJobNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.JobNodeBase;
-import tw.idv.ctfan.cloud.middleware.policy.data.VMMasterNode;
-
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.ThreadedBehaviourFactory;
@@ -68,6 +62,10 @@ public class AdministratorAgent extends Agent {
 		this.addBehaviour(tbf.wrap(new SubmitBehaviour(this) ) );
 		this.addBehaviour(tbf.wrap(new HTTPServerBehaviour(this, policy) ) );
 		this.addBehaviour(tbf.wrap(new ListeningBehaviour(this) ) );
+	}
+	
+	public void AddTbfBehaviour(Behaviour b) {
+		this.addBehaviour(this.tbf.wrap(b));
 	}
 		
 	private class SubmitBehaviour extends CyclicBehaviour {
@@ -206,6 +204,10 @@ public class AdministratorAgent extends Agent {
 				e.printStackTrace();
 			}
 		}		
+	}
+	
+	public void SubmitJob(JobNodeBase newJob) {
+		this.addBehaviour(tbf.wrap(new GetJobInfoBehaviour(this, newJob)));
 	}
 	
 	private class GetJobInfoBehaviour extends OneShotBehaviour {
