@@ -1,14 +1,10 @@
 package tw.idv.ctfan.cloud.middleware;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Date;
 
 import tw.idv.ctfan.cloud.middleware.policy.Policy;
@@ -26,6 +22,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 	private final byte[] EOL = { (byte)'\r', (byte)'\n' };
 	ServerSocket server;
 	Policy policy;
+	AdministratorAgent myAgent;
 	
 	static final Date m_initTime = new Date();
 	
@@ -34,6 +31,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 
 	public HTTPServerBehaviour(AdministratorAgent agent, Policy policy) {
 		super(agent);
+		myAgent = agent;
 		this.policy = policy;
 		
 		try {
@@ -129,6 +127,21 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				final int STATE_DESCRIPTOR = 0x302;
 				final int STATE_READ_DATA = 0x303;
 				
+				int handling = 0;
+				final int HANDLE_JOB_TYPE = 0x401;
+//				final int HANDLE_JOB_NAME = 0x402;
+				final int HANDLE_JOB_INPUT_FOLDER = 0x403;
+				final int HANDLE_JOB_OUTPUT_FOLDER = 0x404;
+				final int HANDLE_JOB_PARAMETER = 0x405;
+				final int HANDLE_BINARY_FILE = 0x406;
+				
+				String jobType = "";
+				String jobName = "";
+				String jobInputFolder = "";
+				String jobOutputFolder = "";
+				String jobParameter = "";
+				byte[] binaryFile = null;
+				
 				do {
 					switch (state) {
 					case STATE_BOUNDARY: {
@@ -182,6 +195,29 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 							state = STATE_READ_DATA;
 						else
 							System.out.println(new String(bodyContentStream.toByteArray()));
+						String info = new String(bodyContentStream.toByteArray());
+						String subInfo[] = info.split(" ");
+						if(subInfo[0].matches("Content-Disposition:")&&subInfo[1].matches("form-data;")) {
+							String tag = subInfo[2].split("=")[1].split("\"")[1];
+							System.out.println("tag: " + tag);
+							if(tag.matches("jobType")) {
+								handling = HANDLE_JOB_TYPE;
+							} else if(tag.matches("binaryFile")) {
+								handling = HANDLE_BINARY_FILE;
+								jobName = subInfo[3].split("=")[1].split("\"")[1];
+								System.out.println("jobName: " + jobName);
+							} else if(tag.matches("parameter")) {
+								handling = HANDLE_JOB_PARAMETER;
+							} else if(tag.matches("hadoopInput")) {
+								handling = HANDLE_JOB_INPUT_FOLDER;
+							} else if(tag.matches("hadoopOutput")) {
+								handling = HANDLE_JOB_OUTPUT_FOLDER;
+							}
+						}
+						
+						
+						
+						
 						bodyContentStream = null;
 					}	break;
 					case STATE_READ_DATA:{
@@ -230,6 +266,32 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 							}
 						}
 						System.out.println("Got Binary size " + bodyContentStream.size());
+						
+						switch(handling) {
+						case HANDLE_JOB_TYPE:
+							jobType = new String(bodyContentStream.toByteArray());
+							System.out.println("jobType: " + jobType);
+							break;
+						case HANDLE_BINARY_FILE:
+							binaryFile = bodyContentStream.toByteArray();
+							System.out.println("binaryFile");
+							break;
+						case HANDLE_JOB_PARAMETER:
+							jobParameter = new String(bodyContentStream.toByteArray());
+							System.out.println("jobParameter: " + jobParameter);
+							break;
+						case HANDLE_JOB_INPUT_FOLDER:
+							jobInputFolder = new String(bodyContentStream.toByteArray());
+							System.out.println("jobInputFolder: " + jobInputFolder);
+							break;
+						case HANDLE_JOB_OUTPUT_FOLDER:
+							jobOutputFolder = new String(bodyContentStream.toByteArray());
+							System.out.println("jobOutputFolder: " + jobOutputFolder);
+							break;
+						default:
+							break;
+						}
+						
 						bodyContentStream = null;
 						state = STATE_BOUNDARY;
 					}	break;
@@ -389,15 +451,6 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 						"else if(value==1)"+
 						"{h.style.visibility=\"visible\";}}"+
 						"</script>"+
-						""+
-						""+
-						""+
-						""+
-						""+
-						""+
-						""+
-						""+
-						""+
 						"</HEAD>");
 				
 				// Start of Body
