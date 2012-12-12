@@ -44,23 +44,23 @@ public class ServiceMigrationAgent extends Agent {
 		super.setup();
 
 		
-//		tbf = new ThreadedBehaviourFactory();		
-//		
-//		
-//		this.addBehaviour(tbf.wrap(new TickerBehaviour(this, 3000)
-//		{
-//			private static final long serialVersionUID = 1L;
-//			private ServiceManageBehaviour running = null;
-//
-//			@Override
-//			protected void onTick() {
-//				if(running==null || (running!=null&&running.done())) {
-//					running = new ServiceManageBehaviour(myAgent);
-//					myAgent.addBehaviour(tbf.wrap(running));
-//				}				
-//			}			
-//		}));
-//		this.addBehaviour(tbf.wrap(new ListeningBehaviour(this)));
+		tbf = new ThreadedBehaviourFactory();		
+		
+		
+		this.addBehaviour(tbf.wrap(new TickerBehaviour(this, 3000)
+		{
+			private static final long serialVersionUID = 1L;
+			private ServiceManageBehaviour running = null;
+
+			@Override
+			protected void onTick() {
+				if(running==null || (running!=null&&running.done())) {
+					running = new ServiceManageBehaviour(myAgent);
+					myAgent.addBehaviour(tbf.wrap(running));
+				}				
+			}			
+		}));
+		this.addBehaviour(tbf.wrap(new ListeningBehaviour(this)));
 				
 		
 	}	
