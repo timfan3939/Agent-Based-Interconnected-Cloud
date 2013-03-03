@@ -382,44 +382,44 @@ public class JavaPolicy extends Policy {
 				policyVMState = StartingVM;
 				return new VMManagementDecision(clusterToStart, VMManagementDecision.START_VM);
 			}
-			else if (policyVMState == Normal && this.m_waitingJobList.size()==0){ 
-				closeVMCounter++;
-				if(closeVMCounter > closeVMCounterThreshold) {
-					// Too long there is no job
-					// 1. Stop dispatching job to VM (adding flag)
-					// 2. Close VM (By ReconfigurationDecisionAgent)
-					for (int pass = 0; pass < 2; pass++) {
-						for (ClusterNode cn: this.m_runningClusterList) {
-							// pass 0, close private node
-							// pass 1, close public node
-							if(cn.vmMaster.masterType == (pass==0?VMMasterNode.PUBLIC:VMMasterNode.PRIVATE)){
-								boolean jobFound = false;
-								for(JobNodeBase jn: this.m_runningJobList) {
-									if(jn.currentPosition.compare(cn)) {
-										jobFound = true;
-										break;
-									}
-								}
-								if(!jobFound){
-									// There is an cluster that has no job running
-									policyVMState = ClosingVM;
-									cn.allowDispatch = false;
-									cn.vmUUID = null;
-									m_runningClusterList.remove(cn);
-									m_availableClusterList.add(cn);
-									return new VMManagementDecision(cn, VMManagementDecision.CLOSE_VM);
-								}
-							}
-						}
-					}
-					policyVMState = Normal;
-					closeVMCounter = 0;
-				}
-			}
 			else {
 				policyVMState = Normal;
 				closeVMCounter = 0;
 			}
+		}
+		else if (policyVMState == Normal && this.m_waitingJobList.size()==0 && this.m_runningClusterList.size()>0){
+			System.out.println("Close VM Counter: " + closeVMCounter);
+			// Too long there is no job
+			// 1. Stop dispatching job to VM (adding flag)
+			// 2. Close VM (By ReconfigurationDecisionAgent)
+			for (int pass = 0; pass < 2; pass++) {
+				for (ClusterNode cn: this.m_runningClusterList) {
+					// pass 0, close private node
+					// pass 1, close public node
+					if(cn.vmMaster.masterType == (pass==0?VMMasterNode.PUBLIC:VMMasterNode.PRIVATE)){
+						boolean jobFound = false;
+						for(JobNodeBase jn: this.m_runningJobList) {
+							if(jn!=null && jn.currentPosition.compare(cn)) {
+								jobFound = true;
+								break;
+							}
+						}
+						if(!jobFound){
+							// There is an cluster that has no job running
+							closeVMCounter++;
+							if(closeVMCounter >closeVMCounterThreshold) {
+							
+								policyVMState = ClosingVM;
+								cn.allowDispatch = false;
+								cn.vmUUID = null;
+								m_runningClusterList.remove(cn);
+								m_availableClusterList.add(cn);
+								return new VMManagementDecision(cn, VMManagementDecision.CLOSE_VM);
+							}
+						}
+					}
+				}
+			}			
 		}
 		return null;
 	}

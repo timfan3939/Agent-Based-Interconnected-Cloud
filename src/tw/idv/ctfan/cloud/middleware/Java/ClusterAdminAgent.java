@@ -92,8 +92,10 @@ public class ClusterAdminAgent extends Agent {
 							}
 						} 
 						else if(info.matches("TERMINATE")){
-							if(m_jobList.size()==0)
+							if(m_jobList.size()==0) {
+								System.out.println("This Agent and Container will be terminated");
 								getContainerController().kill();
+							}
 						}
 					}
 					case ACLMessage.PROPOSE:

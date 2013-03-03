@@ -59,8 +59,8 @@ public class ReconfigurationDecisionAgent extends Agent {
 		ArrayList<VMMasterNode> vmMasterList = policy.GetVMMaster();
 		ArrayList<ClusterNode> clusterList = policy.GetAvailableCluster();
 		
-		vmMasterList.add(new VMMasterNode("10.133.200.16", "root", "unigrid", VMMasterNode.PRIVATE));
-		vmMasterList.add(new VMMasterNode("10.133.200.9",  "root", "unigrid", VMMasterNode.PUBLIC));
+		vmMasterList.add(new VMMasterNode("10.133.200.4", "root", "unigrid", VMMasterNode.PRIVATE));
+		//vmMasterList.add(new VMMasterNode("10.133.200.9",  "root", "unigrid", VMMasterNode.PUBLIC));
 		
 		try {
 			// Get VMs
@@ -73,7 +73,7 @@ public class ReconfigurationDecisionAgent extends Agent {
 					   !vm.getIsASnapshot(vmMaster.xenConnection)&&
 					   !vm.getIsControlDomain(vmMaster.xenConnection)&&
 					   !vm.getIsSnapshotFromVmpp(vmMaster.xenConnection)) {
-						if(vm.getNameLabel(vmMaster.xenConnection).startsWith("hdp")) {
+						if(vm.getNameLabel(vmMaster.xenConnection).startsWith("hdp201")) {
 							clusterList.add(new ClusterNode(vmMaster,
 															vm.getUuid(vmMaster.xenConnection),
 															vm.getNameLabel(vmMaster.xenConnection),
@@ -98,6 +98,7 @@ public class ReconfigurationDecisionAgent extends Agent {
 						System.out.println(" Closed");
 					}
 				}
+				System.out.println("VM's Ready");
 			}
 			catch(Exception e) {
 				System.err.println("Error Finding Clusters");
@@ -160,6 +161,7 @@ public class ReconfigurationDecisionAgent extends Agent {
 							AID recv = new AID(decision.cluster.name + "@" + decision.cluster.address + ":1099/JADE", AID.ISGUID);
 							msg.addReceiver(recv);
 							msg.setContent("TERMINATE");
+							myAgent.send(msg);
 						} catch(Exception e) {
 							System.err.println("ReconfigurationDecisionAgent : Error while Closing VM");
 							e.printStackTrace();
