@@ -15,10 +15,18 @@ import tw.idv.ctfan.cloud.middleware.policy.Decision.VMManagementDecision;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.VMMasterNode;
 
+import jade.content.lang.Codec;
+import jade.content.lang.sl.SLCodec;
+import jade.content.onto.Ontology;
+import jade.content.onto.basic.Action;
+import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.ThreadedBehaviourFactory;
 import jade.core.behaviours.TickerBehaviour;
+import jade.domain.JADEAgentManagement.JADEManagementOntology;
+import jade.domain.JADEAgentManagement.KillContainer;
+import jade.lang.acl.ACLMessage;
 
 /*
  * This agent check if any cluster should shut down or boot up
@@ -143,17 +151,25 @@ public class ReconfigurationDecisionAgent extends Agent {
 							vm.start(decision.cluster.vmMaster.xenConnection, false, false);
 						} catch (Exception e) {
 							System.err.println("ReconfigurationDecisionAgent : Error while Starting VM");
+							e.printStackTrace();
 						}
 					}
 					else if(decision.command == VMManagementDecision.CLOSE_VM) {
+						try {
+							ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+							AID recv = new AID(decision.cluster.name + "@" + decision.cluster.address + ":1099/JADE", AID.ISGUID);
+							msg.addReceiver(recv);
+							msg.setContent("TERMINATE");
+						} catch(Exception e) {
+							System.err.println("ReconfigurationDecisionAgent : Error while Closing VM");
+							e.printStackTrace();
+						}
+						
 						// do nothing right now
 					}					
 				}				
 				VMManageBehaviourOnlyInstance = null;
 			}
 		}		
-	}
-	
-	
-	
+	}	
 }

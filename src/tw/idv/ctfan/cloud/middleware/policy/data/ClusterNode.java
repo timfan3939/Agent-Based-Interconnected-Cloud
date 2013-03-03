@@ -20,6 +20,9 @@ public class ClusterNode implements Comparable<ClusterNode>
 	public int maxMapSlot;
 	public int maxReduceSlot;
 	
+	// Other Related
+	public boolean allowDispatch = true;
+	
 	
 	public ClusterNode(String name, String container, String address)
 	{

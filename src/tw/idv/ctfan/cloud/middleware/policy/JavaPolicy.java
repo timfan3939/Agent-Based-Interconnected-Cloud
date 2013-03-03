@@ -10,6 +10,7 @@ import tw.idv.ctfan.cloud.middleware.policy.Decision.VMManagementDecision;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.JavaJobNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.JobNodeBase;
+import tw.idv.ctfan.cloud.middleware.policy.data.VMMasterNode;
 
 public class JavaPolicy extends Policy {
 		
@@ -20,6 +21,7 @@ public class JavaPolicy extends Policy {
 	private static final int AskForVM = 0x402;
 	private static final int RequestingVM = 0x403;
 	private static final int StartingVM = 0x404;
+	private static final int ClosingVM = 0x405;
 	// not null if some cluster is booting up, just wait
 	ClusterNode clusterToStart = null;
 	
@@ -368,6 +370,8 @@ public class JavaPolicy extends Policy {
 			return new JavaPolicy();
 	}
 
+	private static int closeVMCounter = 0;
+	private static final int closeVMCounterThreshold = 5;
 	@Override
 	public VMManagementDecision GetVMManagementDecision() {
 		if(policyVMState==AskForVM) {
@@ -378,8 +382,44 @@ public class JavaPolicy extends Policy {
 				policyVMState = StartingVM;
 				return new VMManagementDecision(clusterToStart, VMManagementDecision.START_VM);
 			}
-			else
+			else if (policyVMState == Normal && this.m_waitingJobList.size()==0){ 
+				closeVMCounter++;
+				if(closeVMCounter > closeVMCounterThreshold) {
+					// Too long there is no job
+					// 1. Stop dispatching job to VM (adding flag)
+					// 2. Close VM (By ReconfigurationDecisionAgent)
+					for (int pass = 0; pass < 2; pass++) {
+						for (ClusterNode cn: this.m_runningClusterList) {
+							// pass 0, close private node
+							// pass 1, close public node
+							if(cn.vmMaster.masterType == (pass==0?VMMasterNode.PUBLIC:VMMasterNode.PRIVATE)){
+								boolean jobFound = false;
+								for(JobNodeBase jn: this.m_runningJobList) {
+									if(jn.currentPosition.compare(cn)) {
+										jobFound = true;
+										break;
+									}
+								}
+								if(!jobFound){
+									// There is an cluster that has no job running
+									policyVMState = ClosingVM;
+									cn.allowDispatch = false;
+									cn.vmUUID = null;
+									m_runningClusterList.remove(cn);
+									m_availableClusterList.add(cn);
+									return new VMManagementDecision(cn, VMManagementDecision.CLOSE_VM);
+								}
+							}
+						}
+					}
+					policyVMState = Normal;
+					closeVMCounter = 0;
+				}
+			}
+			else {
 				policyVMState = Normal;
+				closeVMCounter = 0;
+			}
 		}
 		return null;
 	}

@@ -90,6 +90,10 @@ public class ClusterAdminAgent extends Agent {
 									break;
 								}
 							}
+						} 
+						else if(info.matches("TERMINATE")){
+							if(m_jobList.size()==0)
+								getContainerController().kill();
 						}
 					}
 					case ACLMessage.PROPOSE:
