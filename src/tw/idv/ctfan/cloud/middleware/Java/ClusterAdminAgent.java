@@ -92,10 +92,7 @@ public class ClusterAdminAgent extends Agent {
 							}
 						} 
 						else if(info.matches("TERMINATE")){
-							if(m_jobList.size()==0) {
-								System.out.println("This Agent and Container will be terminated");
-								getContainerController().kill();
-							}
+							myAgent.addBehaviour(new TerminateVMBehaviour(myAgent));
 						}
 					}
 					case ACLMessage.PROPOSE:
@@ -114,6 +111,27 @@ public class ClusterAdminAgent extends Agent {
 				
 			} catch(Exception e) {
 				e.printStackTrace();
+			}
+			
+		}
+		
+	}
+	
+	private class TerminateVMBehaviour extends OneShotBehaviour {
+		private static final long serialVersionUID = 1L;
+		
+		public TerminateVMBehaviour(Agent a){
+			super(a);
+		}
+
+		@Override
+		public void action() {			
+			if(m_jobList.size()==0) {
+				System.out.println("This Agent and Container will be terminated");
+				
+				
+				
+				getContainerController().kill();
 			}
 			
 		}

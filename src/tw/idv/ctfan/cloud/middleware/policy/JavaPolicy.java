@@ -24,6 +24,7 @@ public class JavaPolicy extends Policy {
 	private static final int ClosingVM = 0x405;
 	// not null if some cluster is booting up, just wait
 	ClusterNode clusterToStart = null;
+	ClusterNode clusterToShut = null;
 	
 	/**
 	 * Current elment's attributes
@@ -408,7 +409,6 @@ public class JavaPolicy extends Policy {
 							// There is an cluster that has no job running
 							closeVMCounter++;
 							if(closeVMCounter >closeVMCounterThreshold) {
-							
 								policyVMState = ClosingVM;
 								cn.allowDispatch = false;
 								cn.vmUUID = null;
@@ -417,9 +417,10 @@ public class JavaPolicy extends Policy {
 								return new VMManagementDecision(cn, VMManagementDecision.CLOSE_VM);
 							}
 						}
-					}
-				}
-			}			
+					}  // End of Comparing passing
+				} // End of For Every Cluster
+			} // End of Passes
+			closeVMCounter = 0;
 		}
 		return null;
 	}
