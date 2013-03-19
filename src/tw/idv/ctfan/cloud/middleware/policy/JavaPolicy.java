@@ -249,26 +249,47 @@ public class JavaPolicy extends Policy {
 	}
 	
 	@Override
+	public void OnOldClusterLeaves(ClusterNode cn){
+		
+	}
+	
+	@Override
+	public void OnNewClusterArrives(ClusterNode cn){
+		if(policyVMState == StartingVM) {
+			clusterToStart.name = cn.name;
+			clusterToStart.container = cn.container;
+			clusterToStart.address = cn.address;
+			m_runningClusterList.add(clusterToStart);
+			clusterToStart = null;
+		}
+		else {
+			System.out.println("Cluster " + cn.name + " will not be added into cluster list.");
+		}
+		cn = null;
+		policyVMState = Normal;
+	}
+	
+	@Override
 	public DispatchDecision GetNewJobDestination() {
 		long startTime = System.nanoTime(); // predict start time
 		System.out.println("===Asking New Job Destination===");
 		
 		// finding newly started VM
-		if(policyVMState == StartingVM) {
-			for(int i=0; i<m_runningClusterList.size(); i++) {
-				if(m_runningClusterList.get(i).vmUUID == null) {
-					ClusterNode cn = m_runningClusterList.get(i);
-					clusterToStart.name = cn.name;
-					clusterToStart.container = cn.container;
-					clusterToStart.address = cn.address;
-					m_runningClusterList.remove(i);
-					m_runningClusterList.add(clusterToStart);
-					clusterToStart = null;
-					policyVMState = Normal;
-					break;
-				}
-			}
-		}
+//		if(policyVMState == StartingVM) {
+//			for(int i=0; i<m_runningClusterList.size(); i++) {
+//				if(m_runningClusterList.get(i).vmUUID == null) {
+//					ClusterNode cn = m_runningClusterList.get(i);
+//					clusterToStart.name = cn.name;
+//					clusterToStart.container = cn.container;
+//					clusterToStart.address = cn.address;
+//					m_runningClusterList.remove(i);
+//					m_runningClusterList.add(clusterToStart);
+//					clusterToStart = null;
+//					policyVMState = Normal;
+//					break;
+//				}
+//			}
+//		}
 		
 		// no job to dispatch
 		if(m_waitingJobList.size()<=0)
@@ -397,10 +418,13 @@ public class JavaPolicy extends Policy {
 				for (ClusterNode cn: this.m_runningClusterList) {
 					// pass 0, close private node
 					// pass 1, close public node
+					if(cn!=null)
 					if(cn.vmMaster.masterType == (pass==0?VMMasterNode.PUBLIC:VMMasterNode.PRIVATE)){
 						boolean jobFound = false;
 						for(JobNodeBase jn: this.m_runningJobList) {
-							if(jn!=null && jn.currentPosition.compare(cn)) {
+							if(jn!=null)
+							if(jn.currentPosition!=null)
+							if(jn.currentPosition.compare(cn)) {
 								jobFound = true;
 								break;
 							}
@@ -415,7 +439,8 @@ public class JavaPolicy extends Policy {
 								m_runningClusterList.remove(cn);
 								m_availableClusterList.add(cn);
 								return new VMManagementDecision(cn, VMManagementDecision.CLOSE_VM);
-							}
+							} else
+								return null;
 						}
 					}  // End of Comparing passing
 				} // End of For Every Cluster

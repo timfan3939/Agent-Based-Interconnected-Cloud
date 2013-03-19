@@ -440,4 +440,16 @@ public class ExecutionTimePolicy extends Policy {
 		return null;
 	}
 
+	@Override
+	public void OnNewClusterArrives(ClusterNode cn) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void OnOldClusterLeaves(ClusterNode cn) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

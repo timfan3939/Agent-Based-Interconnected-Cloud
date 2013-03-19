@@ -127,11 +127,14 @@ public class ClusterAdminAgent extends Agent {
 		@Override
 		public void action() {			
 			if(m_jobList.size()==0) {
-				System.out.println("This Agent and Container will be terminated");
+				System.out.println("This Agent and Container will be terminated");				
 				
-				
-				
-				getContainerController().kill();
+				try {
+					myAgent.getContainerController().kill();
+				} catch (StaleProxyException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			
 		}

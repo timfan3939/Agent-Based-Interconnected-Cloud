@@ -317,7 +317,8 @@ public class AdministratorAgent extends Agent {
 							
 							if(!found){
 								cn = new ClusterNode(line[1], line[2], line[3]);
-								policy.GetRunningCluster().add(cn);
+								policy.OnNewClusterArrives(cn);
+								//policy.GetRunningCluster().add(cn);
 							} else	{
 								line = subContent[1].split(" ");
 								

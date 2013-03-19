@@ -37,6 +37,10 @@ public abstract class Policy {
 	
 	public abstract VMManagementDecision GetVMManagementDecision();
 	
+	public abstract void OnNewClusterArrives(ClusterNode cn);
+	
+	public abstract void OnOldClusterLeaves(ClusterNode cn);
+		
 
 	public ArrayList<VMMasterNode> GetVMMaster() {
 		return m_VMMasterList;
