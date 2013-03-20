@@ -249,8 +249,12 @@ public class JavaPolicy extends Policy {
 	}
 	
 	@Override
-	public void OnOldClusterLeaves(ClusterNode cn){
-		
+	public void OnOldClusterLeaves(ClusterNode cn){		
+		m_availableClusterList.add(clusterToShut);
+		System.out.println("Shutting Cluster is added to available list");
+		clusterToShut = null;
+		cn = null;
+		policyVMState = Normal;
 	}
 	
 	@Override
@@ -435,9 +439,11 @@ public class JavaPolicy extends Policy {
 							if(closeVMCounter >closeVMCounterThreshold) {
 								policyVMState = ClosingVM;
 								cn.allowDispatch = false;
-								cn.vmUUID = null;
+								//cn.vmUUID = null;
 								m_runningClusterList.remove(cn);
-								m_availableClusterList.add(cn);
+								//m_availableClusterList.add(cn);
+								clusterToShut = cn;
+								closeVMCounter = 0;
 								return new VMManagementDecision(cn, VMManagementDecision.CLOSE_VM);
 							} else
 								return null;

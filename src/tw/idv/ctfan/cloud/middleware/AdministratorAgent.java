@@ -393,6 +393,21 @@ public class AdministratorAgent extends Agent {
 					}
 					break;
 				case ACLMessage.REQUEST:
+					/**
+					 * Request Closing Cluster
+					 * Message will like this:
+					 *     Close cluster <agent's name> <agent's container name> <agent's IP>
+					 */
+				{
+					String content = msg.getContent();
+					System.out.println(content);
+					String[] subContent = content.split(" ");
+					if(subContent.length==5)
+					if(subContent[0].matches("Close"))
+					if(subContent[1].matches("cluster")) {
+						policy.OnOldClusterLeaves(new ClusterNode(subContent[2], subContent[3], subContent[4]));
+					}
+				}
 					break;
 				default:
 					System.out.println("Got Message");

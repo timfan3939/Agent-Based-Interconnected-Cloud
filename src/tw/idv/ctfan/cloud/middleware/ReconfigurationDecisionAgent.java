@@ -21,6 +21,8 @@ import jade.content.onto.Ontology;
 import jade.content.onto.basic.Action;
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.Behaviour;
+import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.ThreadedBehaviourFactory;
 import jade.core.behaviours.TickerBehaviour;
@@ -50,13 +52,14 @@ public class ReconfigurationDecisionAgent extends Agent {
 	
 	
 	ThreadedBehaviourFactory tbf;	
+	ArrayList<VMMasterNode> vmMasterList;
 	
 	public void setup()
 	{
 		super.setup();		
 		
 		
-		ArrayList<VMMasterNode> vmMasterList = policy.GetVMMaster();
+		vmMasterList = policy.GetVMMaster();
 		ArrayList<ClusterNode> clusterList = policy.GetAvailableCluster();
 		
 		vmMasterList.add(new VMMasterNode("10.133.200.4", "root", "unigrid", VMMasterNode.PRIVATE));
@@ -129,6 +132,45 @@ public class ReconfigurationDecisionAgent extends Agent {
 	
 	public VMManageBehaviour VMManageBehaviourOnlyInstance = null;
 	
+	private class VMCloseBehaviour extends Behaviour {
+		
+		private static final long serialVersionUID = 1L;
+		
+		ClusterNode cluster;
+		boolean doneYet = false;
+		int count = 0;
+		
+		VMCloseBehaviour (Agent a, ClusterNode cn) {
+			super(a);
+			this.cluster = cn;
+		}
+
+		@Override
+		public void action() {
+			System.out.println("Try " + count++ + " times");
+			
+			for(ClusterNode cn : policy.GetAvailableCluster()) {
+				if(cn.compare(cluster)) {
+					try {
+						VM vm = VM.getByUuid(cn.vmMaster.xenConnection, cn.vmUUID);
+						vm.hardShutdown(cn.vmMaster.xenConnection);
+						doneYet = true;
+						return;
+					} catch (Exception e){
+						e.printStackTrace();
+					}
+				}
+			}
+			block(1000);
+		}
+
+		@Override
+		public boolean done() {
+			return doneYet;
+		}
+		
+	}
+	
 	private class VMManageBehaviour extends OneShotBehaviour {
 
 		private static final long serialVersionUID = 1L;
@@ -162,6 +204,7 @@ public class ReconfigurationDecisionAgent extends Agent {
 							msg.addReceiver(recv);
 							msg.setContent("TERMINATE");
 							myAgent.send(msg);
+							myAgent.addBehaviour(tbf.wrap(new VMCloseBehaviour(myAgent, decision.cluster)));
 						} catch(Exception e) {
 							System.err.println("ReconfigurationDecisionAgent : Error while Closing VM");
 							e.printStackTrace();
