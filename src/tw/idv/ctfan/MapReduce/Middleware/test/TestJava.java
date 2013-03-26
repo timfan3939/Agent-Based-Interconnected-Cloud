@@ -12,12 +12,13 @@ public class TestJava {
 			//String m_URL = "10.133.200.1";
 			//String m_URL = "120.126.145.117";
 			//String m_URL = "120.126.145.114";
-			String m_URL = "10.133.70.64";
+//			String m_URL = "10.133.70.64";
+			String m_URL = "120.126.145.3";
 			String m_port = "50031";
 			String m_pathToFile = "C:\\ctfan\\ComputePi.jar";
 			
 
-			int size = 1;
+			int size = 6;
 			int testSize[] = new int[size];
 			java.util.Random rand = new java.util.Random();
 			for(int i=0; i<size; i++)

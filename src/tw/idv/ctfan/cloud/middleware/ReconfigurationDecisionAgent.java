@@ -76,7 +76,10 @@ public class ReconfigurationDecisionAgent extends Agent {
 					   !vm.getIsASnapshot(vmMaster.xenConnection)&&
 					   !vm.getIsControlDomain(vmMaster.xenConnection)&&
 					   !vm.getIsSnapshotFromVmpp(vmMaster.xenConnection)) {
-						if(vm.getNameLabel(vmMaster.xenConnection).startsWith("hdp201")) {
+						if(vm.getNameLabel(vmMaster.xenConnection).startsWith("hdp201")||
+						   vm.getNameLabel(vmMaster.xenConnection).startsWith("hdp202")||
+						   vm.getNameLabel(vmMaster.xenConnection).startsWith("hdp205")||
+						   vm.getNameLabel(vmMaster.xenConnection).startsWith("hdp206")) {
 							clusterList.add(new ClusterNode(vmMaster,
 															vm.getUuid(vmMaster.xenConnection),
 															vm.getNameLabel(vmMaster.xenConnection),
@@ -147,6 +150,7 @@ public class ReconfigurationDecisionAgent extends Agent {
 
 		@Override
 		public void action() {
+			block(5000);
 			System.out.println("Try " + count++ + " times");
 			
 			for(ClusterNode cn : policy.GetAvailableCluster()) {
@@ -161,7 +165,6 @@ public class ReconfigurationDecisionAgent extends Agent {
 					}
 				}
 			}
-			block(1000);
 		}
 
 		@Override
