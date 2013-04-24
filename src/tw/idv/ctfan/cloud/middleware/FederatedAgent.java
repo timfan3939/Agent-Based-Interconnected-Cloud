@@ -26,6 +26,7 @@ import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.ThreadedBehaviourFactory;
+import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
@@ -154,6 +155,34 @@ public class FederatedAgent extends Agent {
 		AddTbfBehaviour(new ListeningBehaviour(this));
 		AddTbfBehaviour(new HTTPServerBehaviour2(this, policy));
 		AddTbfBehaviour(new SubmitBehaviour(this));
+		
+		// MigrationAgent
+		AddTbfBehaviour(new TickerBehaviour(this, 3000){
+			private static final long serialVersionUID = 1L;
+			private ServiceManageBehaviour running = null;
+			
+			@Override
+			protected void onTick() {
+				if (running == null || (running!=null&&running.done())) {
+					running = new ServiceManageBehaviour(myAgent);
+					AddTbfBehaviour(running);
+				}
+			}
+		});
+		
+		// ReconfigurationDecisionAgent
+		AddTbfBehaviour(new TickerBehaviour(this, 3000){
+			private static final long serialVersionUID = 1L;
+			private VMManageBehaviour running = null;
+			
+			@Override
+			protected void onTick() {
+				if (running == null || (running!=null&&running.done())) {
+					running = new VMManageBehaviour(myAgent);
+					AddTbfBehaviour(running);
+				}
+			}
+		});
 		
 	}
 	
@@ -302,7 +331,8 @@ public class FederatedAgent extends Agent {
 								
 								if (line[0].matches("job")) {
 									for(int j=0; j<policy.GetRunningJob().size(); j++) {
-										if (Long.parseLong(line[2].substring(3))==policy.GetRunningJob().get(i).UID) {
+										if (Long.parseLong(line[2].substring(3))==policy.GetRunningJob().get(j).UID) {
+											jn = policy.GetRunningJob().get(j);
 											found = true;
 										}
 									}
