@@ -101,6 +101,8 @@ public class FederatedAgent extends Agent {
 		
 		codec = new SLCodec();
 		jmo = JADEManagementOntology.getInstance();
+		this.getContentManager().registerLanguage(codec);
+		this.getContentManager().registerOntology(jmo);
 		
 		// Policy defination
 //		policy = JobCountPolicy.GetPolicy();
@@ -400,11 +402,22 @@ public class FederatedAgent extends Agent {
 				case ACLMessage.REQUEST: {
 					String content = msg.getContent();
 					System.out.println(content);
-					String[] subContent = content.split(" ");
+					String[] line = content.split("\n");
+					String[] subContent = line[0].split(" ");
+					if(line.length==2)
 					if(subContent.length==5)
 					if(subContent[0].matches("Close"));
 					if(subContent[1].matches("cluster"));
 						policy.OnOldClusterLeaves(new ClusterNode(subContent[2], subContent[3], subContent[4]));
+						AddTbfBehaviour(new ContainerCloseBehaviour(myAgent, line[1]));
+				}
+					break;
+				case ACLMessage.INFORM: {
+					//if(msg.getSender() == myAgent.getAMS()){ 
+					if(onlyVMCloseBehaviourInstance != null){
+						AddTbfBehaviour(onlyVMCloseBehaviourInstance);
+						onlyVMCloseBehaviourInstance = null;
+					}
 				}
 					break;
 				default:
@@ -669,7 +682,8 @@ public class FederatedAgent extends Agent {
 								msg.addReceiver(recv);
 								msg.setContent("TERMINATE");
 								myAgent.send(msg);
-								AddTbfBehaviour(new VMCloseBehaviour(myAgent, decision.cluster));							
+								//AddTbfBehaviour(new VMCloseBehaviour(myAgent, decision.cluster));	
+								onlyVMCloseBehaviourInstance = new VMCloseBehaviour(myAgent, decision.cluster);
 						} catch (Exception e) {
 							System.err.println("ReconfigurationDecisionAgent : Error while Closing VM");
 							e.printStackTrace();
@@ -716,6 +730,8 @@ public class FederatedAgent extends Agent {
 		}
 
 	}
+	
+	private VMCloseBehaviour onlyVMCloseBehaviourInstance = null;
 	
 	private class VMCloseBehaviour extends Behaviour {
 		private static final long serialVersionUID = 1L;

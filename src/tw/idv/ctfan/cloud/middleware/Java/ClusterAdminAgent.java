@@ -127,23 +127,25 @@ public class ClusterAdminAgent extends Agent {
 		@Override
 		public void action() {			
 			if(m_jobList.size()==0) {
-				System.out.println("This Agent and Container will be terminated");
-				
-				ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);				
-				
-				AID reciever = new AID(tw.idv.ctfan.cloud.middleware.FederatedAgent.NAME + "@" + m_masterIP + ":1099/JADE", AID.ISGUID);
-				reciever.addAddresses("http://" + m_masterIP + ":7778/acc");
-				msg.addReceiver(reciever);
-				
-				msg.setContent("Close cluster " + myAgent.getLocalName() + " "
-								+ myAgent.here().getName() + " " 
-								+ myAgent.getHap().split(":")[0]);
-				
-				myAgent.send(msg);
-				
 				try {
-					myAgent.getContainerController().kill();
-				} catch (StaleProxyException e) {
+					System.out.println("This Agent and Container will be terminated");
+					
+					ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);				
+					
+					AID reciever = new AID(tw.idv.ctfan.cloud.middleware.FederatedAgent.NAME + "@" + m_masterIP + ":1099/JADE", AID.ISGUID);
+					reciever.addAddresses("http://" + m_masterIP + ":7778/acc");
+					msg.addReceiver(reciever);
+					
+					msg.setContent("Close cluster " + myAgent.getLocalName() + " "
+									+ myAgent.here().getName() + " " 
+									+ myAgent.getHap().split(":")[0] + "\n"
+									+ myAgent.getContainerController().getContainerName());
+					
+					myAgent.send(msg);
+				
+					//myAgent.getContainerController().kill();
+					myAgent.doDelete();
+				} catch (Exception e) {
 					System.err.println("Killing Container Error.");
 					e.printStackTrace();
 				}

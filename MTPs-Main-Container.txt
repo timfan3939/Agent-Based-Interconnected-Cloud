@@ -1,1 +1,1 @@
-http://DMCLAB-PC:7778/acc
+http://CTFan-DMCL-PC:7778/acc
