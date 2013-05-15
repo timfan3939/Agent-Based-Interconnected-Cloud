@@ -20,13 +20,20 @@ import tw.idv.ctfan.cloud.middleware.policy.Decision.DispatchDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.MigrationDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.VMManagementDecision;
 
+import jade.content.lang.Codec;
+import jade.content.lang.sl.SLCodec;
+import jade.content.onto.Ontology;
+import jade.content.onto.basic.Action;
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.ContainerID;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.ThreadedBehaviourFactory;
 import jade.core.behaviours.TickerBehaviour;
+import jade.domain.JADEAgentManagement.JADEManagementOntology;
+import jade.domain.JADEAgentManagement.KillContainer;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
@@ -74,6 +81,12 @@ public class FederatedAgent extends Agent {
 	ThreadedBehaviourFactory tbf;
 	Policy policy;
 	
+	/*
+	 * These two are used to kill the container.
+	 */
+	Codec codec;
+	Ontology jmo;
+	
 	ArrayList<VMMasterNode> vmMasterList;
 	
 	/**
@@ -85,6 +98,9 @@ public class FederatedAgent extends Agent {
 		super.setup();
 		
 		tbf = new ThreadedBehaviourFactory();
+		
+		codec = new SLCodec();
+		jmo = JADEManagementOntology.getInstance();
 		
 		// Policy defination
 //		policy = JobCountPolicy.GetPolicy();
@@ -664,6 +680,41 @@ public class FederatedAgent extends Agent {
 			}
 			
 		}
+	}
+	
+	/*
+	 * This behaviour sends the message to AMS to kill the specific container
+	 */
+	private class ContainerCloseBehaviour extends OneShotBehaviour {
+		private static final long serialVersionUID = 1L;
+		
+		String containerName;
+		
+		public ContainerCloseBehaviour(Agent a, String ContainerName) {
+			super(a);
+			containerName = ContainerName;
+		}
+
+		@Override
+		public void action() {
+			try {
+				KillContainer kill = new KillContainer();
+				kill.setContainer(new ContainerID(containerName, null));
+				
+				ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+				msg.addReceiver(getAMS());
+				msg.setLanguage(codec.getName());
+				msg.setOntology(jmo.getName());
+				myAgent.getContentManager().fillContent(msg, new Action(myAgent.getAID(), kill));
+				myAgent.send(msg);
+				
+			}
+			catch(Exception e) {
+				System.out.println("Error while killing the container");
+				e.printStackTrace();
+			}
+		}
+
 	}
 	
 	private class VMCloseBehaviour extends Behaviour {
