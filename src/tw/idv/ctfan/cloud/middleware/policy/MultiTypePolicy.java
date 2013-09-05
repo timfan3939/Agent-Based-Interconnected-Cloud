@@ -60,7 +60,17 @@ public class MultiTypePolicy extends Policy {
 		}
 	}
 	
+	/*************************************************
+	 * Rough Set Functions
+	 */
 	RoughSet set;
+	
+	private HashMap<String, Attribute> attributes;
+	private int numberOfConditionElement;
+	private Attribute executionTimeAttribute;
+	
+	private final int maxSubSetSize = 5;
+	int numSubSet;
 	
 	/**
 	 * Regenerate a rough set
@@ -76,22 +86,39 @@ public class MultiTypePolicy extends Policy {
 		
 		ComputeMaxMinAttribute();
 		set = new RoughSet(numberOfConditionElement);
+		
+		
+		for(JobNode jn:m_finishJobList) {
+			
+			
+			int decision = 0;
+			decision = (int)(executionTimeAttribute.divValue==0?
+								0:(jn.executionTime-executionTimeAttribute.minValue)/executionTimeAttribute.divValue);
+			if(decision==numSubSet) decision--;
+			// Add element to rough set
+			// TODO: refresh rough set, add get final decision method, what ever
+			set.AddElement(element, decision);
+		}
+		
 	}
 	
 	private class Attribute {
 		public long maxValue;
 		public long minValue;
+		long divValue;
 		public ArrayList<String> allValues;
+		
+		public void CalculateDiv(int numSubSet) {
+			this.divValue = (this.maxValue-this.minValue)/numSubSet;
+		}
 	}
 	
-	private HashMap<String, Attribute> attributes;
-	private int numberOfConditionElement;
-	private Attribute executionTimeAttribute;
 	
 	private void ComputeMaxMinAttribute(){
 		attributes = new HashMap<String,Attribute>();
 		numberOfConditionElement = 0;
 		boolean isFirst = true;
+		numSubSet = m_finishJobList.size()/this.maxSubSetSize;
 		
 		for(String key : JobNode.attributeType.keySet()) {
 			isFirst = true;
@@ -111,6 +138,7 @@ public class MultiTypePolicy extends Policy {
 						else if(a.minValue>value) a.minValue = value;
 					}
 				}
+				a.CalculateDiv(numSubSet);
 			} else {
 				a.allValues = new ArrayList<String>();
 				for(JobNode jn : m_finishJobList) {
@@ -137,7 +165,12 @@ public class MultiTypePolicy extends Policy {
 						jn.executionTime;
 			}
 		}
+		executionTimeAttribute.CalculateDiv(numSubSet);
 	}
+	
+	/************************
+	 * Policy Related Functions
+	 */
 
 	@Override
 	public MigrationDecision GetMigrationDecision() {
