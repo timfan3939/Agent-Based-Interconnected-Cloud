@@ -3,7 +3,6 @@ package tw.idv.ctfan.cloud.middleware.policy;
 import java.util.ArrayList;
 
 import tw.idv.ctfan.cloud.middleware.policy.Decision.DispatchDecision;
-import tw.idv.ctfan.cloud.middleware.policy.Decision.DispatchDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.MigrationDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.VMManagementDecision;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;

@@ -26,8 +26,10 @@ public class JobNode implements Comparable<JobNode> {
 		Waiting, Running, Finished;
 	}
 	
+	// Attributes that not in HashMap
 	public long UID;
 	public JobStatus status;
+	public long executionTime;
 	
 	public HashMap<String,String> attributes;
 	static public HashMap<String, AttributeType> attributeType = new HashMap<String, AttributeType>();
@@ -66,7 +68,7 @@ public class JobNode implements Comparable<JobNode> {
 	public long GetContinuousAttribute(String key) {
 		if(attributeType.get(key)==AttributeType.Continuous)
 			return Long.parseLong(attributes.get(key));
-		return 0;
+		return -1;
 	}
 	
 
