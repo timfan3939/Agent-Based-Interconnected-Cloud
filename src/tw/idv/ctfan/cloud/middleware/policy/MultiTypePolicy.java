@@ -71,6 +71,7 @@ public class MultiTypePolicy extends Policy {
 	
 	private final int maxSubSetSize = 5;
 	int numSubSet;
+	int[] decisionExecutionTime;
 	
 	/**
 	 * Regenerate a rough set
@@ -86,20 +87,57 @@ public class MultiTypePolicy extends Policy {
 		
 		ComputeMaxMinAttribute();
 		set = new RoughSet(numberOfConditionElement);
-		
+		int[] element = new int[numberOfConditionElement];
+		int[] setCount = new int[numSubSet];
+		decisionExecutionTime = new int[numSubSet];
 		
 		for(JobNode jn:m_finishJobList) {
-			
+			int elementCount = 0;
+			for(String key : JobNode.attributeType.keySet()) {
+				
+				if(JobNode.attributeType.get(key) == JobNode.AttributeType.Continuous) {
+					if(jn.GetContinuousAttribute(key)!=-1) {
+						Attribute a = attributes.get(key);
+						element[elementCount] = 1;
+						element[elementCount+1] = (int)(a.divValue==0?
+															0:(jn.GetContinuousAttribute(key)-a.minValue)/a.divValue);
+					} else {
+						element[elementCount] = 0;
+						element[elementCount+1] = 0;
+					}
+					elementCount+=2;
+				} else {
+					Attribute a = attributes.get(key);
+					for(int i=0; i<a.allValues.size(); i++) {
+						element[elementCount+i+1] = 0;
+					}
+					
+					if(jn.GetDiscreteAttribute(key)!=null) {
+						element[elementCount] = 1;
+						 element[elementCount + a.allValues.indexOf(jn.GetDiscreteAttribute(key))+1] = 1;
+					} else {
+						element[elementCount] = 0;
+					}
+					elementCount += (a.allValues.size()+1);
+				}
+			}			
 			
 			int decision = 0;
 			decision = (int)(executionTimeAttribute.divValue==0?
 								0:(jn.executionTime-executionTimeAttribute.minValue)/executionTimeAttribute.divValue);
 			if(decision==numSubSet) decision--;
-			// Add element to rough set
-			// TODO: refresh rough set, add get final decision method, what ever
+			setCount[decision]++;
+			decisionExecutionTime[decision] += jn.executionTime;
 			set.AddElement(element, decision);
 		}
 		
+		for(int i=0; i<decisionExecutionTime.length; i++) {
+			if(setCount[i]!=0)
+				decisionExecutionTime[i] /= setCount[i];
+		}
+		
+		set.FindCore();
+		set.FindDecisionList();
 	}
 	
 	private class Attribute {
