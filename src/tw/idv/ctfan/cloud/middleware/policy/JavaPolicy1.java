@@ -285,7 +285,7 @@ public class JavaPolicy1 extends Policy {
 	}
 
 	@Override
-	public MigrationDecision GetDecision() {
+	public MigrationDecision GetMigrationDecision() {
 		return null;
 	}
 	

@@ -258,7 +258,7 @@ public class JavaPolicy2 extends Policy {
 	}
 
 	@Override
-	public MigrationDecision GetDecision() {
+	public MigrationDecision GetMigrationDecision() {
 		return null;
 	}
 	

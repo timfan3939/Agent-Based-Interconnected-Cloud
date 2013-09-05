@@ -59,7 +59,7 @@ public class JobCountPolicy extends Policy {
 //		return m_runningClusterList.get(least);
 	}
 	
-	public MigrationDecision GetDecision()
+	public MigrationDecision GetMigrationDecision()
 	{
 		if(m_runningClusterList.size()<=1)
 			return null;

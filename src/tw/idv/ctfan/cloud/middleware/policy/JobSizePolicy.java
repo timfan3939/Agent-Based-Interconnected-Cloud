@@ -15,7 +15,7 @@ public class JobSizePolicy extends Policy {
 	}
 
 	@Override
-	public MigrationDecision GetDecision() {	
+	public MigrationDecision GetMigrationDecision() {	
 		if(m_runningClusterList.size()<=1)
 			return null;
 

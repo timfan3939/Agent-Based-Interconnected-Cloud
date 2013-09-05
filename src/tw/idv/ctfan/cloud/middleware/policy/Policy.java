@@ -33,7 +33,7 @@ public abstract class Policy {
 	
 	public abstract DispatchDecision GetNewJobDestination();
 	
-	public abstract MigrationDecision GetDecision();
+	public abstract MigrationDecision GetMigrationDecision();
 	
 	public abstract VMManagementDecision GetVMManagementDecision();
 	

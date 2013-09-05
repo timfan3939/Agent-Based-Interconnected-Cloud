@@ -84,7 +84,7 @@ public class ServiceMigrationAgent extends Agent {
 				
 				
 				MigrationDecision decision = null;
-				if((decision = policy.GetDecision()) != null)
+				if((decision = policy.GetMigrationDecision()) != null)
 				{
 					msg = new ACLMessage(ACLMessage.INFORM);
 					AID aid = new AID("job" + decision.job.UID + "@" + decision.job.currentPosition.address + ":1099/JADE", AID.ISGUID);

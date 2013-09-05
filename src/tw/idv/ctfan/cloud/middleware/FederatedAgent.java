@@ -599,7 +599,7 @@ public class FederatedAgent extends Agent {
 				ACLMessage msg;
 				
 				MigrationDecision decision = null;
-				if ((decision = policy.GetDecision()) != null) {
+				if ((decision = policy.GetMigrationDecision()) != null) {
 					// TODO Migration Decision, not used in hybrid cloud right now
 					decision = null;
 				}
