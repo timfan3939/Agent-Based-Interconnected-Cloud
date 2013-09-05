@@ -1,4 +1,4 @@
-package tw.idv.ctfan.MapReduce.Middleware.test;
+package tw.idv.ctfan.cloud.middleware.test;
 
 import java.util.ArrayList;
 
