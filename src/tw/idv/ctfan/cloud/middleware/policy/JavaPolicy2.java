@@ -16,7 +16,7 @@ import tw.idv.ctfan.cloud.middleware.policy.data.VMMasterNode;
  * 
  * @author C.T.Fan
  * 
- * Java Policy second posibility
+ * Java Policy second possibility
  * 
  * The job is thrown according to the deadline
  * 
