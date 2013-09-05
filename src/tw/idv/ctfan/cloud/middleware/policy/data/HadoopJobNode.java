@@ -61,7 +61,7 @@ public class HadoopJobNode extends JobNodeBase
 	 * 
 	 * Command should at the last one, quoted with []
 	 * 
-	 * [] within the charactor is not considered
+	 * [] within the character is not considered
 	 */
 	
 	
