@@ -36,9 +36,10 @@ public class AdministratorAgent extends Agent {
 //		policy = JobCountPolicy.GetPolicy();
 //		policy = JobSizePolicy.GetPolicy();
 //		policy = ExecutionTimePolicy.GetPolicy();
-		policy = JavaPolicy.GetPolicy();
+//		policy = JavaPolicy.GetPolicy();
 //		policy = JavaPolicy1.GetPolicy();
 //		policy = JavaPolicy2.GetPolicy();
+		policy = MultiTypePolicy.GetPolicy();
 		
 //		ClusterNode cn = new ClusterNode("null", 2048, 3, 4);
 //		cn.name = "test1";

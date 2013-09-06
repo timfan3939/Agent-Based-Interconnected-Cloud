@@ -34,9 +34,10 @@ public class ServiceMigrationAgent extends Agent {
 //	Policy policy = JobCountPolicy.GetPolicy();
 //	Policy policy = JobSizePolicy.GetPolicy();
 //	Policy policy = ExecutionTimePolicy.GetPolicy();
-	Policy policy = JavaPolicy.GetPolicy();
+//	Policy policy = JavaPolicy.GetPolicy();
 //	Policy policy = JavaPolicy1.GetPolicy();
 //	Policy policy = JavaPolicy2.GetPolicy();
+	Policy policy = MultiTypePolicy.GetPolicy();
 	
 	
 	public void setup()

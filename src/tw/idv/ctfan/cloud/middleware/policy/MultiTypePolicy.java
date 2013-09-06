@@ -15,6 +15,8 @@ import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
 public class MultiTypePolicy extends Policy {
 	
 	ArrayList<JobNode> m_finishJobList;
+	ArrayList<JobNode> m_runningJobList;
+	ArrayList<JobNode> m_waitingJobList;
 	
 	public enum PolicyVMState {
 		Normal, AskForVM, RequestingVM, StartingVM, ClosingVM
@@ -41,6 +43,8 @@ public class MultiTypePolicy extends Policy {
 		}
 
 		super.m_finishJobList = null;
+		super.m_runningJobList = null;
+		super.m_waitingJobList = null;
 		
 		m_finishJobList = new ArrayList<JobNode>();
 		
@@ -60,7 +64,7 @@ public class MultiTypePolicy extends Policy {
 		}
 	}
 	
-	/*************************************************
+	/**************************************************************************
 	 * Rough Set Functions
 	 */
 	RoughSet set;
@@ -87,44 +91,16 @@ public class MultiTypePolicy extends Policy {
 		
 		ComputeMaxMinAttribute();
 		set = new RoughSet(numberOfConditionElement);
-		int[] element = new int[numberOfConditionElement];
+		int[] element;
 		int[] setCount = new int[numSubSet];
 		decisionExecutionTime = new int[numSubSet];
 		
 		for(JobNode jn:m_finishJobList) {
-			int elementCount = 0;
-			for(String key : JobNode.attributeType.keySet()) {
-				
-				if(JobNode.attributeType.get(key) == JobNode.AttributeType.Continuous) {
-					if(jn.GetContinuousAttribute(key)!=-1) {
-						Attribute a = attributes.get(key);
-						element[elementCount] = 1;
-						element[elementCount+1] = (int)(a.divValue==0?
-															0:(jn.GetContinuousAttribute(key)-a.minValue)/a.divValue);
-					} else {
-						element[elementCount] = 0;
-						element[elementCount+1] = 0;
-					}
-					elementCount+=2;
-				} else {
-					Attribute a = attributes.get(key);
-					for(int i=0; i<a.allValues.size(); i++) {
-						element[elementCount+i+1] = 0;
-					}
-					
-					if(jn.GetDiscreteAttribute(key)!=null) {
-						element[elementCount] = 1;
-						 element[elementCount + a.allValues.indexOf(jn.GetDiscreteAttribute(key))+1] = 1;
-					} else {
-						element[elementCount] = 0;
-					}
-					elementCount += (a.allValues.size()+1);
-				}
-			}			
+			
+			element = this.FillConditinAttributes(jn);
 			
 			int decision = 0;
-			decision = (int)(executionTimeAttribute.divValue==0?
-								0:(jn.executionTime-executionTimeAttribute.minValue)/executionTimeAttribute.divValue);
+			decision = (int) executionTimeAttribute.CalculateGroup(jn.executionTime);
 			if(decision==numSubSet) decision--;
 			setCount[decision]++;
 			decisionExecutionTime[decision] += jn.executionTime;
@@ -147,7 +123,11 @@ public class MultiTypePolicy extends Policy {
 		public ArrayList<String> allValues;
 		
 		public void CalculateDiv(int numSubSet) {
-			this.divValue = (this.maxValue-this.minValue)/numSubSet;
+			this.divValue = (10*this.maxValue-10*this.minValue+10)/numSubSet;
+		}
+		
+		public long CalculateGroup(long value) {
+			return (this.divValue==0 ? 0: (10*value-10*this.minValue)/this.divValue);
 		}
 	}
 	
@@ -206,13 +186,69 @@ public class MultiTypePolicy extends Policy {
 		executionTimeAttribute.CalculateDiv(numSubSet);
 	}
 	
-	/************************
+	private int[] FillConditinAttributes(JobNode jn) {
+		int[] element = new int[numberOfConditionElement];
+		int elementCount = 0;
+		for(String key : JobNode.attributeType.keySet()) {
+			Attribute a = attributes.get(key);
+			
+			if(JobNode.attributeType.get(key) == JobNode.AttributeType.Continuous) {
+				long value = jn.GetContinuousAttribute(key);
+				if(value>0) {
+					element[elementCount] = 1;
+					element[elementCount+1] = (int)a.CalculateGroup(value);
+				} else {
+					element[elementCount] = 0;
+					element[elementCount+1] = 0; 
+				}
+				elementCount += 2;
+			} else if(JobNode.attributeType.get(key) == JobNode.AttributeType.Discrete) {
+				String value = jn.GetDiscreteAttribute(key);
+				for(int i=0; i<a.allValues.size(); i++) {
+					element[elementCount+i+1] = 0;
+				}
+				if(value!=null) {
+					element[elementCount] = 1;
+					int index = a.allValues.indexOf(value);
+					if(index!=-1) {
+						element[elementCount + index + 1] = 1;
+					}
+				} else {
+					element[elementCount] = 0;
+				}
+				elementCount += (a.allValues.size()+1);
+			}
+		}		
+		return element;
+	}
+	
+	public long GetPredictionResult(JobNode jn) {
+		if(set == null)
+			return 0;
+		
+		int[] element = this.FillConditinAttributes(jn);
+		
+		long result = 0;
+		Object[] d = set.GetExactDecision(element);
+		if(d==null) return 0;
+		else if(d.length==0) return 0;
+		
+		for(Object i: d) {
+			result += this.decisionExecutionTime[(Integer)i];
+		}
+		
+		result /= d.length;
+				
+		return result;
+	}
+	
+	/**************************************************************************
 	 * Policy Related Functions
 	 */
 
 	@Override
 	public MigrationDecision GetMigrationDecision() {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return null;
 	}
 
@@ -230,14 +266,27 @@ public class MultiTypePolicy extends Policy {
 
 	@Override
 	public void OnNewClusterArrives(ClusterNode cn) {
-		// TODO Auto-generated method stub
-
+		if(policyVMState == PolicyVMState.StartingVM) {
+			clusterToStart.name = cn.name;
+			clusterToStart.container = cn.container;
+			clusterToStart.address = cn.address;
+			m_runningClusterList.add(clusterToStart);
+			WriteLog("Cluster " + clusterToStart.name + " is added to the list");
+			clusterToStart = null;
+		} else {
+			WriteLog("Cluster " + cn.name + " will be added to the list.");
+		}
+		cn = null;
+		policyVMState = PolicyVMState.Normal;
 	}
 
 	@Override
 	public void OnOldClusterLeaves(ClusterNode cn) {
-		// TODO Auto-generated method stub
+		m_availableClusterList.add(clusterToShut);
+		WriteLog("Shutting Cluster " + cn.name);
+		clusterToShut = null;
+		cn = null;
+		policyVMState = PolicyVMState.Normal;
 
 	}
-
 }
