@@ -6,7 +6,7 @@ import tw.idv.ctfan.cloud.middleware.policy.Decision.DispatchDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.MigrationDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.VMManagementDecision;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
-import tw.idv.ctfan.cloud.middleware.policy.data.JobNodeBase;
+import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.VMMasterNode;
 
 public abstract class Policy {
@@ -14,9 +14,9 @@ public abstract class Policy {
 	ArrayList<VMMasterNode> m_VMMasterList;
 	ArrayList<ClusterNode> m_runningClusterList;
 	ArrayList<ClusterNode> m_availableClusterList;
-	ArrayList<JobNodeBase> m_runningJobList;
-	ArrayList<JobNodeBase> m_finishJobList;
-	ArrayList<JobNodeBase> m_waitingJobList;
+	ArrayList<JobNode> m_runningJobList;
+	ArrayList<JobNode> m_finishJobList;
+	ArrayList<JobNode> m_waitingJobList;
 	
 	protected static Policy onlyInstance;
 	
@@ -25,9 +25,9 @@ public abstract class Policy {
 		m_VMMasterList = new ArrayList<VMMasterNode>();
 		m_runningClusterList = new ArrayList<ClusterNode>();
 		m_availableClusterList = new ArrayList<ClusterNode>();
-		m_runningJobList = new ArrayList<JobNodeBase>();
-		m_finishJobList = new ArrayList<JobNodeBase>();
-		m_waitingJobList = new ArrayList<JobNodeBase>();
+		m_runningJobList = new ArrayList<JobNode>();
+		m_finishJobList = new ArrayList<JobNode>();
+		m_waitingJobList = new ArrayList<JobNode>();
 	}
 	
 	public abstract DispatchDecision GetNewJobDestination();
@@ -54,17 +54,17 @@ public abstract class Policy {
 		return m_availableClusterList;
 	}
 	
-	public ArrayList<JobNodeBase> GetRunningJob()
+	public ArrayList<JobNode> GetRunningJob()
 	{
 		return m_runningJobList;
 	}
 	
-	public ArrayList<JobNodeBase> GetWaitingJob()
+	public ArrayList<JobNode> GetWaitingJob()
 	{
 		return m_waitingJobList;
 	}
 	
-	public ArrayList<JobNodeBase> GetFinishJob()
+	public ArrayList<JobNode> GetFinishJob()
 	{
 		return m_finishJobList;
 	}

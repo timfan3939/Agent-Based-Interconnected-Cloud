@@ -132,7 +132,9 @@ public class ClusterAdminAgent extends Agent {
 					
 					ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);				
 					
-					AID reciever = new AID(tw.idv.ctfan.cloud.middleware.FederatedAgent.NAME + "@" + m_masterIP + ":1099/JADE", AID.ISGUID);
+					// TODO: here
+//					AID reciever = new AID(tw.idv.ctfan.cloud.middleware.FederatedAgent.NAME + "@" + m_masterIP + ":1099/JADE", AID.ISGUID);
+					AID reciever = new AID("d", AID.ISGUID);
 					reciever.addAddresses("http://" + m_masterIP + ":7778/acc");
 					msg.addReceiver(reciever);
 					
@@ -339,7 +341,9 @@ public class ClusterAdminAgent extends Agent {
 			
 			System.out.println("=== This Message ===");
 			
-			AID reciever = new AID(tw.idv.ctfan.cloud.middleware.FederatedAgent.NAME + "@" + m_masterIP + ":1099/JADE", AID.ISGUID);
+			//TODO: here
+//			AID reciever = new AID(tw.idv.ctfan.cloud.middleware.FederatedAgent.NAME + "@" + m_masterIP + ":1099/JADE", AID.ISGUID);
+			AID reciever = new AID("here", AID.ISGUID);
 			reciever.addAddresses("http://" + m_masterIP + ":7778/acc");
 			heartBeat.addReceiver(reciever);
 			
