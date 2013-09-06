@@ -9,8 +9,6 @@ import java.util.Date;
 
 import tw.idv.ctfan.cloud.middleware.policy.Policy;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
-import tw.idv.ctfan.cloud.middleware.policy.data.JavaJobNode;
-import tw.idv.ctfan.cloud.middleware.policy.data.JobNodeBase;
 import tw.idv.ctfan.cloud.middleware.policy.data.VMMasterNode;
 
 import jade.core.Agent;

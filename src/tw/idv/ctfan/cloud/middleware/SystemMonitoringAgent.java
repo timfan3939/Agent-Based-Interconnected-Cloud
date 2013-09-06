@@ -11,9 +11,6 @@ import org.apache.hadoop.fs.Path;
 
 import tw.idv.ctfan.cloud.middleware.policy.*;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
-import tw.idv.ctfan.cloud.middleware.policy.data.HadoopJobNode;
-import tw.idv.ctfan.cloud.middleware.policy.data.JavaJobNode;
-import tw.idv.ctfan.cloud.middleware.policy.data.JobNodeBase;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
@@ -23,7 +20,7 @@ import jade.core.behaviours.ThreadedBehaviourFactory;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
-public class AdministratorAgent extends Agent {
+public class SystemMonitoringAgent extends Agent {
 	
 	ThreadedBehaviourFactory tbf;	
 	Policy policy;
@@ -33,12 +30,6 @@ public class AdministratorAgent extends Agent {
 		
 		tbf = new ThreadedBehaviourFactory();	
 		
-//		policy = JobCountPolicy.GetPolicy();
-//		policy = JobSizePolicy.GetPolicy();
-//		policy = ExecutionTimePolicy.GetPolicy();
-//		policy = JavaPolicy.GetPolicy();
-//		policy = JavaPolicy1.GetPolicy();
-//		policy = JavaPolicy2.GetPolicy();
 		policy = MultiTypePolicy.GetPolicy();
 		
 //		ClusterNode cn = new ClusterNode("null", 2048, 3, 4);

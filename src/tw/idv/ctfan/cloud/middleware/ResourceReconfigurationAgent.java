@@ -7,9 +7,7 @@ import java.util.Map;
 import com.xensource.xenapi.Types;
 import com.xensource.xenapi.VM;
 
-import tw.idv.ctfan.cloud.middleware.policy.JavaPolicy;
-import tw.idv.ctfan.cloud.middleware.policy.JavaPolicy1;
-import tw.idv.ctfan.cloud.middleware.policy.JavaPolicy2;
+import tw.idv.ctfan.cloud.middleware.policy.MultiTypePolicy;
 import tw.idv.ctfan.cloud.middleware.policy.Policy;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.VMManagementDecision;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
@@ -39,16 +37,11 @@ import jade.lang.acl.ACLMessage;
  * to ServiceMigrationAgent to migrate.
  */
 
-public class ReconfigurationDecisionAgent extends Agent {
+public class ResourceReconfigurationAgent extends Agent {
 
-	private static final long serialVersionUID = 1L;
-	
-//	Policy policy = JobCountPolicy.GetPolicy();
-//	Policy policy = JobSizePolicy.GetPolicy();
-//	Policy policy = ExecutionTimePolicy.GetPolicy();
-	Policy policy = JavaPolicy.GetPolicy();
-//	Policy policy = JavaPolicy1.GetPolicy();
-//	Policy policy = JavaPolicy2.GetPolicy();
+	private static final long serialVersionUID = 1L;	
+
+	Policy policy = MultiTypePolicy.GetPolicy();
 	
 	
 	ThreadedBehaviourFactory tbf;	

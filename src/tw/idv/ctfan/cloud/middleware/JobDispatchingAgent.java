@@ -7,8 +7,6 @@ import tw.idv.ctfan.cloud.middleware.policy.*;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.DispatchDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.MigrationDecision;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
-import tw.idv.ctfan.cloud.middleware.policy.data.JobNodeBase;
-
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
@@ -25,18 +23,12 @@ import jade.lang.acl.MessageTemplate;
  * cluster to another.
  */
 
-public class ServiceMigrationAgent extends Agent {
+public class JobDispatchingAgent extends Agent {
 
 	private static final long serialVersionUID = 1L;
 	
 	ThreadedBehaviourFactory tbf;
 	
-//	Policy policy = JobCountPolicy.GetPolicy();
-//	Policy policy = JobSizePolicy.GetPolicy();
-//	Policy policy = ExecutionTimePolicy.GetPolicy();
-//	Policy policy = JavaPolicy.GetPolicy();
-//	Policy policy = JavaPolicy1.GetPolicy();
-//	Policy policy = JavaPolicy2.GetPolicy();
 	Policy policy = MultiTypePolicy.GetPolicy();
 	
 	
