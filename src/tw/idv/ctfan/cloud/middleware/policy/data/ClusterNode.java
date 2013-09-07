@@ -1,5 +1,9 @@
 package tw.idv.ctfan.cloud.middleware.policy.data;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
+
 public class ClusterNode implements Comparable<ClusterNode>
 {
 	// Agent Related Information
@@ -11,18 +15,71 @@ public class ClusterNode implements Comparable<ClusterNode>
 	// System Related Information
 	public long	  core;
 	public long   memory;
-	public long   CPURate;
-	public String vmUUID;
 	//public String siteIP;
-	public VMMasterNode vmMaster;
+	
+	// Attributes about Clusters
+	static public enum AttributeType {
+		Continuous, Discrete
+	}
+	private HashMap<String,String> attributes = new HashMap<String, String>();
+	static public HashMap<String, AttributeType> attributeType = new HashMap<String, AttributeType>();
+	private ArrayList<VirtualMachineNode> machines = new ArrayList<VirtualMachineNode>();	
 		
-	// Hadoop Related Information
-	public int maxMapSlot;
-	public int maxReduceSlot;
-	
+
 	// Other Related
-	public boolean allowDispatch = true;
+	public boolean allowDispatch = true;	
+
+	public boolean AddDiscreteAttribute(String key, String value){
+		if(!attributeType.containsKey(key)) {
+			attributeType.put(key, AttributeType.Discrete);
+		} else if(attributeType.get(key)!=AttributeType.Discrete) {
+			return true;
+		}
+		
+		attributes.put(key, value);
+		return false;
+	}
 	
+	public boolean AddContinuousAttribute(String key, long value) {
+		if(!attributeType.containsKey(key)) {
+			attributeType.put(key, AttributeType.Continuous);
+		} else if(attributeType.get(key)!=AttributeType.Continuous) {
+			return true;
+		}
+		
+		attributes.put(key, Long.toString(value));
+		return false;
+	}
+	
+	public String GetDiscreteAttribute(String key) {
+		return attributes.get(key);
+	}
+	
+	public long GetContinuousAttribute(String key) {
+		if(attributeType.get(key)==AttributeType.Continuous)
+			return Long.parseLong(attributes.get(key));
+		return -1;
+	}	
+	
+	public boolean AddMachine(VirtualMachineNode vmn) {
+		if(!machines.contains(vmn)) {
+			try {
+				vmn.GetSpecInfo();
+			} catch (Exception e) {
+				e.printStackTrace();
+				return true;
+			}
+			this.core += vmn.core;
+			this.memory += vmn.memory;
+			machines.add(vmn);
+			return false;
+		}
+		return true;
+	}
+	
+	public ArrayList<VirtualMachineNode> GetMachineList() {
+		return machines;
+	}
 	
 	public ClusterNode(String name, String container, String address)
 	{
@@ -30,36 +87,9 @@ public class ClusterNode implements Comparable<ClusterNode>
 		this.container = container;
 		this.address = address;
 		this.load = 0;
-		this.vmUUID = null;
-	}
-	
-	public ClusterNode(VMMasterNode vmMaster, String vmUUID, String name, long core, long memory, long CPURate) {
-		this.name = name;
-		this.container = "N//A";
-		this.address = "N//A";
-		this.core = core;
-		this.CPURate = CPURate;
-		this.memory = memory;
-		this.vmUUID = vmUUID;
-		this.vmMaster = vmMaster;
-		if(this.vmMaster == null)
-			System.out.println(name + " has a null vmMaster");
-	}
-	
-	public ClusterNode (int maxMapSlot, int maxReduceSlot)
-	{
-		this.maxMapSlot = maxMapSlot;
-		this.maxReduceSlot = maxReduceSlot;
-	}
-	
-	public ClusterNode(String s)
-	{
-		this.name = "N/A";
-		this.container = "N/A";
-		this.address = "N/A";
-		this.load = -1;
 		
-		this.parseString(s);
+		this.core = 0;
+		this.memory = 0;
 	}
 	
 	public boolean compare(String name, String container, String address)
@@ -71,64 +101,13 @@ public class ClusterNode implements Comparable<ClusterNode>
 		else
 			return false;
 			
-	}
-	
-	public static String toHTMLHead()
-	{
-		String result =
-			"<tr>" +
-				"<th>" + "Name" + "</th>" +
-				"<th>" + "Container" + "</th>" +
-				"<th>" + "Address" + "</th>" +
-				"<th>" + "Map Task Capacity" + "</th>" +
-				"<th>" + "Reuce Task Capacity" + "</th>" +
-				"<th>" + "Load" + "</th>" +
-			"</tr>";
-		
-		return result;
-	}
-	
-	public String toHTML()
-	{
-		String result =
-			"<tr>" +
-				"<td>" + this.name + "</td>" +
-				"<td>" + this.container + "</td>" +
-				"<td>" + this.address + "</td>" +
-				"<td>" + this.maxMapSlot + "</td>" +
-				"<td>" + this.maxReduceSlot + "</td>" +
-				"<td>" + this.load + "</td>" +
-			"</tr>";
-		
-		return result;
-	}
-	
-	public boolean compare(ClusterNode cn)
-	{
-		return this.compare(cn.name, cn.container, cn.address);
-	}
+	}	
 	
 	public String toString()
 	{
 		return name + " " + container + " " + address + " " + load;
 	}
 	
-	public void parseString(String s)
-	{
-		String[] subInfo = s.split(" ");
-		if(subInfo.length != 4)
-		{
-			System.err.println("Cluster Node parse Error");
-			System.err.println("\t" + s);
-			return;
-		}
-		
-		name = subInfo[0];
-		container = subInfo[1];
-		address = subInfo[2];
-		load = Integer.parseInt(subInfo[3]);
-	}
-
 
 	@Override
 	public int compareTo(ClusterNode o) {

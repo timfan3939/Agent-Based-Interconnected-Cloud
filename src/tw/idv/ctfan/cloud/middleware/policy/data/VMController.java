@@ -4,11 +4,9 @@ import java.net.URL;
 
 import com.xensource.xenapi.Connection;
 import com.xensource.xenapi.Session;
-import com.xensource.xenapi.VM;
-import com.xensource.xenapi.Types;
 
 
-public class VMMasterNode {
+public class VMController {
 	
 	public String IP;
 	public String account;
@@ -16,11 +14,12 @@ public class VMMasterNode {
 	
 	public Connection xenConnection;
 	
-	public static final int PRIVATE = 0x201;
-	public static final int PUBLIC  = 0x202;
-	public int masterType;
+	public enum VirtualMachineType {
+		Private, Public
+	}
+	public VirtualMachineType masterType;
 	
-	public VMMasterNode(String IP, String account, String password, int masterType) {
+	public VMController(String IP, String account, String password, VirtualMachineType masterType) {
 		this.IP = IP;
 		this.account = account;
 		this.password = password;
@@ -35,5 +34,4 @@ public class VMMasterNode {
 			System.err.println("Acc: " + account + " pw: " + password);
 		}
 	}
-
 }

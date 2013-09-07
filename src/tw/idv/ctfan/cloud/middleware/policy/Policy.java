@@ -7,11 +7,11 @@ import tw.idv.ctfan.cloud.middleware.policy.Decision.MigrationDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.VMManagementDecision;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
-import tw.idv.ctfan.cloud.middleware.policy.data.VMMasterNode;
+import tw.idv.ctfan.cloud.middleware.policy.data.VMController;
 
 public abstract class Policy {
 	
-	ArrayList<VMMasterNode> m_VMMasterList;
+	ArrayList<VMController> m_VMMasterList;
 	ArrayList<ClusterNode> m_runningClusterList;
 	ArrayList<ClusterNode> m_availableClusterList;
 	ArrayList<JobNode> m_runningJobList;
@@ -22,7 +22,7 @@ public abstract class Policy {
 	
 	protected Policy()
 	{
-		m_VMMasterList = new ArrayList<VMMasterNode>();
+		m_VMMasterList = new ArrayList<VMController>();
 		m_runningClusterList = new ArrayList<ClusterNode>();
 		m_availableClusterList = new ArrayList<ClusterNode>();
 		m_runningJobList = new ArrayList<JobNode>();
@@ -39,9 +39,13 @@ public abstract class Policy {
 	public abstract void OnNewClusterArrives(ClusterNode cn);
 	
 	public abstract void OnOldClusterLeaves(ClusterNode cn);
+	
+	public abstract ArrayList<VMController> InitVMMasterList();
+	
+	public abstract void InitClusterList();
 		
 
-	public ArrayList<VMMasterNode> GetVMMaster() {
+	public ArrayList<VMController> GetVMMaster() {
 		return m_VMMasterList;
 	}
 	

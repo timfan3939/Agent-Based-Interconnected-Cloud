@@ -11,6 +11,7 @@ import org.apache.hadoop.fs.Path;
 
 import tw.idv.ctfan.cloud.middleware.policy.*;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
+import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
@@ -31,26 +32,7 @@ public class SystemMonitoringAgent extends Agent {
 		tbf = new ThreadedBehaviourFactory();	
 		
 		policy = MultiTypePolicy.GetPolicy();
-		
-//		ClusterNode cn = new ClusterNode("null", 2048, 3, 4);
-//		cn.name = "test1";
-//		policy.GetCluster().add(cn);
-//		JobNodeBase jn = new JavaJobNode("test", "i", "set", null);
-//		jn.currentPosition = cn;
-//		jn.predictTime = 50;
-//		jn.hasBeenExecutedTime = 80;
-//		policy.GetRunningJob().add(jn);
-//		
-//
-//		ClusterNode cn2 = new ClusterNode("null", 2048, 3, 4);
-//		cn2.name = "test1";
-//		policy.GetCluster().add(cn2);
-//		JobNodeBase jn2 = new JavaJobNode("test", "i", "set", null);
-//		jn2.currentPosition = cn2;
-//		jn2.predictTime = 50;
-//		jn2.hasBeenExecutedTime = 80;
-//		policy.GetRunningJob().add(jn2);
-		
+				
 		this.addBehaviour(tbf.wrap(new SubmitBehaviour(this) ) );
 		this.addBehaviour(tbf.wrap(new HTTPServerBehaviour(this, policy) ) );
 		this.addBehaviour(tbf.wrap(new ListeningBehaviour(this) ) );
@@ -59,12 +41,17 @@ public class SystemMonitoringAgent extends Agent {
 	public void AddTbfBehaviour(Behaviour b) {
 		this.addBehaviour(this.tbf.wrap(b));
 	}
-		
+	
+	/**
+	 * Quick submit behaviour
+	 * @author C.T.Fan
+	 *
+	 */
 	private class SubmitBehaviour extends CyclicBehaviour {
 		private static final long serialVersionUID = 1L;
 		ServerSocket server;
 		
-		public SubmitBehaviour(Agent agent) {
+		public SubmitBehaviour(SystemMonitoringAgent agent) {
 			super(agent);
 			try {
 				server = new ServerSocket(50031);				
@@ -82,22 +69,15 @@ public class SystemMonitoringAgent extends Agent {
 				
 				System.out.println(myAgent.getLocalName() + ": Got Client");
 				
-				String host = s.getInetAddress().getHostAddress();
+//				String host = s.getInetAddress().getHostAddress();
 				InputStream input = s.getInputStream();
 				
-				String jobInputFolder = null;
-				String jobOutputFolder = null;
-				String jobInputData = null;
-				String jobParameter = null;
+				JobNode jn = new JobNode();
 				byte[] jobBinaryFile = null;
-				String jobName = null;
-				String jobDeadline = null;
 				
 				String line = "";
 				String head = "";
-				String tail = "";
-				
-				String jobType = "";
+				String tail = "";				
 				
 				int ch;
 				
@@ -111,6 +91,7 @@ public class SystemMonitoringAgent extends Agent {
 						buff[bufflen] = (byte)ch;
 						bufflen++;
 					}
+					if(ch < 0) break;
 					
 					
 					if(ch!='\n') continue;
@@ -119,78 +100,36 @@ public class SystemMonitoringAgent extends Agent {
 					head = line.substring(0, line.indexOf(':'));
 					tail = line.substring(line.indexOf(':')+1);
 					
-					if(!jobType.isEmpty()) {
-						if(head.matches("Parameter")) {
-							jobParameter = tail;
-							bufflen = 0;
+					if(head.matches("BinaryDataLength")) {
+						int jobLength = Integer.parseInt(tail);
+						jobBinaryFile = new byte[jobLength];
+						int read = input.read(jobBinaryFile, 0, jobLength);
+						
+						while(read<jobLength && (ch = input.read(buff)) > 0) {
+							for(int i=0; i<ch; i++) {
+								jobBinaryFile[read+i] = buff[i];
+							}
+							read += ch;
 						}
-						else if(head.matches("BinaryDataLength")) {
-							int jobLength = Integer.parseInt(tail);
-							jobBinaryFile = new byte[jobLength];
-							int read = input.read(jobBinaryFile, 0, jobLength);
-											
-							while(read<jobLength && (ch = input.read(buff)) > 0) {
-								for(int i=0; i<ch; i++) {
-									jobBinaryFile[read+i] = buff[i];
-								}
-								read += ch;
-							}
-							break;
-						}
-						else if(jobType.matches(HadoopJobNode.JOBTYPENAME)) {
-							if(head.matches("InputFolder")) {
-								jobInputFolder = tail;
-								bufflen = 0;
-							}
-							else if(head.matches("OutputFolder")) {
-								jobOutputFolder = tail;
-								bufflen = 0;
-							}
-						}
-						else if(jobType.matches(JavaJobNode.JOBTYPENAME)) {
-							if(head.matches("InputFile")) {
-								jobInputData = tail;
-								bufflen = 0;
-							}
-							else if(head.matches("name")) {
-								jobName = tail;
-								bufflen = 0;
-							}
-							else if(head.matches("deadline")) {
-								jobDeadline = tail;
-								bufflen = 0;
-							}
-						}						
-					}
-					else {
-						if(head.matches("JobType")) {
-							jobType = tail;
-							bufflen = 0;
-						}
-						else {
-							System.err.println("JobType Should Comes First");
+					} else if(head.matches("Deadline")) {
+						jn.deadline = Long.parseLong(tail);
+						bufflen = 0;
+					} else if(!head.isEmpty()&&!tail.isEmpty()){
+						try {
+							long value = Long.parseLong(tail);
+							jn.AddContinuousAttribute(head, value);
+						} catch (NumberFormatException e) {
+							jn.AddDiscreteAttribute(head, tail);
 						}
 					}
-				}				                                                       
+				}
 				
-				s.close();	
+				s.close();
 				
-				if(!jobType.isEmpty() && jobBinaryFile!= null) {
-					JobNodeBase newJob = null;
-					if(jobType.matches(HadoopJobNode.JOBTYPENAME)) {
-						HadoopJobNode hadoopNewJob = new HadoopJobNode(jobType, host, jobParameter, jobBinaryFile, jobInputFolder, jobOutputFolder);
-						newJob = hadoopNewJob;
-					}
-					else if(jobType.matches(JavaJobNode.JOBTYPENAME)) {
-						JavaJobNode javaNewJob = new JavaJobNode(jobType, host, jobParameter, jobBinaryFile);
-						javaNewJob.inputData = jobInputData;
-						javaNewJob.jobName = jobName;
-						javaNewJob.deadline = Long.parseLong(jobDeadline);
-						newJob = javaNewJob;
-					}
-					
-					myAgent.addBehaviour(tbf.wrap(new GetJobInfoBehaviour(myAgent, newJob)));
+				if(jobBinaryFile!=null) {
+					myAgent.addBehaviour(tbf.wrap(new GetJobInfoBehaviour(myAgent, jn)));
 				}				
+				
 				buff = null;							
 			} catch( Exception e ) {
 				e.printStackTrace();
@@ -198,59 +137,21 @@ public class SystemMonitoringAgent extends Agent {
 		}		
 	}
 	
-	public void SubmitJob(JobNodeBase newJob) {
+	public void SubmitJob(JobNode newJob) {
 		this.addBehaviour(tbf.wrap(new GetJobInfoBehaviour(this, newJob)));
 	}
 	
 	private class GetJobInfoBehaviour extends OneShotBehaviour {
 		private static final long serialVersionUID = 1L;
-		JobNodeBase m_job;
+		JobNode m_job;
 		
-		GetJobInfoBehaviour(Agent a, JobNodeBase jn) {
+		GetJobInfoBehaviour(Agent a, JobNode jn) {
 			super(a);
 			m_job = jn;
 		}
 		@Override
 		public void action() {
-			if(m_job.jobType.matches(HadoopJobNode.JOBTYPENAME)) {
-				if(policy.GetRunningCluster().size()<=0)
-					return;
-				
-				try {
-					HadoopJobNode hJobNode = (HadoopJobNode) m_job;
-					
-					FileSystem fs = FileSystem.get(new URI("hdfs://10.133.200.1:9000"), new Configuration());
-					
-					Path path = new Path(hJobNode.inputFolder);
-					
-					FileStatus[] files = fs.listStatus(path);
-					
-					long fileSize = 0;
-					int fileCount = 0;
-					if(files!=null) {
-						for(int i=0; i<files.length; i++) {
-							if(!files[i].isDir()) {
-								fileCount++;
-								fileSize += files[i].getLen();
-							}
-						}
-					}				
-					hJobNode.inputFileSize = fileSize;
-					hJobNode.mapNumber = fileCount;
-					hJobNode.jobSize = hJobNode.binaryFile.length;	
-				} catch(Exception e) {
-					e.printStackTrace();
-				}				
-			}
-			else if(m_job.jobType.matches(JavaJobNode.JOBTYPENAME)){
-				JavaJobNode jJobNode = (JavaJobNode) m_job;
-				jJobNode.jobSize = Long.parseLong(jJobNode.command);
-			}
-			policy.GetWaitingJob().add(m_job);	
-			ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
-			msg.addReceiver(new AID("MigrationAdmin", AID.ISLOCALNAME));
-			msg.setContent("NewJobRequest");
-			myAgent.send(msg);
+			
 		}
 	}
 	
@@ -294,7 +195,7 @@ public class SystemMonitoringAgent extends Agent {
 						String[] subContent = content.split("\n");
 						String[] line = subContent[0].split(" ");
 						ClusterNode cn = null;
-						JobNodeBase     jn = null;
+						JobNode     jn = null;
 						boolean  found = false;
 						
 						//System.out.println(content);

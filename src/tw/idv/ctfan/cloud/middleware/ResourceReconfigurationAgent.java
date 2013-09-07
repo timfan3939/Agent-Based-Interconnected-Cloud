@@ -11,8 +11,7 @@ import tw.idv.ctfan.cloud.middleware.policy.MultiTypePolicy;
 import tw.idv.ctfan.cloud.middleware.policy.Policy;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.VMManagementDecision;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
-import tw.idv.ctfan.cloud.middleware.policy.data.VMMasterNode;
-
+import tw.idv.ctfan.cloud.middleware.policy.data.VMController;
 import jade.content.lang.Codec;
 import jade.content.lang.sl.SLCodec;
 import jade.content.onto.Ontology;
@@ -45,172 +44,33 @@ public class ResourceReconfigurationAgent extends Agent {
 	
 	
 	ThreadedBehaviourFactory tbf;	
-	ArrayList<VMMasterNode> vmMasterList;
+	ArrayList<VMController> vmControllerList;
 	
 	public void setup()
 	{
-		super.setup();		
+		super.setup();
 		
+		vmControllerList = policy.InitVMMasterList();
+		policy.InitClusterList();
 		
-		vmMasterList = policy.GetVMMaster();
-		ArrayList<ClusterNode> clusterList = policy.GetAvailableCluster();
-		
-		vmMasterList.add(new VMMasterNode("10.133.200.4", "root", "unigrid", VMMasterNode.PRIVATE));
-		//vmMasterList.add(new VMMasterNode("10.133.200.9",  "root", "unigrid", VMMasterNode.PUBLIC));
-		
+		// Close every VM
+		InitAllVM();
+	}
+	
+	private void InitAllVM() {
 		try {
-			// Get VMs
-			for(int i=0; i<vmMasterList.size(); i++) {
-				VMMasterNode vmMaster = vmMasterList.get(i);
-				Map<VM, VM.Record> VMs = VM.getAllRecords(vmMaster.xenConnection);
-				for(VM.Record record : VMs.values()) {
-					VM vm = VM.getByUuid(vmMaster.xenConnection, record.uuid);
-					if(!vm.getIsATemplate(vmMaster.xenConnection)&&
-					   !vm.getIsASnapshot(vmMaster.xenConnection)&&
-					   !vm.getIsControlDomain(vmMaster.xenConnection)&&
-					   !vm.getIsSnapshotFromVmpp(vmMaster.xenConnection)) {
-						if(vm.getNameLabel(vmMaster.xenConnection).startsWith("hdp201")||
-						   vm.getNameLabel(vmMaster.xenConnection).startsWith("hdp202")||
-						   vm.getNameLabel(vmMaster.xenConnection).startsWith("hdp205")||
-						   vm.getNameLabel(vmMaster.xenConnection).startsWith("hdp206")) {
-							clusterList.add(new ClusterNode(vmMaster,
-															vm.getUuid(vmMaster.xenConnection),
-															vm.getNameLabel(vmMaster.xenConnection),
-															vm.getVCPUsMax(vmMaster.xenConnection),
-															vm.getMemoryDynamicMax(vmMaster.xenConnection),
-															100));
-						}
-					}
-				}				
-			}
-			// Sorting the VM;
-			Collections.sort(clusterList);
-			
-			try {
-				for(ClusterNode cn : clusterList) {
-					VM vm = VM.getByUuid(cn.vmMaster.xenConnection, cn.vmUUID);
-					System.out.print("Found VM " + vm.getNameLabel(cn.vmMaster.xenConnection));
-					if(vm.getPowerState(cn.vmMaster.xenConnection)==Types.VmPowerState.RUNNING) {
-						System.out.println(" Closing ...");
-						vm.hardShutdown(cn.vmMaster.xenConnection);
-					} else {
-						System.out.println(" Closed");
-					}
+			for(VMController vmc:vmControllerList) {
+				Map<VM, VM.Record> VMs = VM.getAllRecords(vmc.xenConnection);
+				
+				for(VM.Record record:VMs.values()) {
+					VM vm = VM.getByUuid(vmc.xenConnection, record.uuid);
+					if(vm.getPowerState(vmc.xenConnection)==Types.VmPowerState.RUNNING)
+						vm.hardShutdown(vmc.xenConnection);
 				}
-				System.out.println("VM's Ready");
 			}
-			catch(Exception e) {
-				System.err.println("Error Finding Clusters");
-				e.printStackTrace();
-			}
-			
-			
 		} catch (Exception e) {
-			System.out.println("Error Getting VM");
 			e.printStackTrace();
-		}		
-		
-		tbf = new ThreadedBehaviourFactory();
-		
-		this.addBehaviour(tbf.wrap(new TickerBehaviour(this, 3000) {
-			private static final long serialVersionUID = 1L;
-			private VMManageBehaviour running = null;
-			
-			@Override
-			protected void onTick() {
-				if(running==null || running!=null&&running.done()) {
-					running = new VMManageBehaviour(myAgent);
-					myAgent.addBehaviour(tbf.wrap(running));
-				}
-			}
-		}));
+		}
 	}
 	
-	public VMManageBehaviour VMManageBehaviourOnlyInstance = null;
-	
-	private class VMCloseBehaviour extends Behaviour {
-		
-		private static final long serialVersionUID = 1L;
-		
-		ClusterNode cluster;
-		boolean doneYet = false;
-		int count = 0;
-		
-		VMCloseBehaviour (Agent a, ClusterNode cn) {
-			super(a);
-			this.cluster = cn;
-		}
-
-		@Override
-		public void action() {
-			block(5000);
-			System.out.println("Try " + count++ + " times");
-			
-			for(ClusterNode cn : policy.GetAvailableCluster()) {
-				if(cn.compare(cluster)) {
-					try {
-						VM vm = VM.getByUuid(cn.vmMaster.xenConnection, cn.vmUUID);
-						vm.hardShutdown(cn.vmMaster.xenConnection);
-						doneYet = true;
-						return;
-					} catch (Exception e){
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-
-		@Override
-		public boolean done() {
-			return doneYet;
-		}
-		
-	}
-	
-	private class VMManageBehaviour extends OneShotBehaviour {
-
-		private static final long serialVersionUID = 1L;
-		
-		VMManageBehaviour(Agent a) {
-			super(a);
-		}
-
-		@Override
-		public void action() {
-			if(VMManageBehaviourOnlyInstance == null) {
-				VMManageBehaviourOnlyInstance =this;
-				
-				VMManagementDecision decision = policy.GetVMManagementDecision();
-				
-				if(decision!=null) {
-					if(decision.command == VMManagementDecision.START_VM) {
-						System.out.println("===Starting New VM===");
-						try {
-							VM vm = VM.getByUuid(decision.cluster.vmMaster.xenConnection, decision.cluster.vmUUID);
-							vm.start(decision.cluster.vmMaster.xenConnection, false, false);
-						} catch (Exception e) {
-							System.err.println("ReconfigurationDecisionAgent : Error while Starting VM");
-							e.printStackTrace();
-						}
-					}
-					else if(decision.command == VMManagementDecision.CLOSE_VM) {
-						try {
-							ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-							AID recv = new AID(decision.cluster.name + "@" + decision.cluster.address + ":1099/JADE", AID.ISGUID);
-							msg.addReceiver(recv);
-							msg.setContent("TERMINATE");
-							myAgent.send(msg);
-							myAgent.addBehaviour(tbf.wrap(new VMCloseBehaviour(myAgent, decision.cluster)));
-						} catch(Exception e) {
-							System.err.println("ReconfigurationDecisionAgent : Error while Closing VM");
-							e.printStackTrace();
-						}
-						
-						// do nothing right now
-					}					
-				}				
-				VMManageBehaviourOnlyInstance = null;
-			}
-		}		
-	}	
 }

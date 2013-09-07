@@ -21,14 +21,14 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 	private final byte[] EOL = { (byte)'\r', (byte)'\n' };
 	ServerSocket server;
 	Policy policy;
-	AdministratorAgent myAgent;
+	SystemMonitoringAgent myAgent;
 	
 	static final Date m_initTime = new Date();
 	
 	private static final int HTTP_POST = 0x301;
 	private static final int HTTP_GET  = 0x302;
 
-	public HTTPServerBehaviour(AdministratorAgent agent, Policy policy) {
+	public HTTPServerBehaviour(SystemMonitoringAgent agent, Policy policy) {
 		super(agent);
 		myAgent = agent;
 		this.policy = policy;

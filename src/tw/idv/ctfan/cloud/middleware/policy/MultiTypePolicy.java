@@ -11,6 +11,7 @@ import tw.idv.ctfan.cloud.middleware.policy.Decision.MigrationDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.VMManagementDecision;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
+import tw.idv.ctfan.cloud.middleware.policy.data.VMController;
 
 public class MultiTypePolicy extends Policy {
 	
@@ -288,5 +289,19 @@ public class MultiTypePolicy extends Policy {
 		cn = null;
 		policyVMState = PolicyVMState.Normal;
 
+	}
+
+	@Override
+	public ArrayList<VMController> InitVMMasterList() {
+		ArrayList<VMController> list = new ArrayList<VMController>();
+		
+		list.add(new VMController("10.133.200.4", "root", "unigrid", VMController.VirtualMachineType.Private));
+		
+		return list;
+	}
+
+	@Override
+	public void InitClusterList() {
+		
 	}
 }

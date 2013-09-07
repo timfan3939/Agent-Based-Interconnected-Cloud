@@ -30,12 +30,15 @@ public class JobNode implements Comparable<JobNode> {
 	public long UID;
 	public JobStatus status;
 	public long executionTime;
+	public long deadline;
 	
-	public HashMap<String,String> attributes;
+	private HashMap<String,String> attributes;
 	static public HashMap<String, AttributeType> attributeType = new HashMap<String, AttributeType>();
 	
 	public JobNode(){
 		this.UID = System.nanoTime();
+		this.executionTime = -1;
+		this.deadline = -1;
 		attributes = new HashMap<String, String>();
 	}
 	
