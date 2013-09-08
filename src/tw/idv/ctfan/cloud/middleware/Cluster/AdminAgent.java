@@ -1,4 +1,4 @@
-package tw.idv.ctfan.cloud.middleware;
+package tw.idv.ctfan.cloud.middleware.Cluster;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,7 +12,7 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.wrapper.StaleProxyException;
 
-public abstract class ClusterAdminAgent extends Agent {
+public abstract class AdminAgent extends Agent {
 
 	/**
 	 * What, this is just a serial version UID, nothing special
@@ -203,7 +203,7 @@ public abstract class ClusterAdminAgent extends Agent {
 		
 		private long lastAskExecuteJob;
 
-		public HeartBeatBehaviour(ClusterAdminAgent agent, int i) {
+		public HeartBeatBehaviour(AdminAgent agent, int i) {
 			super(agent, i);
 			lastAskExecuteJob = 0;
 		}
