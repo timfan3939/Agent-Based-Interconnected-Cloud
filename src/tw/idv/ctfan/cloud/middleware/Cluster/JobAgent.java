@@ -59,9 +59,11 @@ public abstract class JobAgent extends Agent {
 		protected void onTick() {
 			ACLMessage msg = new ACLMessage(ACLMessage.CONFIRM);
 			msg.addReceiver(new AID(masterName + "@" + myAgent.getHap(), AID.ISGUID));
-			if(!finishedYet)
+			if(!startedYet) {
+				msg.setContent("WAITING");
+			} else if(startedYet && !finishedYet) {
 				msg.setContent(OnHeartBeat());
-			else {
+			} else {
 				msg.setContent("FINISHED");
 			}
 			
@@ -92,15 +94,16 @@ public abstract class JobAgent extends Agent {
 				} break;
 				case ACLMessage.CONFIRM: {
 					WriteLog("Got Start Job Message");
-					if(startedYet) {
-						System.err.println("Job has been started");
-					} else if(finishedYet){
-						myAgent.doDelete();
-					} else{
+					if(!startedYet) {
 						StartJob();
 						startedYet = true;
 						finishedYet = false;
-					}					
+					} else if(startedYet && !finishedYet) {
+						System.err.println("Job has been started, Duplicated message");
+					} else {
+						myAgent.doDelete();
+					}
+					
 				} break;
 				}
 				

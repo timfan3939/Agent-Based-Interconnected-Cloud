@@ -26,6 +26,9 @@ public class SystemMonitoringAgent extends Agent {
 	ThreadedBehaviourFactory tbf;	
 	Policy policy;
 	private static final long serialVersionUID = 1L;	
+	
+	public static final String NAME = "SyMA";
+	
 	public void setup() {
 		super.setup();
 		

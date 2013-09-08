@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 
+import tw.idv.ctfan.cloud.middleware.policy.data.JobNode.JobStatus;
+
+import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
@@ -129,13 +132,18 @@ public abstract class AdminAgent extends Agent {
 					for(JobListNode jn:m_jobList) {
 						if(jn.name.compareTo(msg.getSender().getLocalName()) == 0) {
 							jn.SetExist();
+							if(msg.getContent().compareTo("WAITING")==0) {
+								jn.status = JOB_STATUS.Waiting;
+							} else if(msg.getContent().compareTo("FINISHED") == 0) {
+								jn.status = JOB_STATUS.Finished;
+							} else {
+								jn.status = JOB_STATUS.Running;
+							}
 							break;
 						}
 					}
 				} break;
-				}
-				
-				
+				}				
 				
 			} catch(Exception e) {
 				e.printStackTrace();
@@ -208,11 +216,79 @@ public abstract class AdminAgent extends Agent {
 			lastAskExecuteJob = 0;
 		}
 
+		// Divided into two parts. One is report part, the other one is activate job part.
 		@Override
 		protected void onTick() {
-			// TODO Auto-generated method stub
+			ACLMessage heartBeat = new ACLMessage(ACLMessage.CONFIRM);
 			
-		}
-		
+			AID reciever = new AID(tw.idv.ctfan.cloud.middleware.SystemMonitoringAgent.NAME, AID.ISGUID);
+			reciever.addAddresses("http://" + m_masterIP + ":7778/acc");
+			heartBeat.addReceiver(reciever);
+			
+			int waitingJobCount=0;
+			int runningJobCount=0;
+			int finishedJobCount=0;
+			
+			String content = "cluster " +
+				myAgent.getLocalName() + " " +
+				myAgent.here().getName() + " " +
+				myAgent.getHap().split(":")[0] + "\n";
+			content += OnEncodeLoadInfo() + "\n";
+			for(JobListNode jn:m_jobList) {
+				content += OnEncodeJobInfo(jn) + "\n";
+				switch(jn.status) {
+				case Waiting:
+					waitingJobCount++;
+					break;
+				case Running:
+					runningJobCount++;
+					break;
+				case Finished:
+					finishedJobCount++;
+				}
+			}
+			
+			heartBeat.setContent(content);
+			myAgent.send(heartBeat);
+			
+			if(finishedJobCount>0) {
+				for(int i=0; i<m_jobList.size(); i++) {
+					if(m_jobList.get(i).status==JOB_STATUS.Finished) {
+						m_jobList.remove(i);
+						i--;
+					}
+				}
+			}
+			
+			if(waitingJobCount>0) {
+				if(runningJobCount<maxExecuteJobNumber){
+					if(lastAskExecuteJob<=0){
+						JobListNode jn = null;
+						for(int i=0; i<m_jobList.size(); i++) {
+							jn = m_jobList.get(i);
+							if(jn.status == JOB_STATUS.Waiting) break;
+							jn = null;
+						}
+						if(jn!=null) {
+							lastAskExecuteJob = 10;
+							
+							ACLMessage msg = new ACLMessage(ACLMessage.CONFIRM);
+							AID aid = new AID(jn.name + "@" + myAgent.getHap(), AID.ISGUID);
+							
+							msg.addReceiver(aid);
+							msg.setContent("START");
+							
+							myAgent.send(msg);
+							jn.executedTime = System.currentTimeMillis();
+						}
+					} else {
+						lastAskExecuteJob--;
+					}
+				}
+			}			
+		}		
 	}
+	
+	protected abstract String OnEncodeLoadInfo();
+	protected abstract String OnEncodeJobInfo(JobListNode jn);
 }
