@@ -17,6 +17,7 @@ public abstract class Policy {
 	ArrayList<JobNode> m_runningJobList;
 	ArrayList<JobNode> m_finishJobList;
 	ArrayList<JobNode> m_waitingJobList;
+	ArrayList<VMController> m_vmControllerList;
 	
 	protected static Policy onlyInstance;
 	
@@ -28,6 +29,7 @@ public abstract class Policy {
 		m_runningJobList = new ArrayList<JobNode>();
 		m_finishJobList = new ArrayList<JobNode>();
 		m_waitingJobList = new ArrayList<JobNode>();
+		m_vmControllerList = new ArrayList<VMController>();
 	}
 	
 	public abstract DispatchDecision GetNewJobDestination();

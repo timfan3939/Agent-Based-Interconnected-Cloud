@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
+
+import com.xensource.xenapi.VM;
 
 import tw.idv.ctfan.RoughSet.RoughSet;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.DispatchDecision;
@@ -12,6 +15,7 @@ import tw.idv.ctfan.cloud.middleware.policy.Decision.VMManagementDecision;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.VMController;
+import tw.idv.ctfan.cloud.middleware.policy.data.VirtualMachineNode;
 
 public class MultiTypePolicy extends Policy {
 	
@@ -268,14 +272,14 @@ public class MultiTypePolicy extends Policy {
 	@Override
 	public void OnNewClusterArrives(ClusterNode cn) {
 		if(policyVMState == PolicyVMState.StartingVM) {
-			clusterToStart.name = cn.name;
-			clusterToStart.container = cn.container;
-			clusterToStart.address = cn.address;
+			clusterToStart.agentName = cn.agentName;
+			clusterToStart.agentContainer = cn.agentContainer;
+			clusterToStart.agentAddress = cn.agentAddress;
 			m_runningClusterList.add(clusterToStart);
-			WriteLog("Cluster " + clusterToStart.name + " is added to the list");
+			WriteLog("Cluster " + clusterToStart.agentName + " is added to the list");
 			clusterToStart = null;
 		} else {
-			WriteLog("Cluster " + cn.name + " will be added to the list.");
+			WriteLog("Cluster " + cn.agentName + " will be added to the list.");
 		}
 		cn = null;
 		policyVMState = PolicyVMState.Normal;
@@ -284,7 +288,7 @@ public class MultiTypePolicy extends Policy {
 	@Override
 	public void OnOldClusterLeaves(ClusterNode cn) {
 		m_availableClusterList.add(clusterToShut);
-		WriteLog("Shutting Cluster " + cn.name);
+		WriteLog("Shutting Cluster " + cn.agentName);
 		clusterToShut = null;
 		cn = null;
 		policyVMState = PolicyVMState.Normal;
@@ -293,15 +297,54 @@ public class MultiTypePolicy extends Policy {
 
 	@Override
 	public ArrayList<VMController> InitVMMasterList() {
-		ArrayList<VMController> list = new ArrayList<VMController>();
+		m_vmControllerList = new ArrayList<VMController>();
 		
-		list.add(new VMController("10.133.200.4", "root", "unigrid", VMController.VirtualMachineType.Private));
+		m_vmControllerList.add(new VMController("10.133.200.4", "root", "unigrid", VMController.VirtualMachineType.Private));
 		
-		return list;
+		return m_vmControllerList;
 	}
 
 	@Override
 	public void InitClusterList() {
+		String[] ClusterName = {"Hadoop Cluster 1",
+							    "Java Cluster 1",
+		};
 		
+		String[][] Machines = {
+				{"hdp001", "hdp002", "hdp003", "hdp004"},
+				{"hdp011"}
+		};
+		
+		try {
+			for(int i=0; i<ClusterName.length; i++) {
+				ClusterNode cn = new ClusterNode(ClusterName[i]);
+				for(int j=0; j<Machines[i].length; j++) {
+					VirtualMachineNode vmn = null;
+					Set<VM> vmSet;
+					for(VMController vmc:this.m_vmControllerList) {
+						vmSet = VM.getByNameLabel(vmc.xenConnection, Machines[i][j]);
+						if(vmSet.size()==0) continue;
+						for(VM vm:vmSet) {
+							if(!vm.getIsASnapshot(vmc.xenConnection)&&
+									!vm.getIsATemplate(vmc.xenConnection)&&
+									!vm.getIsControlDomain(vmc.xenConnection)&&
+									!vm.getIsSnapshotFromVmpp(vmc.xenConnection)) {
+								vmn = new VirtualMachineNode(vm.getUuid(vmc.xenConnection),vmc);
+								break;
+							}
+						}
+						if(vmn != null) break;
+					}
+					if(vmn==null) {
+						System.err.println("VM "+Machines[i][j]+ " not found");
+					} else {
+						cn.AddMachine(vmn);
+					}
+				}
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+			return;
+		}
 	}
 }

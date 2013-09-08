@@ -26,6 +26,11 @@ public class VirtualMachineNode {
 	//public String siteIP;
 	public VMController vmController;
 	
+//	public VirtualMachineNode (String vmNameLabel) {
+//		this.vmNameLabel = vmNameLabel;
+//		vmController = null;
+//	}
+	
 	public VirtualMachineNode (String uuid, VMController controller){
 		vmUUID = uuid;
 		vmController = controller;
@@ -35,16 +40,22 @@ public class VirtualMachineNode {
 	}
 	
 	void CloseVM() throws BadServerResponse, VmBadPowerState, OtherOperationInProgress, OperationNotAllowed, VmIsTemplate, XenAPIException, XmlRpcException {
+		if(vmController==null) return;
+		
 		VM vm = VM.getByUuid(vmController.xenConnection, vmUUID);
 		vm.hardShutdown(vmController.xenConnection);
 	}
 	
 	void StartVM() throws BadServerResponse, VmBadPowerState, VmHvmRequired, VmIsTemplate, OtherOperationInProgress, OperationNotAllowed, BootloaderFailed, UnknownBootloader, NoHostsAvailable, LicenceRestriction, XenAPIException, XmlRpcException {
+		if(vmController==null) return;
+		
 		VM vm = VM.getByUuid(vmController.xenConnection, vmUUID);
 		vm.start(vmController.xenConnection, false, false);
 	}
 	
 	void GetSpecInfo() throws BadServerResponse, XenAPIException, XmlRpcException {
+		if(vmController==null) return;
+		
 		VM vm = VM.getByUuid(vmController.xenConnection, vmUUID);
 		vmNameLabel = vm.getNameLabel(vmController.xenConnection);
 		core = vm.getVCPUsMax(vmController.xenConnection);

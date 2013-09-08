@@ -7,10 +7,12 @@ import java.util.HashMap;
 public class ClusterNode implements Comparable<ClusterNode>
 {
 	// Agent Related Information
-	public String name;
-	public String address;
-	public String container;
+	public String agentName;
+	public String agentAddress;
+	public String agentContainer;
 	public int    load;
+	
+	public String clusterName;
 	
 	// System Related Information
 	public long	  core;
@@ -81,22 +83,36 @@ public class ClusterNode implements Comparable<ClusterNode>
 		return machines;
 	}
 	
-	public ClusterNode(String name, String container, String address)
-	{
-		this.name = name;
-		this.container = container;
-		this.address = address;
-		this.load = 0;
+	public ClusterNode(String clusterName) {
+		this.clusterName = clusterName;
 		
+		this.load = 0;
 		this.core = 0;
 		this.memory = 0;
 	}
 	
+	public void SetAgent(String name, String container, String address) {
+		this.agentName = name;
+		this.agentContainer = container;
+		this.agentAddress = address;
+	}
+	
+//	public ClusterNode(String name, String container, String address)
+//	{
+//		this.agentName = name;
+//		this.agentContainer = container;
+//		this.agentAddress = address;
+//		this.load = 0;
+//		
+//		this.core = 0;
+//		this.memory = 0;
+//	}
+	
 	public boolean compare(String name, String container, String address)
 	{
-		if( this.name.compareTo(name)==0 &&
-			this.container.compareTo(container)==0 &&
-			this.address.compareTo(address)==0)
+		if( this.agentName.compareTo(name)==0 &&
+			this.agentContainer.compareTo(container)==0 &&
+			this.agentAddress.compareTo(address)==0)
 			return true;
 		else
 			return false;
@@ -105,13 +121,13 @@ public class ClusterNode implements Comparable<ClusterNode>
 	
 	public String toString()
 	{
-		return name + " " + container + " " + address + " " + load;
+		return agentName + " " + agentContainer + " " + agentAddress + " " + load;
 	}
 	
 
 	@Override
 	public int compareTo(ClusterNode o) {
 //		System.out.println(this.name + " Compare " + o.name);
-		return this.name.compareTo(o.name);
+		return this.agentName.compareTo(o.agentName);
 	}
 }
