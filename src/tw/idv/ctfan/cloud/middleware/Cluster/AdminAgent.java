@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 
-import tw.idv.ctfan.cloud.middleware.policy.data.JobNode.JobStatus;
-
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
@@ -128,7 +126,7 @@ public abstract class AdminAgent extends Agent {
 					}
 				} break;
 				case ACLMessage.PROPOSE:
-				case ACLMessage.CONFIRM: {
+				case ACLMessage.CONFIRM: synchronized(m_jobList) {
 					for(JobListNode jn:m_jobList) {
 						if(jn.name.compareTo(msg.getSender().getLocalName()) == 0) {
 							jn.SetExist();
@@ -173,28 +171,30 @@ public abstract class AdminAgent extends Agent {
 				newJob = OnDecodeNewJob(m_data);
 				hasParsed = true;
 			}
-			try {
-				File f = new File(m_jarPath + "/" + newJob.name + ".jar");
-				if(!f.exists()) {
-					FileOutputStream output = new FileOutputStream(f);
-					output.write(newJob.binaryFile);
-					output.close();
-					newJob.binaryFile = null;
+			synchronized(m_jobList) {
+				try {
+					File f = new File(m_jarPath + "/" + newJob.name + ".jar");
+					if(!f.exists()) {
+						FileOutputStream output = new FileOutputStream(f);
+						output.write(newJob.binaryFile);
+						output.close();
+						newJob.binaryFile = null;
+					}
+					
+					m_jobList.add(newJob);
+					// TODO: change the class name to be more general
+					myAgent.getContainerController().createNewAgent(newJob.name, tw.idv.ctfan.cloud.middleware.Java.JobAgent.class.getName(), newJob.cmdParam.toArray()).start();
+					System.out.println("===== Agent " + newJob.name + " Start=====");
+					doneYet = true;				
+				} catch (StaleProxyException e) {
+					System.err.println("Agent Exception");
+					e.printStackTrace();
+					block(5000);
+					return;
 				}
-				
-				m_jobList.add(newJob);
-				// TODO: change the class name to be more general
-				myAgent.getContainerController().createNewAgent(newJob.name, tw.idv.ctfan.cloud.middleware.Java.JobAgent.class.getName(), newJob.cmdParam.toArray()).start();
-				System.out.println("===== Agent " + newJob.name + " Start=====");
-				doneYet = true;				
-			} catch (StaleProxyException e) {
-				System.err.println("Agent Exception");
-				e.printStackTrace();
-				block(5000);
-				return;
-			}
-			catch (Exception e) {
-				e.printStackTrace();
+				catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 
@@ -218,7 +218,7 @@ public abstract class AdminAgent extends Agent {
 
 		// Divided into two parts. One is report part, the other one is activate job part.
 		@Override
-		protected void onTick() {
+		protected void onTick(){ synchronized(m_jobList) {
 			ACLMessage heartBeat = new ACLMessage(ACLMessage.CONFIRM);
 			
 			AID reciever = new AID(tw.idv.ctfan.cloud.middleware.SystemMonitoringAgent.NAME, AID.ISGUID);
@@ -287,7 +287,7 @@ public abstract class AdminAgent extends Agent {
 				}
 			}			
 		}		
-	}
+	} }
 	
 	protected abstract String OnEncodeLoadInfo();
 	protected abstract String OnEncodeJobInfo(JobListNode jn);
