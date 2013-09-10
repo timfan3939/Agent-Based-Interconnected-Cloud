@@ -15,6 +15,7 @@ import tw.idv.ctfan.cloud.middleware.policy.Decision.MigrationDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.VMManagementDecision;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
+import tw.idv.ctfan.cloud.middleware.policy.data.JobTypeNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.VMController;
 import tw.idv.ctfan.cloud.middleware.policy.data.VirtualMachineNode;
 
@@ -316,12 +317,12 @@ public class MultiTypePolicy extends Policy {
 				{"hdp011"}
 		};
 		
-		
-		//TODO: change this to proper form
-		String[] clusterType = {
-				AdminAgent.getClusterType(),
-				AdminAgent.getClusterType()
+		JobTypeNode java = new JobTypeNode("Java");
+		JobTypeNode hadoop = new JobTypeNode("Hadoop");
+		JobTypeNode[] clusterType = {
+				java, hadoop
 		};
+		
 		
 		try {
 			for(int i=0; i<ClusterName.length; i++) {

@@ -8,6 +8,7 @@ import tw.idv.ctfan.cloud.middleware.policy.Decision.VMManagementDecision;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.VMController;
+import tw.idv.ctfan.cloud.middleware.policy.data.JobTypeNode;
 
 public abstract class Policy {
 	
@@ -18,6 +19,7 @@ public abstract class Policy {
 	ArrayList<JobNode> m_finishJobList;
 	ArrayList<JobNode> m_waitingJobList;
 	ArrayList<VMController> m_vmControllerList;
+	ArrayList<JobTypeNode> m_clusterTypeList;
 	
 	
 	protected static Policy onlyInstance;
@@ -31,6 +33,7 @@ public abstract class Policy {
 		m_finishJobList = new ArrayList<JobNode>();
 		m_waitingJobList = new ArrayList<JobNode>();
 		m_vmControllerList = new ArrayList<VMController>();
+		m_clusterTypeList = new ArrayList<JobTypeNode>();
 	}
 	
 	public abstract DispatchDecision GetNewJobDestination();

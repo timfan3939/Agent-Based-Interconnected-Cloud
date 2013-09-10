@@ -31,7 +31,8 @@ public class JobNode implements Comparable<JobNode> {
 	public JobStatus status;
 	public long executionTime;
 	public long deadline;
-	
+	public JobTypeNode jobType;
+
 	private HashMap<String,String> attributes;
 	static public HashMap<String, AttributeType> attributeType = new HashMap<String, AttributeType>();
 	
