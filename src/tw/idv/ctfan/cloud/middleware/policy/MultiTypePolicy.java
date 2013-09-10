@@ -9,6 +9,7 @@ import java.util.Set;
 import com.xensource.xenapi.VM;
 
 import tw.idv.ctfan.RoughSet.RoughSet;
+import tw.idv.ctfan.cloud.middleware.Cluster.AdminAgent;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.DispatchDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.MigrationDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.VMManagementDecision;
@@ -315,6 +316,13 @@ public class MultiTypePolicy extends Policy {
 				{"hdp011"}
 		};
 		
+		
+		//TODO: change this to proper form
+		String[] clusterType = {
+				AdminAgent.getClusterType(),
+				AdminAgent.getClusterType()
+		};
+		
 		try {
 			for(int i=0; i<ClusterName.length; i++) {
 				ClusterNode cn = new ClusterNode(ClusterName[i]);
@@ -329,7 +337,7 @@ public class MultiTypePolicy extends Policy {
 									!vm.getIsATemplate(vmc.xenConnection)&&
 									!vm.getIsControlDomain(vmc.xenConnection)&&
 									!vm.getIsSnapshotFromVmpp(vmc.xenConnection)) {
-								vmn = new VirtualMachineNode(vm.getUuid(vmc.xenConnection),vmc);
+								vmn = new VirtualMachineNode(vm.getUuid(vmc.xenConnection),vmc, clusterType[i]);
 								break;
 							}
 						}

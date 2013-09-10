@@ -42,6 +42,9 @@ public class ResourceReconfigurationAgent extends Agent {
 		InitAllVM();
 		
 		// Start up one cluster for each type of job
+		// TODO: Start up one cluster for each type of job.
+		
+		
 		
 	}
 	

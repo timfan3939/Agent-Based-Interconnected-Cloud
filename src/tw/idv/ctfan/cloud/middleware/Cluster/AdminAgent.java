@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 
+import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
+
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
@@ -24,7 +26,6 @@ public abstract class AdminAgent extends Agent {
 	protected String m_masterIP;
 	
 	protected int maxExecuteJobNumber = 1;
-	
 
 	protected enum JOB_STATUS {
 		Waiting, Running, Finished;
@@ -54,7 +55,7 @@ public abstract class AdminAgent extends Agent {
 	}
 	
 	protected ArrayList<JobListNode> m_jobList = new ArrayList<JobListNode>();
-		
+	
 	public void setup() {
 		super.setup();		
 		
@@ -62,19 +63,19 @@ public abstract class AdminAgent extends Agent {
 		this.addBehaviour(new HeartBeatBehaviour(this, 3000));
 	}
 
-	protected String getM_jarPath() {
+	protected String getJarPath() {
 		return m_jarPath;
 	}
 
-	protected void setM_jarPath(String mJarPath) {
+	protected void setJarPath(String mJarPath) {
 		m_jarPath = mJarPath;
 	}
 
-	protected String getM_masterIP() {
+	protected String getMasterIP() {
 		return m_masterIP;
 	}
 
-	protected void setM_masterIP(String mMasterIP) {
+	protected void setMasterIP(String mMasterIP) {
 		m_masterIP = mMasterIP;
 	}
 
@@ -285,10 +286,13 @@ public abstract class AdminAgent extends Agent {
 						lastAskExecuteJob--;
 					}
 				}
-			}			
+			}	
 		}		
 	} }
 	
 	protected abstract String OnEncodeLoadInfo();
 	protected abstract String OnEncodeJobInfo(JobListNode jn);
+	
+	public abstract String GetClusterType();
+	public abstract boolean CheckJobType(JobNode job);
 }

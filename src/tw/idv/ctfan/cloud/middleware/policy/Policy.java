@@ -19,6 +19,7 @@ public abstract class Policy {
 	ArrayList<JobNode> m_waitingJobList;
 	ArrayList<VMController> m_vmControllerList;
 	
+	
 	protected static Policy onlyInstance;
 	
 	protected Policy()

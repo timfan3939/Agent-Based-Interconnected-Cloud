@@ -23,6 +23,7 @@ public class VirtualMachineNode {
 	public long   CPURate;
 	public String vmNameLabel;	
 	public String vmUUID;
+	public String clusterTypeName;
 	//public String siteIP;
 	public VMController vmController;
 	
@@ -31,9 +32,10 @@ public class VirtualMachineNode {
 //		vmController = null;
 //	}
 	
-	public VirtualMachineNode (String uuid, VMController controller){
+	public VirtualMachineNode (String uuid, VMController controller, String clusterType){
 		vmUUID = uuid;
 		vmController = controller;
+		clusterTypeName = clusterType;
 		if(vmController==null) {
 			System.err.println("VMController is null");
 		}
