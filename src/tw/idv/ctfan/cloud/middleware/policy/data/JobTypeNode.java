@@ -4,10 +4,9 @@ import java.util.ArrayList;
 
 import tw.idv.ctfan.cloud.middleware.Cluster.AdminAgent;
 
-public class JobTypeNode {
+public abstract class JobTypeNode {
 	
-	private ArrayList<AdminAgent> m_clusterList;
-	
+	private ArrayList<AdminAgent> m_clusterList;	
 	private String m_typeName;
 	
 	protected String getTypeName() {
@@ -20,5 +19,9 @@ public class JobTypeNode {
 	
 	ArrayList<AdminAgent> getClusterList() {
 		return m_clusterList;
-	}	
+	}
+	
+	public abstract boolean varifyJob(JobNode jn);
+	public abstract int DecodeLoadInfo();
+	//TODO: Add proper classes
 }

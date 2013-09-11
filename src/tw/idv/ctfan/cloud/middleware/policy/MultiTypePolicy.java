@@ -9,7 +9,6 @@ import java.util.Set;
 import com.xensource.xenapi.VM;
 
 import tw.idv.ctfan.RoughSet.RoughSet;
-import tw.idv.ctfan.cloud.middleware.Cluster.AdminAgent;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.DispatchDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.MigrationDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.VMManagementDecision;
