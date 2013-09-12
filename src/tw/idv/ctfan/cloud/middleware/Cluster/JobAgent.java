@@ -17,6 +17,10 @@ public abstract class JobAgent extends Agent {
 	boolean startedYet = false;
 	boolean finishedYet= false;
 	
+	protected Object[] parameter;
+	protected String m_binaryHome;
+	protected String m_binaryName;
+	
 	private FileOutputStream Log;
 	
 	protected void WriteLog(String s){
@@ -36,6 +40,10 @@ public abstract class JobAgent extends Agent {
 			e.printStackTrace();
 		}
 		
+		parameter = this.getArguments();
+		
+		masterName = (String)parameter[0];
+		
 		addBehaviour(new HeartBeatBehaviour(this, 3000));
 		addBehaviour(new ListeningBehaviour(this));
 	}
@@ -46,6 +54,10 @@ public abstract class JobAgent extends Agent {
 
 	protected void setMasterName(String masterName) {
 		this.masterName = masterName;
+	}
+	
+	protected String GetBinaryFullPath() {
+		return m_binaryHome + "/" + m_binaryName;
 	}
 
 	private class HeartBeatBehaviour extends TickerBehaviour {
@@ -67,7 +79,10 @@ public abstract class JobAgent extends Agent {
 				msg.setContent("FINISHED");
 			}
 			
-			myAgent.send(msg);			
+			myAgent.send(msg);		
+			if(finishedYet) {
+				myAgent.doDelete();
+			}
 		}
 	}
 	
@@ -95,13 +110,14 @@ public abstract class JobAgent extends Agent {
 				case ACLMessage.CONFIRM: {
 					WriteLog("Got Start Job Message");
 					if(!startedYet) {
-						StartJob();
+						StartJob(myAgent);
 						startedYet = true;
 						finishedYet = false;
 					} else if(startedYet && !finishedYet) {
 						System.err.println("Job has been started, Duplicated message");
 					} else {
-						myAgent.doDelete();
+						//myAgent.doDelete();
+						// TODO: not knowing what to do here
 					}
 					
 				} break;
@@ -117,7 +133,7 @@ public abstract class JobAgent extends Agent {
 		finishedYet = true;
 	}
 	
-	protected abstract void StartJob();
+	protected abstract void StartJob(Agent myAgent);
 	
 	protected abstract String OnHeartBeat();
 

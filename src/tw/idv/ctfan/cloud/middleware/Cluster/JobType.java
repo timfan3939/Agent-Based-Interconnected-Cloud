@@ -25,4 +25,6 @@ public abstract class JobType {
 	public abstract boolean varifyJob(JobNode jn);
 	public abstract int DecodeLoadInfo();
 	//TODO: Add proper classes
+
+	public abstract String GetExtension();
 }

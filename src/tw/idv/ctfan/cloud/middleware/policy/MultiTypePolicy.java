@@ -10,6 +10,7 @@ import com.xensource.xenapi.VM;
 
 import tw.idv.ctfan.RoughSet.RoughSet;
 import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
+import tw.idv.ctfan.cloud.middleware.Java.JavaJobType;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.DispatchDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.MigrationDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.VMManagementDecision;
@@ -316,8 +317,8 @@ public class MultiTypePolicy extends Policy {
 				{"hdp011"}
 		};
 		
-		JobType java = new JobType("Java");
-		JobType hadoop = new JobType("Hadoop");
+		JobType java = new JavaJobType();
+		JobType hadoop = new JavaJobType();
 		JobType[] clusterType = {
 				java, hadoop
 		};

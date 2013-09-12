@@ -9,7 +9,6 @@ import tw.idv.ctfan.cloud.middleware.policy.Decision.VMManagementDecision;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.VMController;
-import tw.idv.ctfan.cloud.middleware.policy.data.JobTypeNode;
 
 public abstract class Policy {
 	

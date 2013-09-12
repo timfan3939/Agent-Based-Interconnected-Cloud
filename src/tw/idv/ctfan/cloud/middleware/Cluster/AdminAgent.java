@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 
-import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
-
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
@@ -21,6 +19,7 @@ public abstract class AdminAgent extends Agent {
 	 * What, this is just a serial version UID, nothing special
 	 */
 	private static final long serialVersionUID = 1L;
+	protected final JobType m_jobType;
 	
 	protected String m_jarPath;
 	protected String m_masterIP;
@@ -55,6 +54,10 @@ public abstract class AdminAgent extends Agent {
 	}
 	
 	protected ArrayList<JobListNode> m_jobList = new ArrayList<JobListNode>();
+	
+	public AdminAgent(JobType jt) {
+		m_jobType = jt;
+	}
 	
 	public void setup() {
 		super.setup();		
@@ -172,9 +175,10 @@ public abstract class AdminAgent extends Agent {
 				newJob = OnDecodeNewJob(m_data);
 				hasParsed = true;
 			}
+			if(newJob==null) return;
 			synchronized(m_jobList) {
 				try {
-					File f = new File(m_jarPath + "/" + newJob.name + ".jar");
+					File f = new File(m_jarPath + "/" + newJob.name + m_jobType.GetExtension());
 					if(!f.exists()) {
 						FileOutputStream output = new FileOutputStream(f);
 						output.write(newJob.binaryFile);
@@ -183,8 +187,12 @@ public abstract class AdminAgent extends Agent {
 					}
 					
 					m_jobList.add(newJob);
-					// TODO: change the class name to be more general
-					myAgent.getContainerController().createNewAgent(newJob.name, tw.idv.ctfan.cloud.middleware.Java.JobAgent.class.getName(), newJob.cmdParam.toArray()).start();
+
+					newJob.cmdParam.add(0, myAgent.getLocalName());
+					newJob.cmdParam.add(1, m_jarPath);
+					newJob.cmdParam.add(2, newJob.name+m_jobType.GetExtension());
+					
+					myAgent.getContainerController().createNewAgent(newJob.name, tw.idv.ctfan.cloud.middleware.Java.JavaJobAgent.class.getName(), newJob.cmdParam.toArray()).start();
 					System.out.println("===== Agent " + newJob.name + " Start=====");
 					doneYet = true;				
 				} catch (StaleProxyException e) {
@@ -204,8 +212,6 @@ public abstract class AdminAgent extends Agent {
 			return doneYet;
 		}		
 	}
-	
-	public abstract JobListNode OnDecodeNewJob(byte[] data);
 	
 	private class HeartBeatBehaviour extends TickerBehaviour {
 		private static final long serialVersionUID = 1L;
@@ -234,9 +240,9 @@ public abstract class AdminAgent extends Agent {
 				myAgent.getLocalName() + " " +
 				myAgent.here().getName() + " " +
 				myAgent.getHap().split(":")[0] + "\n";
-			content += OnEncodeLoadInfo() + "\n";
+			content += "Load:" + OnEncodeLoadInfo() + "\n";
 			for(JobListNode jn:m_jobList) {
-				content += OnEncodeJobInfo(jn) + "\n";
+				content += "job " + OnEncodeJobInfo(jn) + "\n";
 				switch(jn.status) {
 				case Waiting:
 					waitingJobCount++;
@@ -291,8 +297,6 @@ public abstract class AdminAgent extends Agent {
 	} }
 	
 	protected abstract String OnEncodeLoadInfo();
-	protected abstract String OnEncodeJobInfo(JobListNode jn);
-	
-	public abstract String GetClusterType();
-	public abstract boolean CheckJobType(JobNode job);
+	protected abstract String OnEncodeJobInfo(JobListNode jn);		
+	public abstract JobListNode OnDecodeNewJob(byte[] data);
 }
