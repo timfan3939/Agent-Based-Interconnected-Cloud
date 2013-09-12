@@ -9,12 +9,12 @@ import java.util.Set;
 import com.xensource.xenapi.VM;
 
 import tw.idv.ctfan.RoughSet.RoughSet;
+import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.DispatchDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.MigrationDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.VMManagementDecision;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
-import tw.idv.ctfan.cloud.middleware.policy.data.JobTypeNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.VMController;
 import tw.idv.ctfan.cloud.middleware.policy.data.VirtualMachineNode;
 
@@ -316,9 +316,9 @@ public class MultiTypePolicy extends Policy {
 				{"hdp011"}
 		};
 		
-		JobTypeNode java = new JobTypeNode("Java");
-		JobTypeNode hadoop = new JobTypeNode("Hadoop");
-		JobTypeNode[] clusterType = {
+		JobType java = new JobType("Java");
+		JobType hadoop = new JobType("Hadoop");
+		JobType[] clusterType = {
 				java, hadoop
 		};
 		

@@ -2,6 +2,8 @@ package tw.idv.ctfan.cloud.middleware.policy.data;
 
 import java.util.HashMap;
 
+import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
+
 /**
  * 
  * @author C.T.Fan
@@ -31,7 +33,7 @@ public class JobNode implements Comparable<JobNode> {
 	public JobStatus status;
 	public long executionTime;
 	public long deadline;
-	public JobTypeNode jobType;
+	public JobType jobType;
 
 	private HashMap<String,String> attributes;
 	static public HashMap<String, AttributeType> attributeType = new HashMap<String, AttributeType>();

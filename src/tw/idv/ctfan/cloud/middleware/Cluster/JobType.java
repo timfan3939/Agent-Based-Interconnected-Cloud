@@ -1,10 +1,11 @@
-package tw.idv.ctfan.cloud.middleware.policy.data;
+package tw.idv.ctfan.cloud.middleware.Cluster;
 
 import java.util.ArrayList;
 
 import tw.idv.ctfan.cloud.middleware.Cluster.AdminAgent;
+import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
 
-public abstract class JobTypeNode {
+public abstract class JobType {
 	
 	private ArrayList<AdminAgent> m_clusterList;	
 	private String m_typeName;
@@ -13,7 +14,7 @@ public abstract class JobTypeNode {
 		return m_typeName;
 	}
 
-	public JobTypeNode(String name){
+	public JobType(String name){
 		m_typeName = name;
 	}
 	

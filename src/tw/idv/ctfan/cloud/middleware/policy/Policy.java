@@ -2,6 +2,7 @@ package tw.idv.ctfan.cloud.middleware.policy;
 
 import java.util.ArrayList;
 
+import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.DispatchDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.MigrationDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.VMManagementDecision;
@@ -19,7 +20,7 @@ public abstract class Policy {
 	ArrayList<JobNode> m_finishJobList;
 	ArrayList<JobNode> m_waitingJobList;
 	ArrayList<VMController> m_vmControllerList;
-	ArrayList<JobTypeNode> m_clusterTypeList;
+	ArrayList<JobType> m_clusterTypeList;
 	
 	
 	protected static Policy onlyInstance;
@@ -33,7 +34,7 @@ public abstract class Policy {
 		m_finishJobList = new ArrayList<JobNode>();
 		m_waitingJobList = new ArrayList<JobNode>();
 		m_vmControllerList = new ArrayList<VMController>();
-		m_clusterTypeList = new ArrayList<JobTypeNode>();
+		m_clusterTypeList = new ArrayList<JobType>();
 	}
 	
 	public abstract DispatchDecision GetNewJobDestination();
