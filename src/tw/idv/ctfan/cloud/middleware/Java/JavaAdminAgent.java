@@ -65,4 +65,9 @@ public class JavaAdminAgent extends AdminAgent {
 	protected String OnEncodeLoadInfo() {
 		return (super.m_jobList.size()>0?"Busy":"Free");
 	}
+
+	@Override
+	public void OnTerminateCluster() {
+		System.out.println("I'm going to be terminated.");
+	}
 }

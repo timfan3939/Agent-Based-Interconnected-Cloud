@@ -5,12 +5,14 @@ import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
 public class VMManagementDecision {
 	
 	public ClusterNode cluster;
-	public int command;
+	public Command command;
 	
-	public static final int START_VM = 0x301;
-	public static final int CLOSE_VM = 0x302;
+	public static enum Command{
+		START_VM,CLOSE_VM
+	}
 	
-	public VMManagementDecision(ClusterNode cluster, int command) {
+	
+	public VMManagementDecision(ClusterNode cluster, Command command) {
 		this.cluster = cluster;
 		this.command = command;
 	}

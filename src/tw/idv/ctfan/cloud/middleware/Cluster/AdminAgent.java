@@ -8,6 +8,7 @@ import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
+import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
@@ -126,7 +127,7 @@ public abstract class AdminAgent extends Agent {
 					if(info.matches("MIGRATION")) {
 						// TODO: add some migration behaviour here
 					} else if(info.matches("TERMINATE")) {
-						// TODO: add some terminate behaviour here
+						myAgent.addBehaviour(new TerminateVMBehaviour(myAgent));
 					}
 				} break;
 				case ACLMessage.PROPOSE:
@@ -296,7 +297,34 @@ public abstract class AdminAgent extends Agent {
 		}		
 	} }
 	
+	private class TerminateVMBehaviour extends OneShotBehaviour {
+		private static final long serialVersionUID = 4651660479629623002L;
+		
+		public TerminateVMBehaviour(Agent a) {
+			super(a);
+		}
+
+		@Override
+		public void action() { 
+			synchronized(m_jobList) {
+				if(m_jobList.size()==0){
+					OnTerminateCluster();
+					ACLMessage msg = new ACLMessage(ACLMessage.CONFIRM);
+					AID recv = new AID(tw.idv.ctfan.cloud.middleware.ResourceReconfigurationAgent.name + "@" + m_masterIP + ":1099:/JADE", AID.ISGUID);
+					recv.addAddresses("http://" + m_masterIP + ":7778/acc");
+					msg.addReceiver(recv);
+					
+					msg.setContent("TERMINATE VM");
+					myAgent.send(msg);					
+					
+					myAgent.doDelete();
+				}
+			}
+		}		
+	}
+	
 	protected abstract String OnEncodeLoadInfo();
 	protected abstract String OnEncodeJobInfo(JobListNode jn);		
 	public abstract JobListNode OnDecodeNewJob(byte[] data);
+	public abstract void OnTerminateCluster();
 }

@@ -1,6 +1,5 @@
 package tw.idv.ctfan.cloud.middleware;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 import com.xensource.xenapi.Types;
@@ -9,10 +8,15 @@ import com.xensource.xenapi.VM;
 import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
 import tw.idv.ctfan.cloud.middleware.policy.MultiTypePolicy;
 import tw.idv.ctfan.cloud.middleware.policy.Policy;
+import tw.idv.ctfan.cloud.middleware.policy.Decision.VMManagementDecision;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.VMController;
+import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.ThreadedBehaviourFactory;
+import jade.core.behaviours.TickerBehaviour;
+import jade.lang.acl.ACLMessage;
 
 /*
  * This agent check if any cluster should shut down or boot up
@@ -24,14 +28,13 @@ import jade.core.behaviours.ThreadedBehaviourFactory;
  */
 
 public class ResourceReconfigurationAgent extends Agent {
-
-	private static final long serialVersionUID = 1L;	
+	private static final long serialVersionUID = -2691024839013212067L;
 
 	Policy policy = MultiTypePolicy.GetPolicy();
 	
-	
-	ThreadedBehaviourFactory tbf;	
-	ArrayList<VMController> vmControllerList;
+	public static final String name = "RRA";
+		
+	ThreadedBehaviourFactory tbf;
 	
 	public void setup() 
 	{
@@ -39,7 +42,7 @@ public class ResourceReconfigurationAgent extends Agent {
 		
 		synchronized(policy) {
 		
-			vmControllerList = policy.InitVMMasterList();
+			policy.InitVMMasterList();
 			policy.InitClusterList();
 			
 			// Close every VM
@@ -61,12 +64,25 @@ public class ResourceReconfigurationAgent extends Agent {
 					}
 				}
 			}
-		}		
+		}
+		
+		tbf = new ThreadedBehaviourFactory();
+		this.addBehaviour(tbf.wrap(new TickerBehaviour(this, 3000){
+			private static final long serialVersionUID = 1L;
+			private VMManageBehaviour running = null;
+			@Override
+			protected void onTick() {
+				if((running!=null&&running.done()) || running==null){
+					myAgent.addBehaviour(tbf.wrap(running=new VMManageBehaviour(myAgent)));
+				}
+			}			
+		}));
+		
 	}
 	
 	private void InitAllVM() {
 		try {
-			for(VMController vmc:vmControllerList) {
+			for(VMController vmc:policy.GetVMControllerList()) {
 				Map<VM, VM.Record> VMs = VM.getAllRecords(vmc.xenConnection);
 				
 				for(VM.Record record:VMs.values()) {
@@ -80,4 +96,44 @@ public class ResourceReconfigurationAgent extends Agent {
 		}
 	}
 	
+	private class ReceiveMessageBehaviour extends OneShotBehaviour {
+			//TODO: starting here.
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
+	
+	private class VMManageBehaviour extends OneShotBehaviour {
+		private static final long serialVersionUID = 6671140607412559060L;
+
+		public VMManageBehaviour(Agent a) {
+			super(a);
+		}
+
+		@Override
+		public void action() {
+			synchronized(policy) {
+				VMManagementDecision decision = policy.GetVMManagementDecision();
+				
+				if(decision!=null) {
+					if(decision.command == VMManagementDecision.Command.START_VM) {
+						try {
+							decision.cluster.StartCluster();
+						} catch(Exception e) {
+							e.printStackTrace();
+						}
+					} else if(decision.command == VMManagementDecision.Command.CLOSE_VM) {
+						ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+						AID recv = new AID(decision.cluster.agentName + "@" + decision.cluster.agentAddress + ":1099/JADE", AID.ISGUID);
+						msg.addReceiver(recv);
+						msg.setContent("TERMINATE");
+						myAgent.send(msg);
+					}
+				}				
+			}			
+		}		
+	}
 }

@@ -105,7 +105,7 @@ public abstract class JobAgent extends Agent {
 				switch(msg.getPerformative()) {
 				case ACLMessage.INFORM:{
 					WriteLog("Got Migrate Message");
-					// TODO: add migrate procedure here
+					// TODO: migrate procedure 
 				} break;
 				case ACLMessage.CONFIRM: {
 					WriteLog("Got Start Job Message");
