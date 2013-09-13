@@ -2,8 +2,6 @@ package tw.idv.ctfan.cloud.middleware.policy.data;
 
 import org.apache.xmlrpc.XmlRpcException;
 
-import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
-
 import com.xensource.xenapi.VM;
 import com.xensource.xenapi.Types.BadServerResponse;
 import com.xensource.xenapi.Types.BootloaderFailed;
@@ -25,7 +23,6 @@ public class VirtualMachineNode {
 	public long   CPURate;
 	public String vmNameLabel;	
 	public String vmUUID;
-	public JobType jobType;
 	//public String siteIP;
 	public VMController vmController;
 	
@@ -34,8 +31,7 @@ public class VirtualMachineNode {
 //		vmController = null;
 //	}
 	
-	public VirtualMachineNode (String uuid, VMController controller, JobType clusterType){
-		jobType = clusterType;
+	public VirtualMachineNode (String uuid, VMController controller){
 		vmUUID = uuid;
 		vmController = controller;
 		if(vmController==null) {
@@ -43,7 +39,7 @@ public class VirtualMachineNode {
 		}
 	}
 	
-	void CloseVM() throws BadServerResponse, VmBadPowerState, OtherOperationInProgress, OperationNotAllowed, VmIsTemplate, XenAPIException, XmlRpcException {
+	public void CloseVM() throws BadServerResponse, VmBadPowerState, OtherOperationInProgress, OperationNotAllowed, VmIsTemplate, XenAPIException, XmlRpcException {
 		if(vmController==null) return;
 		
 		VM vm = VM.getByUuid(vmController.xenConnection, vmUUID);
@@ -65,5 +61,4 @@ public class VirtualMachineNode {
 		core = vm.getVCPUsMax(vmController.xenConnection);
 		memory = vm.getMemoryDynamicMax(vmController.xenConnection);
 	}
-	
 }

@@ -6,8 +6,10 @@ import java.util.Map;
 import com.xensource.xenapi.Types;
 import com.xensource.xenapi.VM;
 
+import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
 import tw.idv.ctfan.cloud.middleware.policy.MultiTypePolicy;
 import tw.idv.ctfan.cloud.middleware.policy.Policy;
+import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.VMController;
 import jade.core.Agent;
 import jade.core.behaviours.ThreadedBehaviourFactory;
@@ -31,21 +33,35 @@ public class ResourceReconfigurationAgent extends Agent {
 	ThreadedBehaviourFactory tbf;	
 	ArrayList<VMController> vmControllerList;
 	
-	public void setup()
+	public void setup() 
 	{
 		super.setup();
 		
-		vmControllerList = policy.InitVMMasterList();
-		policy.InitClusterList();
+		synchronized(policy) {
 		
-		// Close every VM
-		InitAllVM();
-		
-		// Start up one cluster for each type of job
-		// TODO: Start up one cluster for each type of job.
-		
-		
-		
+			vmControllerList = policy.InitVMMasterList();
+			policy.InitClusterList();
+			
+			// Close every VM
+			InitAllVM();
+			
+			// Start up one cluster for each type of job
+			for(JobType jt:policy.GetJobTypeList()) {
+				for(ClusterNode cn : policy.GetAvailableCluster()) {
+					if(cn.jobType == jt) {
+						try {
+							cn.StartCluster();
+						} catch(Exception e) {
+							System.out.println("Open cluster problem");
+							e.printStackTrace();
+						}
+						policy.GetAvailableCluster().remove(cn);
+						policy.GetRunningCluster().add(cn);
+						break;
+					}
+				}
+			}
+		}		
 	}
 	
 	private void InitAllVM() {

@@ -299,9 +299,8 @@ public class MultiTypePolicy extends Policy {
 
 	@Override
 	public ArrayList<VMController> InitVMMasterList() {
-		m_vmControllerList = new ArrayList<VMController>();
 		
-		m_vmControllerList.add(new VMController("10.133.200.4", "root", "unigrid", VMController.VirtualMachineType.Private));
+		this.m_vmControllerList.add(new VMController("10.133.200.4", "root", "unigrid", VMController.VirtualMachineType.Private));
 		
 		return m_vmControllerList;
 	}
@@ -326,7 +325,7 @@ public class MultiTypePolicy extends Policy {
 		
 		try {
 			for(int i=0; i<ClusterName.length; i++) {
-				ClusterNode cn = new ClusterNode(ClusterName[i]);
+				ClusterNode cn = new ClusterNode(ClusterName[i], clusterType[i]);
 				for(int j=0; j<Machines[i].length; j++) {
 					VirtualMachineNode vmn = null;
 					Set<VM> vmSet;
@@ -338,7 +337,7 @@ public class MultiTypePolicy extends Policy {
 									!vm.getIsATemplate(vmc.xenConnection)&&
 									!vm.getIsControlDomain(vmc.xenConnection)&&
 									!vm.getIsSnapshotFromVmpp(vmc.xenConnection)) {
-								vmn = new VirtualMachineNode(vm.getUuid(vmc.xenConnection),vmc, clusterType[i]);
+								vmn = new VirtualMachineNode(vm.getUuid(vmc.xenConnection),vmc);
 								break;
 							}
 						}
@@ -350,6 +349,7 @@ public class MultiTypePolicy extends Policy {
 						cn.AddMachine(vmn);
 					}
 				}
+				this.m_availableClusterList.add(cn);
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
