@@ -1,7 +1,12 @@
 package tw.idv.ctfan.cloud.middleware;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import tw.idv.ctfan.cloud.middleware.policy.*;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.DispatchDecision;
@@ -27,6 +32,8 @@ import jade.lang.acl.MessageTemplate;
 public class JobDispatchingAgent extends Agent {
 	
 	private static final long serialVersionUID = 6274680676517501589L;
+	
+	private final String fileDirectory = "C:\\ctfan\\middlewareFile\\";
 
 	ThreadedBehaviourFactory tbf;
 	
@@ -92,28 +99,11 @@ public class JobDispatchingAgent extends Agent {
 							JobNode jn = dispatchDecision.jobToRun;
 						
 							msg = new ACLMessage(ACLMessage.REQUEST);
-							msg.addReceiver(decision.destination.agentID);
+							msg.addReceiver(dest.agentID);
+
+							msg.setByteSequenceContent(jn.jobType.EncodeJobNode(jn, fileDirectory+jn.UID+jn.jobType.GetExtension()));
 							
-							// TODO: formulate parameter value
-							// TODO: How local binary file is manipulate
-													
-							ByteArrayOutputStream s = new ByteArrayOutputStream();
-							String param = jn.transferString();
-							
-							try {
-								s.write(param.getBytes());
-								s.write(jn.);
-							} catch (IOException e) {
-								e.printStackTrace();
-								return;
-							}
-							
-							//System.out.println(param);
-							msg.setByteSequenceContent(s.toByteArray());
-							
-							myAgent.send(msg);
-							
-							jn.binaryFile=null;
+							myAgent.send(msg);							
 							
 							policy.GetWaitingJob().remove(jn);
 							policy.GetRunningJob().add(jn);

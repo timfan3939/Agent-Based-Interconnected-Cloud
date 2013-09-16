@@ -9,7 +9,7 @@ import java.util.Date;
 
 import tw.idv.ctfan.cloud.middleware.policy.Policy;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
-import tw.idv.ctfan.cloud.middleware.policy.data.VMMasterNode;
+import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
 
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
@@ -295,11 +295,9 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				
 				if(binaryFile != null) {
 					if(jobType.matches("java")) {
-						JavaJobNode javaNewJob = new JavaJobNode(JavaJobNode.JOBTYPENAME, client.toString(), jobParameter, binaryFile);
-						javaNewJob.inputData = jobParameter;
-						javaNewJob.jobName = jobName;
-						javaNewJob.deadline = 10000000;
-						myAgent.SubmitJob(javaNewJob);
+						JobNode javaNewJob = new JobNode();
+						// TODO: add parameters into its attributes
+						myAgent.SubmitJob(javaNewJob, binaryFile);
 					}
 				}				
 			}

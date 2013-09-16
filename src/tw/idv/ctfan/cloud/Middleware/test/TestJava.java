@@ -148,7 +148,7 @@ public class TestJava {
 				DataOutputStream stream = new DataOutputStream(s.getOutputStream());
 				
 				stream.write("JobType:".getBytes());
-				stream.write(tw.idv.ctfan.cloud.middleware.policy.data.JavaJobNode.JOBTYPENAME.getBytes());
+				stream.write("Java".getBytes());
 				stream.write("\n".getBytes());
 												
 				stream.write("Parameter:".getBytes());

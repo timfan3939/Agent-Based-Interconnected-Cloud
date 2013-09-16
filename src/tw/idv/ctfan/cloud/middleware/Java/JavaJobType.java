@@ -43,4 +43,15 @@ public class JavaJobType extends JobType {
 		return cid;
 	}
 
+	@Override
+	public String EncodeParameter(JobNode jn) {
+		return jn.GetDiscreteAttribute("Command");
+	}
+
+	@Override
+	public byte[] EncodeJobNode(JobNode jn, String fileDirectory) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
