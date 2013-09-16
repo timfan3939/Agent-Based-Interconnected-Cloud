@@ -247,7 +247,8 @@ public class MultiTypePolicy extends Policy {
 
 	@Override
 	public MigrationDecision GetMigrationDecision() {
-		// Auto-generated method stub
+		// Currently no migration is make.
+		// This will be future work
 		return null;
 	}
 
@@ -287,6 +288,12 @@ public class MultiTypePolicy extends Policy {
 		JobType[] clusterType = {
 				java, hadoop
 		};
+		
+		for(JobType jn : clusterType) {
+			m_jobTypeList.add(jn);
+		}
+		
+		JobNode.attributeType.put("Command", JobNode.AttributeType.Discrete);
 		
 		
 		try {

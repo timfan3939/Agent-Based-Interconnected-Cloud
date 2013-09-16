@@ -26,4 +26,10 @@ public class JavaJobType extends JobType {
 		return ".jar";
 	}
 
+	@Override
+	public void SetJobInfo(JobNode jn) {
+		long size = Long.parseLong(jn.GetDiscreteAttribute("Command"));
+		jn.AddContinuousAttribute("JobSize", size);
+	}
+
 }

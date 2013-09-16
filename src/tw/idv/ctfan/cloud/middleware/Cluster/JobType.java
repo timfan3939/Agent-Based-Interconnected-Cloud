@@ -10,7 +10,7 @@ public abstract class JobType {
 	private ArrayList<AdminAgent> m_clusterList;	
 	private String m_typeName;
 	
-	protected String getTypeName() {
+	public String getTypeName() {
 		return m_typeName;
 	}
 
@@ -24,6 +24,7 @@ public abstract class JobType {
 	
 	public abstract boolean varifyJob(JobNode jn);
 	public abstract int DecodeLoadInfo();
+	public abstract void SetJobInfo(JobNode jn);
 	//TODO: Add proper classes
 
 	public abstract String GetExtension();

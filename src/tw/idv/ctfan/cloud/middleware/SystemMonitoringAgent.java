@@ -1,5 +1,7 @@
 package tw.idv.ctfan.cloud.middleware;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -9,6 +11,7 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
+import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
 import tw.idv.ctfan.cloud.middleware.policy.*;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
@@ -26,6 +29,8 @@ public class SystemMonitoringAgent extends Agent {
 	ThreadedBehaviourFactory tbf;	
 	Policy policy;
 	private static final long serialVersionUID = 1L;	
+	
+	private final String fileDirectory = "C:\\ctfan\\middlewareFile\\";
 	
 	public static final String NAME = "SyMA";
 	
@@ -129,8 +134,9 @@ public class SystemMonitoringAgent extends Agent {
 				
 				s.close();
 				
+					
 				if(jobBinaryFile!=null) {
-					myAgent.addBehaviour(tbf.wrap(new GetJobInfoBehaviour(myAgent, jn)));
+					myAgent.addBehaviour(tbf.wrap(new GetJobInfoBehaviour(myAgent, jn, jobBinaryFile)));
 				}				
 				
 				buff = null;							
@@ -140,21 +146,59 @@ public class SystemMonitoringAgent extends Agent {
 		}		
 	}
 	
-	public void SubmitJob(JobNode newJob) {
-		this.addBehaviour(tbf.wrap(new GetJobInfoBehaviour(this, newJob)));
+	public void SubmitJob(JobNode newJob, byte[] binaryFile) {
+		// Method for HTTPServerBehaviour
+		this.addBehaviour(tbf.wrap(new GetJobInfoBehaviour(this, newJob, binaryFile)));
 	}
 	
 	private class GetJobInfoBehaviour extends OneShotBehaviour {
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = 3514767295404355772L;
 		JobNode m_job;
+		byte[] m_binary;
 		
-		GetJobInfoBehaviour(Agent a, JobNode jn) {
+		GetJobInfoBehaviour(Agent a, JobNode jn, byte[] binaryFile) {
 			super(a);
 			m_job = jn;
+			m_binary = binaryFile;
 		}
 		@Override
 		public void action() {
-			
+			String jobType = m_job.GetDiscreteAttribute("JobType");
+			if(jobType == null) {
+				System.err.println("Job Type not found");
+				m_binary = null;
+				return;
+			}
+			JobType jt = null;
+			synchronized (policy) {
+				for(JobType jobTypeIter : policy.GetJobTypeList()){
+					if(jobTypeIter.getTypeName().compareTo(jobType)==0){
+						jt = jobTypeIter;
+						break;
+					}
+				}
+			}
+			if(jt == null) {
+				System.err.println("No Such Job Type Exists");
+				m_binary = null;
+				return;
+			}
+			m_job.jobType = jt;
+			try {
+				FileOutputStream fos = new FileOutputStream(fileDirectory + m_job.UID + m_job.jobType.GetExtension());
+				fos.write(m_binary);
+				fos.close();				
+			} catch(Exception e) {
+				System.err.println("Writing binary file error");
+				e.printStackTrace();
+				m_binary = null;
+				return;
+			}
+			m_job.jobType.SetJobInfo(m_job);
+			m_binary = null;
+			synchronized(policy) {
+				policy.GetWaitingJob().add(m_job);
+			}
 		}
 	}
 	
