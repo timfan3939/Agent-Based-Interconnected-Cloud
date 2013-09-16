@@ -1,6 +1,7 @@
 package tw.idv.ctfan.cloud.middleware.policy.data;
 
 import jade.core.AID;
+import jade.core.ContainerID;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,7 +29,7 @@ public class ClusterNode implements Comparable<ClusterNode>
 //	public String agentName;
 //	public String agentAddress;
 	public AID agentID;
-	public String agentContainer;
+	public ContainerID agentContainer;
 	public int    load;
 	
 	public String clusterName;
@@ -119,10 +120,6 @@ public class ClusterNode implements Comparable<ClusterNode>
 		this.jobType = jt;
 	}
 	
-	public void SetAgent(AID agentID, String container) {
-		this.agentID = agentID;
-		this.agentContainer = container;
-	}
 	
 	public boolean compare(AID agentID)
 	{

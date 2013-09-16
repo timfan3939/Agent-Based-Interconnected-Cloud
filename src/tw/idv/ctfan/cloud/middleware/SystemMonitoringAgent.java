@@ -1,15 +1,9 @@
 package tw.idv.ctfan.cloud.middleware;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URI;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 
 import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
 import tw.idv.ctfan.cloud.middleware.policy.*;
@@ -223,136 +217,63 @@ public class SystemMonitoringAgent extends Agent {
 					block();
 					return;
 				}
-				
-				switch(msg.getPerformative())
-				{
-				case ACLMessage.CONFIRM:
-					/**
-					 * Confirms of clusters' heart beats
-					 * Message will like this:
-					 *     cluster <agent's name> <agent's container name> <agent's IP> \n
-					 *     load <cluster load> 
-					 *     job <job type> <job's name> finished
-					 *     job <job type> <job's name> running <last heartbeat time> <hasBeenExecuted> <map status> <reduce status>
-					 *     job <job type> <job's name> waiting <last heartbeat time> <finished time>
-					 */
-					
+				synchronized(policy) {
+					switch(msg.getPerformative())
 					{
-						String content = msg.getContent();
-						String[] subContent = content.split("\n");
-						String[] line = subContent[0].split(" ");
-						ClusterNode cn = null;
-						JobNode     jn = null;
-						boolean  found = false;
+					case ACLMessage.CONFIRM:
+						/**
+						 * Confirms of clusters' heart beats
+						 * Message will like this:
+						 *     cluster <agent's name> <agent's container name> <agent's IP> \n
+						 *     load <cluster load> 
+						 *     job <job type> <job's name> finished
+						 *     job <job type> <job's name> running <last heartbeat time> <hasBeenExecuted> <map status> <reduce status>
+						 *     job <job type> <job's name> waiting <last heartbeat time> <finished time>
+						 */
 						
-						//System.out.println(content);
-						
-						if(line[0].matches("cluster")){
-							found = false;
-							for(int i=0; i<policy.GetRunningCluster().size()&&!found; i++)	{
-								found = policy.GetRunningCluster().get(i).compare(line[1], line[2], line[3]);
-								if(found)
-									cn = policy.GetRunningCluster().get(i);
-							}
+						{
+							AID aid = msg.getSender();
+							String content = msg.getContent();
+							String[] subContent = content.split("\n");
+							String[] line = subContent[0].split(" ");
+							ClusterNode cn = null;
 							
-							if(!found){
-								cn = new ClusterNode(line[1], line[2], line[3]);
-								policy.OnNewClusterArrives(cn);
-								//policy.GetRunningCluster().add(cn);
-							} else	{
-								line = subContent[1].split(" ");
-								
-								for(int i=0; i<line.length; i++){
-									if(line[i].matches("load"))	{
-										i++;
-										cn.load = Integer.parseInt(line[i]);
-									} else if(line[i].matches("maxMap")) {
-										i++;
-										cn.maxMapSlot = Integer.parseInt(line[i]);
-									} else if(line[i].matches("maxReduce")) {
-										i++;
-										cn.maxReduceSlot = Integer.parseInt(line[i]);
+							//System.out.println(content);
+							
+							if(line[0].matches("cluster")){
+								for(ClusterNode cnIter: policy.GetRunningCluster()) {
+									if(cnIter.agentID == aid) {
+										cn = cnIter;
+										break;
 									}
 								}
-							}
-							
-							if(subContent.length > 2){
-								for(int i=2; i<subContent.length; i++){
-									found = false;
-									line = subContent[i].split(" ");
-									
-									if(line[0].matches("job")){
-										for(int j=0; j<policy.GetRunningJob().size(); j++){
-											if(Long.parseLong(line[2].substring(3))==policy.GetRunningJob().get(j).UID)	{
-												jn = policy.GetRunningJob().get(j);
-												found = true;
-											}
-										}
-										
-										if(found){
-											jn.currentPosition = cn;
-											if(line[3].matches("running"))	{
-												jn.lastExist = Long.parseLong(line[4]);
-												jn.jobStatus = HadoopJobNode.RUNNING;
-												jn.hasBeenExecutedTime = Long.parseLong(line[5]);
-												if(line[1].matches(HadoopJobNode.JOBTYPENAME)) {
-													((HadoopJobNode)jn).mapStatus = Integer.parseInt(line[6]);
-													((HadoopJobNode)jn).reduceStatus = Integer.parseInt(line[7]);
-												}
-												else if(line[1].matches(JavaJobNode.JOBTYPENAME)){
-													
-												}
-											}
-											else if(line[3].matches("waiting")) {
-												jn.lastExist = Long.parseLong(line[4]);
-												jn.jobStatus = HadoopJobNode.WAITING;
-											}
-											else if(line[3].matches("finished")) {
-												System.out.println(myAgent.getLocalName() + ": got finish job");
-												policy.GetRunningJob().remove(jn);
-												policy.GetFinishJob().add(jn);
-												jn.finishTime = System.currentTimeMillis();
-												
-												jn.executeTime = Long.parseLong(line[4]);
-												
-												System.out.println("Difference: " + ((double)jn.predictTime - (double)jn.executeTime)/(double)jn.executeTime);
-												System.out.println("Setting: " + jn.command + " time: " + jn.executeTime);
-												jn.jobStatus = HadoopJobNode.FINISHED;
-												jn.currentPosition = new ClusterNode(jn.currentPosition.maxMapSlot, jn.currentPosition.maxReduceSlot);
-												
-												/// TODO:add finished output file size procedure 
-											}
-										} else {
-											System.err.println("Error");
-											System.err.print(subContent[i]);
-										}										
-									}									
+								
+								if(cn == null){
+									policy.MsgToRRA().add(msg);
+									return;
 								}
-							}
-						}						
+								
+								if(subContent.length > 2){
+									// update job information
+								}
+							}						
+						}
+						break;
+					case ACLMessage.REQUEST:
+						/**
+						 * Request Closing Cluster
+						 * Message will like this:
+						 *     Close cluster <agent's name> <agent's container name> <agent's IP>
+						 */
+					{
+						policy.MsgToRRA().add(msg);
 					}
-					break;
-				case ACLMessage.REQUEST:
-					/**
-					 * Request Closing Cluster
-					 * Message will like this:
-					 *     Close cluster <agent's name> <agent's container name> <agent's IP>
-					 */
-				{
-					String content = msg.getContent();
-					System.out.println(content);
-					String[] subContent = content.split(" ");
-					if(subContent.length==5)
-					if(subContent[0].matches("Close"))
-					if(subContent[1].matches("cluster")) {
-						policy.OnOldClusterLeaves(new ClusterNode(subContent[2], subContent[3], subContent[4]));
+						break;
+					default:
+						System.out.println("Got Message");
+						System.out.println(msg.getContent());
+						break;
 					}
-				}
-					break;
-				default:
-					System.out.println("Got Message");
-					System.out.println(msg.getContent());
-					break;
 				}
 				
 			} catch(Exception e) {

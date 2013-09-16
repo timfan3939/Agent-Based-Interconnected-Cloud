@@ -1,5 +1,7 @@
 package tw.idv.ctfan.cloud.middleware.Java;
 
+import jade.core.ContainerID;
+import jade.lang.acl.ACLMessage;
 import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
 import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
 
@@ -30,6 +32,15 @@ public class JavaJobType extends JobType {
 	public void SetJobInfo(JobNode jn) {
 		long size = Long.parseLong(jn.GetDiscreteAttribute("Command"));
 		jn.AddContinuousAttribute("JobSize", size);
+	}
+
+	@Override
+	public ContainerID ExtractContainer(ACLMessage msg) {
+		String content = msg.getContent();
+		String[] line = content.split("\n");
+		ContainerID cid = new ContainerID();
+		cid.setName(line[2]);
+		return cid;
 	}
 
 }

@@ -1,5 +1,8 @@
 package tw.idv.ctfan.cloud.middleware.Cluster;
 
+import jade.core.ContainerID;
+import jade.lang.acl.ACLMessage;
+
 import java.util.ArrayList;
 
 import tw.idv.ctfan.cloud.middleware.Cluster.AdminAgent;
@@ -25,6 +28,7 @@ public abstract class JobType {
 	public abstract boolean varifyJob(JobNode jn);
 	public abstract int DecodeLoadInfo();
 	public abstract void SetJobInfo(JobNode jn);
+	public abstract ContainerID ExtractContainer(ACLMessage msg);
 	//TODO: Add proper classes
 
 	public abstract String GetExtension();

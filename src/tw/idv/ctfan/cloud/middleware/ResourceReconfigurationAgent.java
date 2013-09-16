@@ -139,13 +139,25 @@ public class ResourceReconfigurationAgent extends Agent {
 						}
 					}				
 				} else if(state == STATE.Starting_VM) {
-					// TODO: manage with monitoring agent
+					if(policy.MsgToRRA().size()==0) return;
+					ACLMessage msg = policy.MsgToRRA().remove(0);
+					currentCluster.agentID = msg.getSender();
+					
+					currentCluster.agentContainer = currentCluster.jobType.ExtractContainer(msg);
 					
 					state = STATE.Normal;
 					policy.GetRunningCluster().add(currentCluster);
 					currentCluster = null;
 				} else if(state == STATE.Closing_VM) {
-					// TODO: manage with monitoring agent
+					if(policy.MsgToRRA().size()==0) return;
+					ACLMessage msg = policy.MsgToRRA().remove(0);
+					
+					if(currentCluster.agentID != msg.getSender()) {
+						System.err.println("Got different agent id");
+						return;
+					}
+					
+					// TODO: kill the container
 					
 					state = STATE.Normal;
 					policy.GetAvailableCluster().add(currentCluster);

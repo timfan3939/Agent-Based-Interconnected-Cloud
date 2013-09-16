@@ -309,7 +309,7 @@ public abstract class AdminAgent extends Agent {
 			synchronized(m_jobList) {
 				if(m_jobList.size()==0){
 					OnTerminateCluster();
-					ACLMessage msg = new ACLMessage(ACLMessage.CONFIRM);
+					ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
 					AID recv = new AID(tw.idv.ctfan.cloud.middleware.ResourceReconfigurationAgent.name + "@" + m_masterIP + ":1099:/JADE", AID.ISGUID);
 					recv.addAddresses("http://" + m_masterIP + ":7778/acc");
 					msg.addReceiver(recv);
