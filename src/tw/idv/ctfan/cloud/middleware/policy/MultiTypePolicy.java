@@ -25,15 +25,8 @@ public class MultiTypePolicy extends Policy {
 	ArrayList<JobNode> m_runningJobList;
 	ArrayList<JobNode> m_waitingJobList;
 	
-	public enum PolicyVMState {
-		Normal, AskForVM, RequestingVM, StartingVM, ClosingVM
-	}
-	PolicyVMState policyVMState;
 	
 	FileOutputStream fout;
-	
-	ClusterNode clusterToStart = null;
-	ClusterNode clusterToShut = null;
 	
 	private final int recalculateRoughSet = 5;
 	private int lastFinishedNumber = 0;
@@ -56,7 +49,6 @@ public class MultiTypePolicy extends Policy {
 		m_finishJobList = new ArrayList<JobNode>();
 		
 		RefreshRoughSet();
-		policyVMState = PolicyVMState.Normal;
 		System.out.println("=====Policy ready=====");
 		WriteLog("=====Policy ready=====");
 		
@@ -269,32 +261,6 @@ public class MultiTypePolicy extends Policy {
 	public VMManagementDecision GetVMManagementDecision() {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public void OnNewClusterArrives(ClusterNode cn) {
-		if(policyVMState == PolicyVMState.StartingVM) {
-			clusterToStart.agentName = cn.agentName;
-			clusterToStart.agentContainer = cn.agentContainer;
-			clusterToStart.agentAddress = cn.agentAddress;
-			m_runningClusterList.add(clusterToStart);
-			WriteLog("Cluster " + clusterToStart.agentName + " is added to the list");
-			clusterToStart = null;
-		} else {
-			WriteLog("Cluster " + cn.agentName + " will be added to the list.");
-		}
-		cn = null;
-		policyVMState = PolicyVMState.Normal;
-	}
-
-	@Override
-	public void OnOldClusterLeaves(ClusterNode cn) {
-		m_availableClusterList.add(clusterToShut);
-		WriteLog("Shutting Cluster " + cn.agentName);
-		clusterToShut = null;
-		cn = null;
-		policyVMState = PolicyVMState.Normal;
-
 	}
 
 	@Override

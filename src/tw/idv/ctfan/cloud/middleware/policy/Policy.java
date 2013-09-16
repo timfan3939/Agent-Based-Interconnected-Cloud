@@ -1,5 +1,7 @@
 package tw.idv.ctfan.cloud.middleware.policy;
 
+import jade.lang.acl.ACLMessage;
+
 import java.util.ArrayList;
 
 import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
@@ -25,6 +27,10 @@ public abstract class Policy {
 	ArrayList<JobNode> m_finishJobList;
 	ArrayList<JobNode> m_waitingJobList;
 	
+	// Message Queue
+	ArrayList<ACLMessage> msgQueueToRRA;
+	ArrayList<ACLMessage> msgQueueToSMA;
+	
 	
 	protected static Policy onlyInstance;
 	
@@ -38,6 +44,8 @@ public abstract class Policy {
 		m_waitingJobList = new ArrayList<JobNode>();
 		m_vmList = new ArrayList<VirtualMachineNode>();
 		m_jobTypeList = new ArrayList<JobType>();
+		msgQueueToRRA = new ArrayList<ACLMessage>();
+		msgQueueToSMA = new ArrayList<ACLMessage>();
 	}
 	
 	public abstract DispatchDecision GetNewJobDestination();
@@ -46,13 +54,17 @@ public abstract class Policy {
 	
 	public abstract VMManagementDecision GetVMManagementDecision();
 	
-	public abstract void OnNewClusterArrives(ClusterNode cn);
-	
-	public abstract void OnOldClusterLeaves(ClusterNode cn);
-	
 	public abstract ArrayList<VMController> InitVMMasterList();
 	
 	public abstract void InitClusterList();
+	
+	public ArrayList<ACLMessage> MsgToRRA() {
+		return msgQueueToRRA;
+	}
+	
+	public ArrayList<ACLMessage> MsgToSMA() {
+		return msgQueueToSMA;
+	}
 		
 
 	public ArrayList<VMController> GetVMControllerList() {

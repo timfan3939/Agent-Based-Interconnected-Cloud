@@ -11,7 +11,6 @@ import tw.idv.ctfan.cloud.middleware.policy.Policy;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.VMManagementDecision;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.VMController;
-import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.ThreadedBehaviourFactory;
@@ -34,13 +33,21 @@ public class ResourceReconfigurationAgent extends Agent {
 	
 	public static final String name = "RRA";
 		
-	ThreadedBehaviourFactory tbf;
+	private ThreadedBehaviourFactory tbf;
+	
+	private enum STATE {
+		Normal, Starting_VM, Closing_VM
+	};
+	private STATE state;
+	private ClusterNode currentCluster;
 	
 	public void setup() 
 	{
 		super.setup();
 		
 		synchronized(policy) {
+			state = STATE.Normal;
+			currentCluster = null;
 		
 			policy.InitVMMasterList();
 			policy.InitClusterList();
@@ -96,16 +103,6 @@ public class ResourceReconfigurationAgent extends Agent {
 		}
 	}
 	
-	private class ReceiveMessageBehaviour extends OneShotBehaviour {
-			//TODO: starting here.
-		@Override
-		public void action() {
-			// TODO Auto-generated method stub
-			
-		}
-		
-	}
-	
 	private class VMManageBehaviour extends OneShotBehaviour {
 		private static final long serialVersionUID = 6671140607412559060L;
 
@@ -116,23 +113,44 @@ public class ResourceReconfigurationAgent extends Agent {
 		@Override
 		public void action() {
 			synchronized(policy) {
-				VMManagementDecision decision = policy.GetVMManagementDecision();
-				
-				if(decision!=null) {
-					if(decision.command == VMManagementDecision.Command.START_VM) {
-						try {
-							decision.cluster.StartCluster();
-						} catch(Exception e) {
-							e.printStackTrace();
-						}
-					} else if(decision.command == VMManagementDecision.Command.CLOSE_VM) {
-						ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-						AID recv = new AID(decision.cluster.agentName + "@" + decision.cluster.agentAddress + ":1099/JADE", AID.ISGUID);
-						msg.addReceiver(recv);
-						msg.setContent("TERMINATE");
-						myAgent.send(msg);
+				if(state == STATE.Normal) {
+					if(!policy.MsgToRRA().isEmpty()) {
+						policy.MsgToRRA().clear();
 					}
-				}				
+					VMManagementDecision decision = policy.GetVMManagementDecision();
+					
+					if(decision!=null) {
+						if(decision.command == VMManagementDecision.Command.START_VM) {
+							try {
+								decision.cluster.StartCluster();
+								currentCluster = decision.cluster;
+								state = STATE.Starting_VM;
+							} catch(Exception e) {
+								e.printStackTrace();
+							}
+						} else if(decision.command == VMManagementDecision.Command.CLOSE_VM) {
+							ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+							msg.addReceiver(decision.cluster.agentID);
+							msg.setContent("TERMINATE");
+							myAgent.send(msg);
+							policy.GetRunningCluster().remove(decision.cluster);
+							currentCluster = decision.cluster;
+							state = STATE.Closing_VM;
+						}
+					}				
+				} else if(state == STATE.Starting_VM) {
+					// TODO: manage with monitoring agent
+					
+					state = STATE.Normal;
+					policy.GetRunningCluster().add(currentCluster);
+					currentCluster = null;
+				} else if(state == STATE.Closing_VM) {
+					// TODO: manage with monitoring agent
+					
+					state = STATE.Normal;
+					policy.GetAvailableCluster().add(currentCluster);
+					currentCluster = null;
+				}
 			}			
 		}		
 	}

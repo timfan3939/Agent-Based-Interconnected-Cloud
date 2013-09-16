@@ -19,7 +19,7 @@ import jade.lang.acl.MessageTemplate;
 /*
  * This agent manage all service's migration policy.  It first
  * requests lists of all clusters and all jobs' info.  Then, it will
- * compute and determin wheather or not to migrate service from one
+ * compute and determine whether or not to migrate service from one
  * cluster to another.
  */
 

@@ -1,5 +1,7 @@
 package tw.idv.ctfan.cloud.middleware.policy.data;
 
+import jade.core.AID;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -23,8 +25,9 @@ import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
 public class ClusterNode implements Comparable<ClusterNode>
 {
 	// Agent Related Information
-	public String agentName;
-	public String agentAddress;
+//	public String agentName;
+//	public String agentAddress;
+	public AID agentID;
 	public String agentContainer;
 	public int    load;
 	
@@ -116,32 +119,26 @@ public class ClusterNode implements Comparable<ClusterNode>
 		this.jobType = jt;
 	}
 	
-	public void SetAgent(String name, String container, String address) {
-		this.agentName = name;
+	public void SetAgent(AID agentID, String container) {
+		this.agentID = agentID;
 		this.agentContainer = container;
-		this.agentAddress = address;
 	}
 	
-	public boolean compare(String name, String container, String address)
+	public boolean compare(AID agentID)
 	{
-		if( this.agentName.compareTo(name)==0 &&
-			this.agentContainer.compareTo(container)==0 &&
-			this.agentAddress.compareTo(address)==0)
-			return true;
-		else
-			return false;
+		return (this.agentID == agentID);
 			
 	}	
 	
 	public String toString()
 	{
-		return agentName + " " + agentContainer + " " + agentAddress + " " + load;
+		return this.agentID.getLocalName() + " " + agentContainer + " " + load;
 	}
 	
 
 	@Override
 	public int compareTo(ClusterNode o) {
 //		System.out.println(this.name + " Compare " + o.name);
-		return this.agentName.compareTo(o.agentName);
+		return (this.agentID==o.agentID?0:1);
 	}
 }
