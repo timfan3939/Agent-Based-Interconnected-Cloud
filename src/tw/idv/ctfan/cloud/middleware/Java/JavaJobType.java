@@ -12,9 +12,11 @@ public class JavaJobType extends JobType {
 	}
 
 	@Override
-	public int DecodeLoadInfo() {
-		// TODO Auto-generated method stub
-		return 0;
+	public int DecodeLoadInfo(String line) {
+		if(line.compareTo("Free")==0)
+			return 0;
+		else
+			return 100;
 	}
 
 	@Override
@@ -52,6 +54,12 @@ public class JavaJobType extends JobType {
 	public byte[] EncodeJobNode(JobNode jn, String fileDirectory) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void UpdateJobNodeInfo(String line, JobNode jn) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

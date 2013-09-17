@@ -9,7 +9,6 @@ import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
 import tw.idv.ctfan.cloud.middleware.policy.*;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
-import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
@@ -196,6 +195,21 @@ public class SystemMonitoringAgent extends Agent {
 		}
 	}
 	
+	private JobNode FindAndUpdateJobNode(String line) {
+		String[] subLine = line.split(" ");
+		JobNode jn = null;
+		for(JobNode j:policy.GetRunningJob()) {
+			if(Long.parseLong(subLine[0])==j.UID) {
+				jn = j;
+				break;
+			}
+		}
+		if(jn != null){
+			// TODO: parse the line
+		}
+		
+		return jn;
+	}
 	
 	private class ListeningBehaviour extends CyclicBehaviour
 	{
@@ -217,7 +231,7 @@ public class SystemMonitoringAgent extends Agent {
 					block();
 					return;
 				}
-//				System.out.println("Got Message");
+				System.out.println("Got Message");
 				synchronized(policy) {
 					switch(msg.getPerformative())
 					{
@@ -235,7 +249,6 @@ public class SystemMonitoringAgent extends Agent {
 						{
 							String content = msg.getContent();
 							String[] subContent = content.split("\n");
-							String[] line = subContent[0].split(" ");
 							ClusterNode cn = null;
 							String aid = msg.getSender().getName();
 							
@@ -243,35 +256,38 @@ public class SystemMonitoringAgent extends Agent {
 							String msg1 = "\n\nMessage Sender AID: " + aid;
 							
 							
+							System.out.println(System.currentTimeMillis());
 							System.out.println(msg1);
 							System.out.println("--------------------");
 							System.out.println(content);
 							System.out.println("--------------------");
 							
-							//System.out.println(content);
 							
-							if(line[0].matches("cluster")){
-								for(ClusterNode cnIter: policy.GetRunningCluster()) {
-									System.out.println(cnIter.clusterName + "-\n-" + cnIter.agentID + "-\n-" + aid + "-");
-									if(cnIter.agentID.compareTo(aid)==0) {
-//										System.out.println("AID is the same");
-										cn = cnIter;
-										break;
-									}else {
-//										System.out.println("Wrong AID " + cnIter.agentID.compareTo(aid));
-									}
+							for(ClusterNode cnIter: policy.GetRunningCluster()) {
+//								System.out.println(cnIter.clusterName + "-\n-" + cnIter.agentID + "-\n-" + aid + "-");
+								if(cnIter.agentID.compareTo(aid)==0) {
+//									System.out.println("AID is the same");
+									cn = cnIter;
+									break;
+								}else {
+//									System.out.println("Wrong AID " + cnIter.agentID.compareTo(aid));
 								}
-								
-								if(cn == null){
-//									policy.MsgToRRA().add(msg);
-									System.out.println("Unknown Cluster " + aid);
-									return;
+							}
+
+							if(cn == null){
+//								policy.MsgToRRA().add(msg);
+								System.out.println("Unknown Cluster " + aid);
+								return;
+							}
+							
+							for(int line=0; line<subContent.length; line+=2) {
+								if(line==0) {
+									cn.load = cn.jobType.DecodeLoadInfo(subContent[1]);
+								} else {
+									JobNode jn = FindAndUpdateJobNode(subContent[line]);
+									jn.jobType.UpdateJobNodeInfo(subContent[line+1], jn);
 								}
-								
-								if(subContent.length > 2){
-									// update job information
-								}
-							}						
+							}											
 						}
 						break;
 					case ACLMessage.REQUEST:
@@ -281,6 +297,7 @@ public class SystemMonitoringAgent extends Agent {
 						 *     Close cluster <agent's name> <agent's container name> <agent's IP>
 						 */
 					{
+						System.out.println("Push message to RRA");
 						policy.MsgToRRA().add(msg);
 					}
 						break;

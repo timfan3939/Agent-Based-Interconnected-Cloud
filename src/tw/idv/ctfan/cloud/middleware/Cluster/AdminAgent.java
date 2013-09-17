@@ -28,6 +28,7 @@ public abstract class AdminAgent extends Agent {
 	protected int maxExecuteJobNumber = 1;
 	
 	private boolean firstHeartBeat = false;
+	private int startHeartBeat = 5;
 
 	protected enum JOB_STATUS {
 		Waiting, Running, Finished;
@@ -36,7 +37,7 @@ public abstract class AdminAgent extends Agent {
 	protected class JobListNode {
 		public String name;
 		public long lastExist;
-		public int hasBeenExecute;
+//		public int hasBeenExecute;
 		public long executedTime = 0;
 		JOB_STATUS status;
 		public ArrayList<String> cmdParam;
@@ -47,7 +48,7 @@ public abstract class AdminAgent extends Agent {
 			this.cmdParam = cmd;
 			this.binaryFile = bin;
 			lastExist = -1;
-			hasBeenExecute = -1;
+//			hasBeenExecute = -1;
 			status = JOB_STATUS.Waiting;
 		}
 		
@@ -230,12 +231,21 @@ public abstract class AdminAgent extends Agent {
 		}
 
 		// Divided into two parts. One is report part, the other one is activate job part.
+		
+		// Line 1: cluster position information
+		// Line 2: cluster information (Encode/Decode by user, can update ClusterNode at server side)
+		// Line 3: job information
+		// Line 4: job information of the last line, used to update the values in JobNode at server side
 		@Override
 		protected void onTick(){ synchronized(m_jobList) {
 			ACLMessage heartBeat = new ACLMessage(ACLMessage.CONFIRM);
 			
 			if(!firstHeartBeat) {
 				heartBeat.setPerformative(ACLMessage.REQUEST);
+				firstHeartBeat = true;
+			} else if(startHeartBeat>0) {
+				startHeartBeat--;
+				return;
 			}
 			
 			AID reciever = new AID(tw.idv.ctfan.cloud.middleware.SystemMonitoringAgent.NAME, AID.ISGUID);
@@ -254,13 +264,14 @@ public abstract class AdminAgent extends Agent {
 			
 			System.out.println(msg1);
 			
-			String content = "cluster " +
-				myAgent.getLocalName() + " " +
-				myAgent.here().getName() + " " +
-				myAgent.getHap().split(":")[0] + "\n";
-			content += "Load:" + OnEncodeLoadInfo() + "\n";
+			String content ="";
+			
+			content += (EncodeAgentPositionInfo() + "\n");
+			content += (OnEncodeLoadInfo() + "\n");
+			
 			for(JobListNode jn:m_jobList) {
-				content += "job " + OnEncodeJobInfo(jn) + "\n";
+				content += EncodeJobExcutionInfo(jn) + "\n";
+				content += (OnEncodeJobInfo(jn)) + "\n";
 				switch(jn.status) {
 				case Waiting:
 					waitingJobCount++;
@@ -277,6 +288,7 @@ public abstract class AdminAgent extends Agent {
 			System.out.println("Sending message");
 			myAgent.send(heartBeat);
 			System.out.println("Message sent");
+			System.out.println(content);
 			
 			if(finishedJobCount>0) {
 				for(int i=0; i<m_jobList.size(); i++) {
@@ -315,6 +327,20 @@ public abstract class AdminAgent extends Agent {
 			}	
 		}		
 	} }
+
+	
+	private String EncodeAgentPositionInfo(){
+		return ( this.getLocalName() + " " +
+					this.here().getName() + " " +
+					this.getHap().split(":")[0]);
+	}
+	
+	private String EncodeJobExcutionInfo(JobListNode jn) {
+		long currentTime = System.currentTimeMillis();
+		return jn.name + " running " + (currentTime-jn.lastExist) + " " + 
+				(currentTime-jn.executedTime);
+	}
+	
 	
 	private class TerminateVMBehaviour extends OneShotBehaviour {
 		private static final long serialVersionUID = 4651660479629623002L;

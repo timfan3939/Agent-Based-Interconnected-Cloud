@@ -146,6 +146,7 @@ public class ResourceReconfigurationAgent extends Agent {
 				policy.MsgToRRA().clear();
 				ClusterNode cn = openingCluster.get(doneCount);
 				cn.agentID = msg.getSender().getName();		
+				policy.GetRunningCluster().add(cn);
 				doneCount++;
 			}
 		} }

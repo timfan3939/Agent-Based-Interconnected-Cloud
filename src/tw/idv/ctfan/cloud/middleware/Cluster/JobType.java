@@ -24,9 +24,11 @@ public abstract class JobType {
 	ArrayList<AdminAgent> getClusterList() {
 		return m_clusterList;
 	}
+
+	public abstract int DecodeLoadInfo(String line);
+	public abstract void UpdateJobNodeInfo(String line, JobNode jn);
 	
 	public abstract boolean varifyJob(JobNode jn);
-	public abstract int DecodeLoadInfo();
 	public abstract void SetJobInfo(JobNode jn);
 	public abstract ContainerID ExtractContainer(ACLMessage msg);
 	public abstract String EncodeParameter(JobNode jn);
