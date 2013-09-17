@@ -5,6 +5,7 @@ import tw.idv.ctfan.cloud.middleware.policy.Decision.DispatchDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.MigrationDecision;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
+import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.ThreadedBehaviourFactory;
@@ -73,6 +74,7 @@ public class JobDispatchingAgent extends Agent {
 					ACLMessage msg;
 					
 					
+					@SuppressWarnings("unused")
 					MigrationDecision decision = null;
 					if((decision = policy.GetMigrationDecision()) != null)
 					{
@@ -88,7 +90,7 @@ public class JobDispatchingAgent extends Agent {
 							JobNode jn = dispatchDecision.jobToRun;
 						
 							msg = new ACLMessage(ACLMessage.REQUEST);
-							msg.addReceiver(dest.agentID);
+							msg.addReceiver(new AID(dest.agentID, AID.ISGUID));
 
 							msg.setByteSequenceContent(jn.jobType.EncodeJobNode(jn, fileDirectory+jn.UID+jn.jobType.GetExtension()));
 							

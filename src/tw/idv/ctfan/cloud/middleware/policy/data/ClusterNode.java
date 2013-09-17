@@ -1,6 +1,5 @@
 package tw.idv.ctfan.cloud.middleware.policy.data;
 
-import jade.core.AID;
 import jade.core.ContainerID;
 
 import java.util.ArrayList;
@@ -28,7 +27,7 @@ public class ClusterNode implements Comparable<ClusterNode>
 	// Agent Related Information
 //	public String agentName;
 //	public String agentAddress;
-	public AID agentID;
+	public String agentID;
 	public ContainerID agentContainer;
 	public int    load;
 	
@@ -121,7 +120,7 @@ public class ClusterNode implements Comparable<ClusterNode>
 	}
 	
 	
-	public boolean compare(AID agentID)
+	public boolean compare(String agentID)
 	{
 		return (this.agentID == agentID);
 			
@@ -129,7 +128,7 @@ public class ClusterNode implements Comparable<ClusterNode>
 	
 	public String toString()
 	{
-		return this.agentID.getLocalName() + " " + agentContainer + " " + load;
+		return this.agentID + " " + agentContainer + " " + load;
 	}
 	
 

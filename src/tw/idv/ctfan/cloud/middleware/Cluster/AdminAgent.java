@@ -26,6 +26,8 @@ public abstract class AdminAgent extends Agent {
 	protected String m_masterIP;
 	
 	protected int maxExecuteJobNumber = 1;
+	
+	private boolean firstHeartBeat = false;
 
 	protected enum JOB_STATUS {
 		Waiting, Running, Finished;
@@ -232,6 +234,10 @@ public abstract class AdminAgent extends Agent {
 		protected void onTick(){ synchronized(m_jobList) {
 			ACLMessage heartBeat = new ACLMessage(ACLMessage.CONFIRM);
 			
+			if(!firstHeartBeat) {
+				heartBeat.setPerformative(ACLMessage.REQUEST);
+			}
+			
 			AID reciever = new AID(tw.idv.ctfan.cloud.middleware.SystemMonitoringAgent.NAME, AID.ISGUID);
 			reciever.addAddresses("http://" + m_masterIP + ":7778/acc");
 			heartBeat.addReceiver(reciever);
@@ -239,6 +245,14 @@ public abstract class AdminAgent extends Agent {
 			int waitingJobCount=0;
 			int runningJobCount=0;
 			int finishedJobCount=0;
+			
+			String msg1 = "My AID: " + myAgent.getAID().getName();
+			
+			for(String s:myAgent.getAID().getAddressesArray()) {
+				msg1 += (" " + s);
+			}
+			
+			System.out.println(msg1);
 			
 			String content = "cluster " +
 				myAgent.getLocalName() + " " +
@@ -260,7 +274,9 @@ public abstract class AdminAgent extends Agent {
 			}
 			
 			heartBeat.setContent(content);
+			System.out.println("Sending message");
 			myAgent.send(heartBeat);
+			System.out.println("Message sent");
 			
 			if(finishedJobCount>0) {
 				for(int i=0; i<m_jobList.size(); i++) {

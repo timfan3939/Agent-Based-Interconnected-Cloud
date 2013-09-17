@@ -26,7 +26,7 @@ public class SystemMonitoringAgent extends Agent {
 	
 	private final String fileDirectory = "C:\\ctfan\\middlewareFile\\";
 	
-	public static final String NAME = "SyMA";
+	public static final String NAME = "SyMA@120.126.145.102:1099/JADE";
 	
 	public void setup() {
 		super.setup();
@@ -204,19 +204,20 @@ public class SystemMonitoringAgent extends Agent {
 		public ListeningBehaviour(Agent agent){
 			super(agent);
 		}
-
+		
 		@Override
 		public void action() {
 			
-			//System.out.println("Test Message");
+//			System.out.println("Test Message");
 			
 			try {
 				ACLMessage msg = myAgent.receive(MessageTemplate.MatchAll());
-				
+
 				if(msg == null)	{
 					block();
 					return;
 				}
+//				System.out.println("Got Message");
 				synchronized(policy) {
 					switch(msg.getPerformative())
 					{
@@ -232,24 +233,38 @@ public class SystemMonitoringAgent extends Agent {
 						 */
 						
 						{
-							AID aid = msg.getSender();
 							String content = msg.getContent();
 							String[] subContent = content.split("\n");
 							String[] line = subContent[0].split(" ");
 							ClusterNode cn = null;
+							String aid = msg.getSender().getName();
+							
+
+							String msg1 = "\n\nMessage Sender AID: " + aid;
+							
+							
+							System.out.println(msg1);
+							System.out.println("--------------------");
+							System.out.println(content);
+							System.out.println("--------------------");
 							
 							//System.out.println(content);
 							
 							if(line[0].matches("cluster")){
 								for(ClusterNode cnIter: policy.GetRunningCluster()) {
-									if(cnIter.agentID == aid) {
+									System.out.println(cnIter.clusterName + "-\n-" + cnIter.agentID + "-\n-" + aid + "-");
+									if(cnIter.agentID.compareTo(aid)==0) {
+//										System.out.println("AID is the same");
 										cn = cnIter;
 										break;
+									}else {
+//										System.out.println("Wrong AID " + cnIter.agentID.compareTo(aid));
 									}
 								}
 								
 								if(cn == null){
-									policy.MsgToRRA().add(msg);
+//									policy.MsgToRRA().add(msg);
+									System.out.println("Unknown Cluster " + aid);
 									return;
 								}
 								
