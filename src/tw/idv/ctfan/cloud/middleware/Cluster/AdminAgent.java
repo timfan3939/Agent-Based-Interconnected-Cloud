@@ -63,6 +63,9 @@ public abstract class AdminAgent extends Agent {
 	public void setup() {
 		super.setup();		
 		
+		// TODO: command line
+		m_masterIP = "120.126.145.102";
+		
 		this.addBehaviour(new MessageListeningBehaviour(this));
 		this.addBehaviour(new HeartBeatBehaviour(this, 3000));
 	}

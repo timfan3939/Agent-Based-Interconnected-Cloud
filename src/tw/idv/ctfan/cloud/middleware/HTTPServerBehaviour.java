@@ -421,189 +421,189 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				output.print("</DIV>");
 				output.print("<HR/>");
 
-				// Submit form
-				output.print("<DIV style=\"border: 1px black solid;\">");
-				output.print("<H3>Submit Job</H3><BR/>");
-				output.print("<FORM action=\"submit\" method=\"post\" enctype=\"multipart/form-data\">");
-				output.print("Job Type: <select name=\"jobType\" id=\"jobType\" onchange=\"onSelectChange()\"><option value=\""+JavaJobNode.JOBTYPENAME+"\">Java</option><option value=\"Hadoop\">Hadoop</option></select>");
-				output.print("Binary File: <INPUT type=\"file\" name=\"binaryFile\" accept=\"application/java-archive\" /><br/>");
-				output.print("<div id=\"javaParameter\">Parameter: <INPUT type=\"text\" name=\"parameter\" /></div>");
-				output.print("<div id=\"hadoopParameter\" style=\"visibility:hidden;\">Input Folder: <INPUT type=\"text\" name=\"hadoopInput\" /> Output Folder: <INPUT type=\"text\" name=\"hadoopOutput\" /></div>");
-				output.print("<INPUT type=\"submit\" value=\"submit\" />");
-				output.print("</FORM>");
-				output.print("</DIV>");
-				output.print("<HR/>");
-				
-
-				// cluster+running list
-				output.print("<DIV>");
-				output.print("<H1>Private Cluster/Job Information</H1>");
-				output.print("<TABLE style=\"text-align:center; border-collapse:collapse; border:1px black solid; width:100%\">");
-				
-				output.print("<THEAD>" +
-								"<TR style=\"border-top:1px black solid\"><TH style=\"width:25%\">Cluster Name</TH>" +
-																		 "<TH style=\"width:25%\">Remain Time</TH>" +
-																		 "<TH style=\"width:25%\">Core</TH>" +
-																		 "<TH style=\"width:25%\">Memory</TH></TR>"+
-							 "</THEAD>");
-				output.print("<TBODY>");
-				
-				for(ClusterNode cn : policy.GetRunningCluster()) {
-					if(cn.vmMaster!=null&&cn.vmMaster.masterType!=VMMasterNode.PRIVATE)
-						continue;
-					long remainTime=0;
-					for(JobNodeBase jn : policy.GetRunningJob()) {
-						if(jn.currentPosition!=null&&jn.currentPosition.compare(cn)) {
-							if(jn.predictTime-jn.hasBeenExecutedTime<0)
-								remainTime=Long.MAX_VALUE;
-							else if(remainTime!=Long.MAX_VALUE)
-								remainTime+=(jn.predictTime-jn.hasBeenExecutedTime);
-						}
-					}
-					output.print("<TR style=\"border-top:1px solid black\"><TD>" + cn.name + "</TD>" +
-								     									  "<TD>" + remainTime + "</TD>" +
-								     									  "<TD>" + cn.core+"</TD>" +
-								     									  "<TD>" + cn.memory+"</TD></TR>");
-					output.print("<tr><td>&nbsp;</td><td colspan=\"3\">");
-					
-					output.print("<table style=\"text-align:center; border-collapse:collapse; border:1px black solid;width:100%;background-color:#dddddd;\">");
-					output.print("<thead>" +
-							"<tr style=\"border-top:1px solid black\"><th style=\"width:20%\">Job Name</th>" +
-							                                         "<th style=\"width:20%\">Job Type</th>" +
-							                                         "<th style=\"width:20%\">Estimated Time</th>" +
-							                                         "<th style=\"width:20%\">Running Time</th>" +
-							                                         "<th style=\"width:20%\">Deadline</th></tr></thead>");
-					for(JobNodeBase jn: policy.GetRunningJob()) {
-						if(jn.currentPosition!=null&&jn.currentPosition.compare(cn))
-							output.print("<tr style=\"border-top:1px solid black\"><td>" + jn.UID + "</td>" +
-									                                              "<td>" + jn.jobName + "</td>" +
-									                                              "<td>" + jn.predictTime/1000 + "</td>" +
-									                                              "<td>" + jn.hasBeenExecutedTime + "</td>" +
-									                                              "<td>" + jn.deadline + "</tr>");
-					}
-					
-					output.print("</table>");
-					
-					output.print("</td></tr>");
-				}
-				output.print("</TBODY>");
-				
-				output.print("</TABLE>");
-				
-				output.print("</DIV>");
-				
-
-				output.print("<DIV>");
-				output.print("<H1>Public Cluster/Job Information</H1>");
-				output.print("<TABLE style=\"text-align:center; border-collapse:collapse; border:1px black solid; width:100%\">");
-				
-				output.print("<THEAD>" +
-								"<TR style=\"border-top:1px black solid\"><TH style=\"width:25%\">Cluster Name</TH>" +
-																		 "<TH style=\"width:25%\">Remain Time</TH>" +
-																		 "<TH style=\"width:25%\">Core</TH>" +
-																		 "<TH style=\"width:25%\">Memory</TH></TR>"+
-							 "</THEAD>");
-				output.print("<TBODY>");
-				
-				for(ClusterNode cn : policy.GetRunningCluster()) {
-					if(cn.vmMaster!=null&&cn.vmMaster.masterType!=VMMasterNode.PUBLIC)
-						continue;
-					long remainTime=0;
-					for(JobNodeBase jn : policy.GetRunningJob()) {
-						if(jn.currentPosition!=null&&jn.currentPosition.compare(cn)) {
-							if(jn.predictTime-jn.hasBeenExecutedTime<0)
-								remainTime=Long.MAX_VALUE;
-							else if(remainTime!=Long.MAX_VALUE)
-								remainTime+=(jn.predictTime-jn.hasBeenExecutedTime);
-						}
-					}
-					output.print("<TR style=\"border-top:1px solid black\"><TD>" + cn.name + "</TD>" +
-								     									  "<TD>" + remainTime + "</TD>" +
-								     									  "<TD>" + cn.core+"</TD>" +
-								     									  "<TD>" + cn.memory+"</TD></TR>");
-					output.print("<tr><td>&nbsp;</td><td colspan=\"3\">");
-					
-					output.print("<table style=\"text-align:center; border-collapse:collapse; border:1px black solid;width:100%;background-color:#dddddd;\">");
-					output.print("<thead>" +
-							"<tr style=\"border-top:1px solid black\"><th style=\"width:20%\">Job Name</th>" +
-							                                         "<th style=\"width:20%\">Job Type</th>" +
-							                                         "<th style=\"width:20%\">Estimated Time</th>" +
-							                                         "<th style=\"width:20%\">Running Time</th>" +
-							                                         "<th style=\"width:20%\">Deadline</th></tr></thead>");
-					for(JobNodeBase jn: policy.GetRunningJob()) {
-						if(jn.currentPosition!=null&&jn.currentPosition.compare(cn))
-							output.print("<tr style=\"border-top:1px solid black\"><td>" + jn.UID + "</td>" +
-									                                              "<td>" + jn.jobName + "</td>" +
-									                                              "<td>" + jn.predictTime/1000 + "</td>" +
-									                                              "<td>" + jn.hasBeenExecutedTime + "</td>" +
-									                                              "<td>" + jn.deadline + "</tr>");
-					}
-					
-					output.print("</table>");
-					
-					output.print("</td></tr>");
-				}
-				output.print("</TBODY>");
-				
-				output.print("</TABLE>");
-				
-				output.print("</DIV>");
-				
-				
-				// waiting list
-				
-				output.print("<div>");
-				output.print("<h1>Waiting Job List</h1>");
-				output.print("<TABLE style=\"text-align:center; border-collapse:collapse; border:1px black solid; width:100%\">");
-				
-				output.print("<THEAD>" +
-								"<TR style=\"border-top:1px black solid\"><TH style=\"width:34%\">Job Name</TH>" +
-																	     "<TH style=\"width:33%\">Job Type</TH>" +
-																	     "<TH style=\"width:33%\">Deadline</TH>" +
-							 "</THEAD>");
-				
-				for(JobNodeBase jn:policy.GetWaitingJob()) {
-					output.print("<tr style=\"border-top:1px solid black\"><td>" + jn.UID + "</td>" +
-																		  "<td>" + jn.jobName + "</td>" +
-																		  "<td>" + jn.deadline + "</td>" +
-																		  "</tr>");
-				}
-				
-				output.print("</TBODY>");
-				
-				output.print("</TABLE>");
-				
-				output.print("</DIV>");
-				
-				// finish list			
-				
-				output.print("<div>");
-				output.print("<h1>Finished Job List</h1>");
-				output.print("<TABLE style=\"text-align:center; border-collapse:collapse; border:1px black solid; width:100%\">");
-				
-				output.print("<THEAD>" +
-								"<TR style=\"border-top:1px black solid\"><TH style=\"width:15%\">Job Name</TH>" +
-																		 "<TH style=\"width:15%\">Job Type</TH>" +
-																		 "<TH style=\"width:15%\">Finished Time</TH>" +
-																		 "<TH style=\"width:15%\">Differences%</TH>" +
-																		 "<TH style=\"width:15%\">Start Time</TH>" +
-																		 "<TH style=\"width:15%\">Finish Time</TH></TR>"+
-							 "</THEAD>");
-				
-				for(JobNodeBase jn:policy.GetFinishJob()) {
-					output.print("<tr style=\"border-top:1px solid black\"><td>" + jn.UID + "</td>" +
-																		  "<td>" + jn.jobName + "</td>" +
-																		  "<td>" + jn.executeTime + "</td>" +
-																		  "<td>" + (((double)jn.predictTime - (double)jn.executeTime)/(double)jn.executeTime) + "</td>" +
-																		  "<td>" + jn.startTime+ "</td>" +
-																		  "<td>" + jn.finishTime + "</td></tr>");
-				}
-				
-				output.print("</TBODY>");
-				
-				output.print("</TABLE>");
-				
-				output.print("</DIV>");
+//				// Submit form
+//				output.print("<DIV style=\"border: 1px black solid;\">");
+//				output.print("<H3>Submit Job</H3><BR/>");
+//				output.print("<FORM action=\"submit\" method=\"post\" enctype=\"multipart/form-data\">");
+//				output.print("Job Type: <select name=\"jobType\" id=\"jobType\" onchange=\"onSelectChange()\"><option value=\""+JavaJobNode.JOBTYPENAME+"\">Java</option><option value=\"Hadoop\">Hadoop</option></select>");
+//				output.print("Binary File: <INPUT type=\"file\" name=\"binaryFile\" accept=\"application/java-archive\" /><br/>");
+//				output.print("<div id=\"javaParameter\">Parameter: <INPUT type=\"text\" name=\"parameter\" /></div>");
+//				output.print("<div id=\"hadoopParameter\" style=\"visibility:hidden;\">Input Folder: <INPUT type=\"text\" name=\"hadoopInput\" /> Output Folder: <INPUT type=\"text\" name=\"hadoopOutput\" /></div>");
+//				output.print("<INPUT type=\"submit\" value=\"submit\" />");
+//				output.print("</FORM>");
+//				output.print("</DIV>");
+//				output.print("<HR/>");
+//				
+//
+//				// cluster+running list
+//				output.print("<DIV>");
+//				output.print("<H1>Private Cluster/Job Information</H1>");
+//				output.print("<TABLE style=\"text-align:center; border-collapse:collapse; border:1px black solid; width:100%\">");
+//				
+//				output.print("<THEAD>" +
+//								"<TR style=\"border-top:1px black solid\"><TH style=\"width:25%\">Cluster Name</TH>" +
+//																		 "<TH style=\"width:25%\">Remain Time</TH>" +
+//																		 "<TH style=\"width:25%\">Core</TH>" +
+//																		 "<TH style=\"width:25%\">Memory</TH></TR>"+
+//							 "</THEAD>");
+//				output.print("<TBODY>");
+//				
+//				for(ClusterNode cn : policy.GetRunningCluster()) {
+//					if(cn.vmMaster!=null&&cn.vmMaster.masterType!=VMMasterNode.PRIVATE)
+//						continue;
+//					long remainTime=0;
+//					for(JobNodeBase jn : policy.GetRunningJob()) {
+//						if(jn.currentPosition!=null&&jn.currentPosition.compare(cn)) {
+//							if(jn.predictTime-jn.hasBeenExecutedTime<0)
+//								remainTime=Long.MAX_VALUE;
+//							else if(remainTime!=Long.MAX_VALUE)
+//								remainTime+=(jn.predictTime-jn.hasBeenExecutedTime);
+//						}
+//					}
+//					output.print("<TR style=\"border-top:1px solid black\"><TD>" + cn.name + "</TD>" +
+//								     									  "<TD>" + remainTime + "</TD>" +
+//								     									  "<TD>" + cn.core+"</TD>" +
+//								     									  "<TD>" + cn.memory+"</TD></TR>");
+//					output.print("<tr><td>&nbsp;</td><td colspan=\"3\">");
+//					
+//					output.print("<table style=\"text-align:center; border-collapse:collapse; border:1px black solid;width:100%;background-color:#dddddd;\">");
+//					output.print("<thead>" +
+//							"<tr style=\"border-top:1px solid black\"><th style=\"width:20%\">Job Name</th>" +
+//							                                         "<th style=\"width:20%\">Job Type</th>" +
+//							                                         "<th style=\"width:20%\">Estimated Time</th>" +
+//							                                         "<th style=\"width:20%\">Running Time</th>" +
+//							                                         "<th style=\"width:20%\">Deadline</th></tr></thead>");
+//					for(JobNodeBase jn: policy.GetRunningJob()) {
+//						if(jn.currentPosition!=null&&jn.currentPosition.compare(cn))
+//							output.print("<tr style=\"border-top:1px solid black\"><td>" + jn.UID + "</td>" +
+//									                                              "<td>" + jn.jobName + "</td>" +
+//									                                              "<td>" + jn.predictTime/1000 + "</td>" +
+//									                                              "<td>" + jn.hasBeenExecutedTime + "</td>" +
+//									                                              "<td>" + jn.deadline + "</tr>");
+//					}
+//					
+//					output.print("</table>");
+//					
+//					output.print("</td></tr>");
+//				}
+//				output.print("</TBODY>");
+//				
+//				output.print("</TABLE>");
+//				
+//				output.print("</DIV>");
+//				
+//
+//				output.print("<DIV>");
+//				output.print("<H1>Public Cluster/Job Information</H1>");
+//				output.print("<TABLE style=\"text-align:center; border-collapse:collapse; border:1px black solid; width:100%\">");
+//				
+//				output.print("<THEAD>" +
+//								"<TR style=\"border-top:1px black solid\"><TH style=\"width:25%\">Cluster Name</TH>" +
+//																		 "<TH style=\"width:25%\">Remain Time</TH>" +
+//																		 "<TH style=\"width:25%\">Core</TH>" +
+//																		 "<TH style=\"width:25%\">Memory</TH></TR>"+
+//							 "</THEAD>");
+//				output.print("<TBODY>");
+//				
+//				for(ClusterNode cn : policy.GetRunningCluster()) {
+//					if(cn.vmMaster!=null&&cn.vmMaster.masterType!=VMMasterNode.PUBLIC)
+//						continue;
+//					long remainTime=0;
+//					for(JobNodeBase jn : policy.GetRunningJob()) {
+//						if(jn.currentPosition!=null&&jn.currentPosition.compare(cn)) {
+//							if(jn.predictTime-jn.hasBeenExecutedTime<0)
+//								remainTime=Long.MAX_VALUE;
+//							else if(remainTime!=Long.MAX_VALUE)
+//								remainTime+=(jn.predictTime-jn.hasBeenExecutedTime);
+//						}
+//					}
+//					output.print("<TR style=\"border-top:1px solid black\"><TD>" + cn.name + "</TD>" +
+//								     									  "<TD>" + remainTime + "</TD>" +
+//								     									  "<TD>" + cn.core+"</TD>" +
+//								     									  "<TD>" + cn.memory+"</TD></TR>");
+//					output.print("<tr><td>&nbsp;</td><td colspan=\"3\">");
+//					
+//					output.print("<table style=\"text-align:center; border-collapse:collapse; border:1px black solid;width:100%;background-color:#dddddd;\">");
+//					output.print("<thead>" +
+//							"<tr style=\"border-top:1px solid black\"><th style=\"width:20%\">Job Name</th>" +
+//							                                         "<th style=\"width:20%\">Job Type</th>" +
+//							                                         "<th style=\"width:20%\">Estimated Time</th>" +
+//							                                         "<th style=\"width:20%\">Running Time</th>" +
+//							                                         "<th style=\"width:20%\">Deadline</th></tr></thead>");
+//					for(JobNodeBase jn: policy.GetRunningJob()) {
+//						if(jn.currentPosition!=null&&jn.currentPosition.compare(cn))
+//							output.print("<tr style=\"border-top:1px solid black\"><td>" + jn.UID + "</td>" +
+//									                                              "<td>" + jn.jobName + "</td>" +
+//									                                              "<td>" + jn.predictTime/1000 + "</td>" +
+//									                                              "<td>" + jn.hasBeenExecutedTime + "</td>" +
+//									                                              "<td>" + jn.deadline + "</tr>");
+//					}
+//					
+//					output.print("</table>");
+//					
+//					output.print("</td></tr>");
+//				}
+//				output.print("</TBODY>");
+//				
+//				output.print("</TABLE>");
+//				
+//				output.print("</DIV>");
+//				
+//				
+//				// waiting list
+//				
+//				output.print("<div>");
+//				output.print("<h1>Waiting Job List</h1>");
+//				output.print("<TABLE style=\"text-align:center; border-collapse:collapse; border:1px black solid; width:100%\">");
+//				
+//				output.print("<THEAD>" +
+//								"<TR style=\"border-top:1px black solid\"><TH style=\"width:34%\">Job Name</TH>" +
+//																	     "<TH style=\"width:33%\">Job Type</TH>" +
+//																	     "<TH style=\"width:33%\">Deadline</TH>" +
+//							 "</THEAD>");
+//				
+//				for(JobNodeBase jn:policy.GetWaitingJob()) {
+//					output.print("<tr style=\"border-top:1px solid black\"><td>" + jn.UID + "</td>" +
+//																		  "<td>" + jn.jobName + "</td>" +
+//																		  "<td>" + jn.deadline + "</td>" +
+//																		  "</tr>");
+//				}
+//				
+//				output.print("</TBODY>");
+//				
+//				output.print("</TABLE>");
+//				
+//				output.print("</DIV>");
+//				
+//				// finish list			
+//				
+//				output.print("<div>");
+//				output.print("<h1>Finished Job List</h1>");
+//				output.print("<TABLE style=\"text-align:center; border-collapse:collapse; border:1px black solid; width:100%\">");
+//				
+//				output.print("<THEAD>" +
+//								"<TR style=\"border-top:1px black solid\"><TH style=\"width:15%\">Job Name</TH>" +
+//																		 "<TH style=\"width:15%\">Job Type</TH>" +
+//																		 "<TH style=\"width:15%\">Finished Time</TH>" +
+//																		 "<TH style=\"width:15%\">Differences%</TH>" +
+//																		 "<TH style=\"width:15%\">Start Time</TH>" +
+//																		 "<TH style=\"width:15%\">Finish Time</TH></TR>"+
+//							 "</THEAD>");
+//				
+//				for(JobNodeBase jn:policy.GetFinishJob()) {
+//					output.print("<tr style=\"border-top:1px solid black\"><td>" + jn.UID + "</td>" +
+//																		  "<td>" + jn.jobName + "</td>" +
+//																		  "<td>" + jn.executeTime + "</td>" +
+//																		  "<td>" + (((double)jn.predictTime - (double)jn.executeTime)/(double)jn.executeTime) + "</td>" +
+//																		  "<td>" + jn.startTime+ "</td>" +
+//																		  "<td>" + jn.finishTime + "</td></tr>");
+//				}
+//				
+//				output.print("</TBODY>");
+//				
+//				output.print("</TABLE>");
+//				
+//				output.print("</DIV>");
 				
 				// End of Body
 				output.print("</BODY>");

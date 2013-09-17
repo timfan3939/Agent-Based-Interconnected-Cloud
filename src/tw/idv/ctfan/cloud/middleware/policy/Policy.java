@@ -39,10 +39,13 @@ public abstract class Policy {
 		m_vmControllerList = new ArrayList<VMController>();
 		m_runningClusterList = new ArrayList<ClusterNode>();
 		m_availableClusterList = new ArrayList<ClusterNode>();
+		
 		m_runningJobList = new ArrayList<JobNode>();
 		m_finishJobList = new ArrayList<JobNode>();
 		m_waitingJobList = new ArrayList<JobNode>();
+		
 		m_vmList = new ArrayList<VirtualMachineNode>();
+		
 		m_jobTypeList = new ArrayList<JobType>();
 		msgQueueToRRA = new ArrayList<ACLMessage>();
 		msgQueueToSMA = new ArrayList<ACLMessage>();

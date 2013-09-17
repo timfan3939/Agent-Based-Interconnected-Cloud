@@ -94,8 +94,12 @@ public class ResourceReconfigurationAgent extends Agent {
 				
 				for(VM.Record record:VMs.values()) {
 					VM vm = VM.getByUuid(vmc.xenConnection, record.uuid);
-					if(vm.getPowerState(vmc.xenConnection)==Types.VmPowerState.RUNNING)
-						vm.hardShutdown(vmc.xenConnection);
+					if(!vm.getIsATemplate(vmc.xenConnection) &&
+							!vm.getIsASnapshot(vmc.xenConnection) &&
+							!vm.getIsControlDomain(vmc.xenConnection) &&
+							!vm.getIsSnapshotFromVmpp(vmc.xenConnection))
+								if(vm.getPowerState(vmc.xenConnection)==Types.VmPowerState.RUNNING)
+									vm.hardShutdown(vmc.xenConnection);
 				}
 			}
 		} catch (Exception e) {

@@ -20,18 +20,20 @@ import tw.idv.ctfan.cloud.middleware.policy.data.VMController;
 import tw.idv.ctfan.cloud.middleware.policy.data.VirtualMachineNode;
 
 public class MultiTypePolicy extends Policy {
-	
-	ArrayList<JobNode> m_finishJobList;
-	ArrayList<JobNode> m_runningJobList;
-	ArrayList<JobNode> m_waitingJobList;
-	
-	
+		
 	FileOutputStream fout;
 	
 	private final int recalculateRoughSet = 5;
 	private int lastFinishedNumber = 0;
+		
+	public static Policy GetPolicy() {
+		if(onlyInstance == null) {
+			onlyInstance = new MultiTypePolicy();
+		}
+		return onlyInstance;
+	}
 	
-	public MultiTypePolicy() {
+	private MultiTypePolicy() {
 		super();
 		onlyInstance = this;
 		
@@ -41,12 +43,6 @@ public class MultiTypePolicy extends Policy {
 			System.err.println("Error while opening log file");
 			e.printStackTrace();
 		}
-
-		super.m_finishJobList = null;
-		super.m_runningJobList = null;
-		super.m_waitingJobList = null;
-		
-		m_finishJobList = new ArrayList<JobNode>();
 		
 		RefreshRoughSet();
 		System.out.println("=====Policy ready=====");
@@ -279,8 +275,8 @@ public class MultiTypePolicy extends Policy {
 		};
 		
 		String[][] Machines = {
-				{"hdp001", "hdp002", "hdp003", "hdp004"},
-				{"hdp011"}
+				{"hdp201"},
+				{"hdp206"}
 		};
 		
 		JobType java = new JavaJobType();
