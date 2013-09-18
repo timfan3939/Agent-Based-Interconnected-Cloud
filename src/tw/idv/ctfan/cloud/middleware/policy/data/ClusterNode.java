@@ -104,6 +104,7 @@ public class ClusterNode implements Comparable<ClusterNode>
 	}
 	
 	public void StartCluster() throws BadServerResponse, VmBadPowerState, VmHvmRequired, VmIsTemplate, OtherOperationInProgress, OperationNotAllowed, BootloaderFailed, UnknownBootloader, NoHostsAvailable, LicenceRestriction, XenAPIException, XmlRpcException {
+		System.out.println("Starting Cluster " + this.clusterName);
 		for(VirtualMachineNode vmn : machines) {
 			vmn.StartVM();
 		}

@@ -115,13 +115,16 @@ public class ResourceReconfigurationAgent extends Agent {
 				
 				for(JobType jt: policy.GetJobTypeList()) {
 					for(ClusterNode cn: policy.GetAvailableCluster()) {
+//						System.out.println(cn.jobType.getTypeName() + " " + jt.getTypeName());
 						if(cn.jobType == jt) {
 							openingCluster.add(cn);
 							policy.GetAvailableCluster().remove(cn);
+//							System.out.println("Cluster " + openingCluster.size());
 							break;
 						}
 					}
 				}			
+				System.out.println("" + openingCluster.size() + " Clusters will be started");
 			}
 		}
 
@@ -179,6 +182,7 @@ public class ResourceReconfigurationAgent extends Agent {
 							try {
 								decision.cluster.StartCluster();
 								currentCluster = decision.cluster;
+								policy.GetAvailableCluster().remove(currentCluster);
 								state = STATE.Starting_VM;
 							} catch(Exception e) {
 								e.printStackTrace();
@@ -196,13 +200,12 @@ public class ResourceReconfigurationAgent extends Agent {
 				} else if(state == STATE.Starting_VM) {
 					if(policy.MsgToRRA().size()==0) return;
 					ACLMessage msg = policy.MsgToRRA().remove(0);
-					currentCluster.agentID = msg.getSender().getName();
-					
-					currentCluster.agentContainer = currentCluster.jobType.ExtractContainer(msg);
-					
-					state = STATE.Normal;
+					currentCluster.agentID = msg.getSender().getName();	
+					System.out.println(currentCluster.agentID + " is successfullly added");
+//					currentCluster.agentContainer = currentCluster.jobType.ExtractContainer(msg);
 					policy.GetRunningCluster().add(currentCluster);
 					currentCluster = null;
+					state = STATE.Normal;
 				} else if(state == STATE.Closing_VM) {
 					if(policy.MsgToRRA().size()==0) return;
 					ACLMessage msg = policy.MsgToRRA().remove(0);
