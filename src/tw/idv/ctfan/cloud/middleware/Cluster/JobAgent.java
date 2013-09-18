@@ -43,9 +43,13 @@ public abstract class JobAgent extends Agent {
 		parameter = this.getArguments();
 		
 		masterName = (String)parameter[0];
+		m_binaryHome = (String)parameter[1];
+		m_binaryName = (String)parameter[2];
 		
-		addBehaviour(new HeartBeatBehaviour(this, 3000));
-		addBehaviour(new ListeningBehaviour(this));
+		System.out.println(masterName + "\t" + m_binaryHome + "\t" + m_binaryName);
+		
+//		addBehaviour(new HeartBeatBehaviour(this, 3000));
+//		addBehaviour(new ListeningBehaviour(this));
 	}
 	
 	protected String getMasterName() {

@@ -222,7 +222,7 @@ public abstract class AdminAgent extends Agent {
 			if(newJob==null) return;
 			synchronized(m_jobList) {
 				try {
-					File f = new File(m_jarPath + "/" + newJob.name + m_jobType.GetExtension());
+					File f = new File(m_jarPath + "/job" + newJob.name + m_jobType.GetExtension());
 					if(!f.exists()) {
 						FileOutputStream output = new FileOutputStream(f);
 						output.write(newJob.binaryFile);
@@ -231,12 +231,14 @@ public abstract class AdminAgent extends Agent {
 					}
 					
 					m_jobList.add(newJob);
-
-					newJob.cmdParam.add(0, myAgent.getLocalName());
-					newJob.cmdParam.add(1, m_jarPath);
-					newJob.cmdParam.add(2, newJob.name+m_jobType.GetExtension());
 					
-					myAgent.getContainerController().createNewAgent(newJob.name, tw.idv.ctfan.cloud.middleware.Java.JavaJobAgent.class.getName(), newJob.cmdParam.toArray()).start();
+					ArrayList<String> cmd = new ArrayList<String>();
+					cmd.add(myAgent.getLocalName());
+					cmd.add(m_jarPath);
+					cmd.add("job" + newJob.name + m_jobType.GetExtension());
+					cmd.add(OnEncodeNewJobAgent(newJob));
+					
+					myAgent.getContainerController().createNewAgent(newJob.name, GetJobAgentClassName() ,cmd.toArray()).start();
 					System.out.println("===== Agent " + newJob.name + " Start=====");
 					doneYet = true;				
 				} catch (StaleProxyException e) {
@@ -336,32 +338,32 @@ public abstract class AdminAgent extends Agent {
 				}
 			}
 			
-			if(waitingJobCount>0) {
-				if(runningJobCount<maxExecuteJobNumber){
-					if(lastAskExecuteJob<=0){
-						JobListNode jn = null;
-						for(int i=0; i<m_jobList.size(); i++) {
-							jn = m_jobList.get(i);
-							if(jn.status == JOB_STATUS.Waiting) break;
-							jn = null;
-						}
-						if(jn!=null) {
-							lastAskExecuteJob = 10;
-							
-							ACLMessage msg = new ACLMessage(ACLMessage.CONFIRM);
-							AID aid = new AID(jn.name + "@" + myAgent.getHap(), AID.ISGUID);
-							
-							msg.addReceiver(aid);
-							msg.setContent("START");
-							
-							myAgent.send(msg);
-							jn.executedTime = System.currentTimeMillis();
-						}
-					} else {
-						lastAskExecuteJob--;
-					}
-				}
-			}	
+//			if(waitingJobCount>0) {
+//				if(runningJobCount<maxExecuteJobNumber){
+//					if(lastAskExecuteJob<=0){
+//						JobListNode jn = null;
+//						for(int i=0; i<m_jobList.size(); i++) {
+//							jn = m_jobList.get(i);
+//							if(jn.status == JOB_STATUS.Waiting) break;
+//							jn = null;
+//						}
+//						if(jn!=null) {
+//							lastAskExecuteJob = 10;
+//							
+//							ACLMessage msg = new ACLMessage(ACLMessage.CONFIRM);
+//							AID aid = new AID(jn.name + "@" + myAgent.getHap(), AID.ISGUID);
+//							
+//							msg.addReceiver(aid);
+//							msg.setContent("START");
+//							
+//							myAgent.send(msg);
+//							jn.executedTime = System.currentTimeMillis();
+//						}
+//					} else {
+//						lastAskExecuteJob--;
+//					}
+//				}
+//			}	
 		}		
 	} }
 
@@ -409,5 +411,7 @@ public abstract class AdminAgent extends Agent {
 	protected abstract String OnEncodeJobInfo(JobListNode jn);
 	
 	public abstract void OnDecodeNewJob(JobListNode jn, String head, String tail);
+	public abstract String OnEncodeNewJobAgent(JobListNode jn);
 	public abstract void OnTerminateCluster();
+	public abstract String GetJobAgentClassName();
 }

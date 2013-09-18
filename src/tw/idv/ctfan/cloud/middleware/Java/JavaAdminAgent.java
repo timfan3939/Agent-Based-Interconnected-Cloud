@@ -1,7 +1,5 @@
 package tw.idv.ctfan.cloud.middleware.Java;
 
-import java.util.ArrayList;
-
 import tw.idv.ctfan.cloud.middleware.Cluster.*;
 
 public class JavaAdminAgent extends AdminAgent {
@@ -31,5 +29,16 @@ public class JavaAdminAgent extends AdminAgent {
 	@Override
 	public void OnTerminateCluster() {
 		System.out.println("I'm going to be terminated.");
+	}
+
+	@Override
+	public String OnEncodeNewJobAgent(JobListNode jn) {
+		if(jn.attributes.containsKey("Parameter"))
+			return jn.attributes.get("Parameter");
+		return "";
+	}
+	
+	public String GetJobAgentClassName(){
+		return tw.idv.ctfan.cloud.middleware.Java.JavaJobAgent.class.getName();
 	}
 }
