@@ -17,8 +17,9 @@ public class JavaAdminAgent extends AdminAgent {
 
 	@Override
 	protected String OnEncodeJobInfo(JobListNode jn) {
-		long currentTime = System.currentTimeMillis();
-		return "java " + jn.name + " running " + (currentTime-jn.lastExist) + " " + (currentTime-jn.executedTime);
+//		long currentTime = System.currentTimeMillis();
+//		return "java " + jn.name + " running " + (currentTime-jn.lastExist) + " " + (currentTime-jn.executedTime);
+		return "nothing to tell";
 	}
 
 	@Override

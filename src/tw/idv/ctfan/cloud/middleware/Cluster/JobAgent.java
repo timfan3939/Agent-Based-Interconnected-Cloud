@@ -20,6 +20,7 @@ public abstract class JobAgent extends Agent {
 	protected Object[] parameter;
 	protected String m_binaryHome;
 	protected String m_binaryName;
+	protected String m_otherInfo;
 	
 	private FileOutputStream Log;
 	
@@ -45,11 +46,12 @@ public abstract class JobAgent extends Agent {
 		masterName = (String)parameter[0];
 		m_binaryHome = (String)parameter[1];
 		m_binaryName = (String)parameter[2];
+		m_otherInfo = (String)parameter[3];
 		
-		System.out.println(masterName + "\t" + m_binaryHome + "\t" + m_binaryName);
+		System.out.println(masterName + "\t" + m_binaryHome + "\t" + m_binaryName + "\t" + m_otherInfo);
 		
-//		addBehaviour(new HeartBeatBehaviour(this, 3000));
-//		addBehaviour(new ListeningBehaviour(this));
+		addBehaviour(new HeartBeatBehaviour(this, 3000));
+		addBehaviour(new ListeningBehaviour(this));
 	}
 	
 	protected String getMasterName() {
@@ -114,7 +116,7 @@ public abstract class JobAgent extends Agent {
 				case ACLMessage.CONFIRM: {
 					WriteLog("Got Start Job Message");
 					if(!startedYet) {
-						StartJob(myAgent);
+						StartJob(myAgent, m_otherInfo);
 						startedYet = true;
 						finishedYet = false;
 					} else if(startedYet && !finishedYet) {
@@ -137,7 +139,7 @@ public abstract class JobAgent extends Agent {
 		finishedYet = true;
 	}
 	
-	protected abstract void StartJob(Agent myAgent);
+	protected abstract void StartJob(Agent myAgent, String info);
 	
 	protected abstract String OnHeartBeat();
 

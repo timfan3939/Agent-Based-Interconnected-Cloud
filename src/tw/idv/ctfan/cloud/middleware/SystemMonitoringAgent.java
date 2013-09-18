@@ -197,6 +197,11 @@ public class SystemMonitoringAgent extends Agent {
 		for(JobNode j:policy.GetRunningJob()) {
 			if(Long.parseLong(subLine[0])==j.UID) {
 				jn = j;
+				jn.executionTime = Long.parseLong(subLine[3]);
+				if(subLine[1].matches("Finished")) {
+					policy.GetRunningJob().remove(jn);
+					policy.GetFinishJob().add(jn);
+				}
 				break;
 			}
 		}
@@ -283,7 +288,10 @@ public class SystemMonitoringAgent extends Agent {
 									JobNode jn = FindAndUpdateJobNode(subContent[line]);
 									jn.jobType.UpdateJobNodeInfo(subContent[line+1], jn);
 								}
-							}											
+							}				
+							System.out.println("Waiting Jobs: " + policy.GetWaitingJob().size());
+							System.out.println("Running Jobs: " + policy.GetRunningJob().size());
+							System.out.println("Finished Jobs: " + policy.GetFinishJob().size());
 						}
 						break;
 					case ACLMessage.REQUEST:

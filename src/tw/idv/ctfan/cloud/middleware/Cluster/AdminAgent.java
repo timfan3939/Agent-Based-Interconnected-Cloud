@@ -295,13 +295,13 @@ public abstract class AdminAgent extends Agent {
 			int runningJobCount=0;
 			int finishedJobCount=0;
 			
-			String msg1 = "My AID: " + myAgent.getAID().getName();
-			
-			for(String s:myAgent.getAID().getAddressesArray()) {
-				msg1 += (" " + s);
-			}
-			
-			System.out.println(msg1);
+//			String msg1 = "My AID: " + myAgent.getAID().getName();
+//			
+//			for(String s:myAgent.getAID().getAddressesArray()) {
+//				msg1 += (" " + s);
+//			}
+//			
+//			System.out.println(msg1);
 			
 			String content ="";
 			
@@ -327,7 +327,7 @@ public abstract class AdminAgent extends Agent {
 			System.out.println("Sending message");
 			myAgent.send(heartBeat);
 			System.out.println("Message sent");
-			System.out.println(content);
+//			System.out.println(content);
 			
 			if(finishedJobCount>0) {
 				for(int i=0; i<m_jobList.size(); i++) {
@@ -338,32 +338,33 @@ public abstract class AdminAgent extends Agent {
 				}
 			}
 			
-//			if(waitingJobCount>0) {
-//				if(runningJobCount<maxExecuteJobNumber){
-//					if(lastAskExecuteJob<=0){
-//						JobListNode jn = null;
-//						for(int i=0; i<m_jobList.size(); i++) {
-//							jn = m_jobList.get(i);
-//							if(jn.status == JOB_STATUS.Waiting) break;
-//							jn = null;
-//						}
-//						if(jn!=null) {
-//							lastAskExecuteJob = 10;
-//							
-//							ACLMessage msg = new ACLMessage(ACLMessage.CONFIRM);
-//							AID aid = new AID(jn.name + "@" + myAgent.getHap(), AID.ISGUID);
-//							
-//							msg.addReceiver(aid);
-//							msg.setContent("START");
-//							
-//							myAgent.send(msg);
-//							jn.executedTime = System.currentTimeMillis();
-//						}
-//					} else {
-//						lastAskExecuteJob--;
-//					}
-//				}
-//			}	
+			if(waitingJobCount>0) {
+				if(runningJobCount<maxExecuteJobNumber){
+					if(lastAskExecuteJob<=0){
+						JobListNode jn = null;
+						for(int i=0; i<m_jobList.size(); i++) {
+							jn = m_jobList.get(i);
+							if(jn.status == JOB_STATUS.Waiting) break;
+							jn = null;
+						}
+						if(jn!=null) {
+							lastAskExecuteJob = 5;
+							
+							ACLMessage msg = new ACLMessage(ACLMessage.CONFIRM);
+							AID aid = new AID(jn.name + "@" + myAgent.getHap(), AID.ISGUID);
+							
+							msg.addReceiver(aid);
+							msg.setContent("START");
+							
+							myAgent.send(msg);
+							jn.executedTime = System.currentTimeMillis();
+							jn.status = JOB_STATUS.Running;
+						}
+					} else {
+						lastAskExecuteJob--;
+					}
+				}
+			}	
 		}		
 	} }
 
@@ -376,7 +377,9 @@ public abstract class AdminAgent extends Agent {
 	
 	private String EncodeJobExcutionInfo(JobListNode jn) {
 		long currentTime = System.currentTimeMillis();
-		return jn.name + " running " + (currentTime-jn.lastExist) + " " + 
+		String status = (jn.status==JOB_STATUS.Running?"Running":
+			(jn.status==JOB_STATUS.Waiting?"Waiting":"Finished"));
+		return jn.name + " " + status + " " + (currentTime-jn.lastExist) + " " + 
 				(currentTime-jn.executedTime);
 	}
 	

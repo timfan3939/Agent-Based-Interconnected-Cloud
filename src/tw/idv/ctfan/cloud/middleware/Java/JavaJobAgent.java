@@ -17,8 +17,8 @@ public class JavaJobAgent extends JobAgent {
 	}
 
 	@Override
-	protected void StartJob(Agent myAgent) {
-		String command = "java -jar " + GetBinaryFullPath() + (String)parameter[3];
+	protected void StartJob(Agent myAgent, String info) {
+		String command = "java -jar " + GetBinaryFullPath() + " " + info;
 		WriteLog(command);
 		Runtime rt = Runtime.getRuntime();
 		Process p;
@@ -65,10 +65,12 @@ public class JavaJobAgent extends JobAgent {
 						return;
 					}
 				}
+				WriteLog("--");
 				WriteLog(m_output.toString());
 				
 				try {
 					m_process.exitValue();
+					doneYet = true;
 				} catch (IllegalThreadStateException e) {
 					System.out.println("Not Finished Yet");
 					block(5000);
