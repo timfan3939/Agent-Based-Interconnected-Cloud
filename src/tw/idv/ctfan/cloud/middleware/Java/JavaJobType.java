@@ -32,8 +32,13 @@ public class JavaJobType extends JobType {
 
 	@Override
 	public void SetJobInfo(JobNode jn) {
-		long size = Long.parseLong(jn.GetDiscreteAttribute("Command"));
-		jn.AddContinuousAttribute("JobSize", size);
+		try {
+			long size = Long.parseLong(jn.GetDiscreteAttribute("Parameter"));
+			jn.AddContinuousAttribute("JobSize", size);
+		} catch(Exception e) {
+			System.out.println("JavaJobType.SetJobInfo() got some problems");
+			e.printStackTrace();
+		}
 	}
 
 	@Override

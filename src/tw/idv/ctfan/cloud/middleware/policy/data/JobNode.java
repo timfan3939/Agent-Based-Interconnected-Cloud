@@ -83,5 +83,24 @@ public class JobNode implements Comparable<JobNode> {
 		if(obj == this) return 0;
 		return (int) (this.UID-((JobNode)obj).UID);
 	}
-
+	
+	public void DisplayDetailedInfo() {
+		System.out.println("-----Job Information-----");
+		System.out.println("JobUID: " + this.UID);
+		System.out.println("Deadline: " + this.deadline);
+		for(String typeName: JobNode.attributeType.keySet()) {
+			switch(JobNode.attributeType.get(typeName)) {
+			case Discrete:{
+				String s = this.GetDiscreteAttribute(typeName);
+				System.out.println(typeName + ":" + (s==null?"null":s));
+			}
+			break;
+			case Continuous:
+				long l = this.GetContinuousAttribute(typeName);
+				System.out.println(typeName + ":" + (l==-1?"null":l));
+				break;
+			}
+		}
+		System.out.println("-----The End of Job Information-----");
+	}
 }

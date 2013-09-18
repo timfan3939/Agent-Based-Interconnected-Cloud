@@ -257,9 +257,9 @@ public class MultiTypePolicy extends Policy {
 	@Override
 	public VMManagementDecision GetVMManagementDecision() {
 		// TODO Auto-generated method stub
-		if(this.m_availableClusterList.size()>0) {
-			return new VMManagementDecision(m_availableClusterList.get(0), VMManagementDecision.Command.START_VM);
-		}
+//		if(this.m_availableClusterList.size()>0) {
+//			return new VMManagementDecision(m_availableClusterList.get(0), VMManagementDecision.Command.START_VM);
+//		}
 		return null;
 	}
 
@@ -274,7 +274,7 @@ public class MultiTypePolicy extends Policy {
 	@Override
 	public void InitClusterList() {
 		String[] ClusterName = {"Java Cluster 1",
-							    "Java Cluster 1",
+							    "Java Cluster 2",
 		};
 		
 		String[][] Machines = {
@@ -292,7 +292,7 @@ public class MultiTypePolicy extends Policy {
 			m_jobTypeList.add(jn);
 		}
 		
-		JobNode.attributeType.put("Command", JobNode.AttributeType.Discrete);
+//		JobNode.attributeType.put("Command", JobNode.AttributeType.Discrete);
 		
 		
 		try {

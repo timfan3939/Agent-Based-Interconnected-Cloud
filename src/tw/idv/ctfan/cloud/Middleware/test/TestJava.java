@@ -5,6 +5,9 @@ import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.net.Socket;
 
+import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
+import tw.idv.ctfan.cloud.middleware.Java.JavaJobType;
+
 public class TestJava {
 	public static void main(String[] args) {
 		try {
@@ -24,6 +27,7 @@ public class TestJava {
 			java.util.Random rand = new java.util.Random();
 			for(int i=0; i<size; i++)
 				testSize[i] = rand.nextInt(100000)+50000;
+			JobType java = new JavaJobType();
 			
 //			int testSize[] = {113065, 75788, 109289, 149627, 78317, 72055, 53281, 92010, 51899, 87078, 
 //					122866, 77011, 125768, 63909, 147655, 57122, 98212, 130441, 89968, 77316, 
@@ -148,18 +152,18 @@ public class TestJava {
 				DataOutputStream stream = new DataOutputStream(s.getOutputStream());
 				
 				stream.write("JobType:".getBytes());
-				stream.write("Java".getBytes());
+				stream.write(java.getTypeName().getBytes());
 				stream.write("\n".getBytes());
 												
 				stream.write("Parameter:".getBytes());
 				stream.write(Integer.toString(testSize[i]).getBytes());
 				stream.write("\n".getBytes());
 				
-				stream.write("name:".getBytes());
+				stream.write("Name:".getBytes());
 				stream.write("ComputePi".getBytes());
 				stream.write("\n".getBytes());
 				
-				stream.write("deadline:".getBytes());
+				stream.write("Deadline:".getBytes());
 				//if(rand.nextInt(2)==0)
 				if(i%2==0)
 					stream.write(Integer.toString(120000).getBytes());

@@ -116,12 +116,7 @@ public class SystemMonitoringAgent extends Agent {
 						jn.deadline = Long.parseLong(tail);
 						bufflen = 0;
 					} else if(!head.isEmpty()&&!tail.isEmpty()){
-						try {
-							long value = Long.parseLong(tail);
-							jn.AddContinuousAttribute(head, value);
-						} catch (NumberFormatException e) {
-							jn.AddDiscreteAttribute(head, tail);
-						}
+						jn.AddDiscreteAttribute(head, tail);
 					}
 				}
 				
@@ -192,6 +187,7 @@ public class SystemMonitoringAgent extends Agent {
 			synchronized(policy) {
 				policy.GetWaitingJob().add(m_job);
 			}
+			m_job.DisplayDetailedInfo();
 		}
 	}
 	
