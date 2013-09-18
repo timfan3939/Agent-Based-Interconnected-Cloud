@@ -32,7 +32,9 @@ public abstract class JobType {
 	public abstract void SetJobInfo(JobNode jn);
 	public abstract ContainerID ExtractContainer(ACLMessage msg);
 	public abstract String EncodeParameter(JobNode jn);
-	public abstract byte[] EncodeJobNode(JobNode jn, String fileDirectory);
+	
+	
+	public abstract String OnDispatchJobMsg(JobNode jn);
 	//TODO: Add proper classes
 
 	public abstract String GetExtension();

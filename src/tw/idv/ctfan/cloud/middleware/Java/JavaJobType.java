@@ -56,9 +56,8 @@ public class JavaJobType extends JobType {
 	}
 
 	@Override
-	public byte[] EncodeJobNode(JobNode jn, String fileDirectory) {
-		// TODO Auto-generated method stub
-		return null;
+	public String OnDispatchJobMsg(JobNode jn) {
+		return ("Parameter:" + jn.GetDiscreteAttribute("Parameter"));
 	}
 
 	@Override

@@ -1,5 +1,10 @@
 package tw.idv.ctfan.cloud.middleware;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+
 import tw.idv.ctfan.cloud.middleware.policy.*;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.DispatchDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.MigrationDecision;
@@ -54,7 +59,7 @@ public class JobDispatchingAgent extends Agent {
 				
 		
 	}	
-	public ServiceManageBehaviour ServiceManageBehaviouronlyInstance = null;
+	private ServiceManageBehaviour ServiceManageBehaviouronlyInstance = null;
 	
 	private class ServiceManageBehaviour extends OneShotBehaviour
 	{
@@ -90,9 +95,45 @@ public class JobDispatchingAgent extends Agent {
 							JobNode jn = dispatchDecision.jobToRun;
 						
 							msg = new ACLMessage(ACLMessage.REQUEST);
-							msg.addReceiver(new AID(dest.agentID, AID.ISGUID));
-
-							msg.setByteSequenceContent(jn.jobType.EncodeJobNode(jn, fileDirectory+jn.UID+jn.jobType.GetExtension()));
+							AID aid = new AID(dest.agentID, AID.ISGUID);
+							// TODO: address should be automatically generated
+							aid.addAddresses("http://120.126.145.102:7778/acc");
+							msg.addReceiver(aid);
+							
+							String msgContent = "";
+							msgContent += "UID:" + jn.UID + "\n";
+							msgContent += jn.jobType.OnDispatchJobMsg(jn) + "\n";
+							
+							byte[] binaryFile;
+							try {
+								File f = new File(fileDirectory + jn.UID + jn.jobType.GetExtension());
+								InputStream is = new FileInputStream(f);
+								int length = (int)f.length();
+								binaryFile = new byte[(int)length];
+								msgContent += "BinaryDataLength:" + length + "\n";
+								
+								int offset = 0;
+								int numRead = 0;
+								while(offset < length &&
+										(numRead=is.read(binaryFile, offset, length-offset))>=0 ){
+									offset += numRead;
+								}
+								is.close();
+							} catch(Exception e) {
+								System.err.println("Read Job File Failed:" + jn.UID);
+								e.printStackTrace();
+								return;
+							}
+							
+							ByteArrayOutputStream s = new ByteArrayOutputStream();
+							try {
+								s.write(msgContent.getBytes());
+								s.write(binaryFile);
+							} catch(Exception e) {
+								System.err.println("Translate to byte content problem" + jn.UID);
+								return;
+							}
+							msg.setByteSequenceContent(s.toByteArray());
 							
 							myAgent.send(msg);							
 							

@@ -1,8 +1,10 @@
 package tw.idv.ctfan.cloud.middleware.Cluster;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import jade.core.AID;
 import jade.core.Agent;
@@ -22,7 +24,7 @@ public abstract class AdminAgent extends Agent {
 	private static final long serialVersionUID = 1L;
 	protected final JobType m_jobType;
 	
-	protected String m_jarPath;
+	protected String m_jarPath = "/home/hadoop/ctfan";
 	protected String m_masterIP;
 	
 	protected int maxExecuteJobNumber = 1;
@@ -40,13 +42,13 @@ public abstract class AdminAgent extends Agent {
 //		public int hasBeenExecute;
 		public long executedTime = 0;
 		JOB_STATUS status;
-		public ArrayList<String> cmdParam;
+		public HashMap<String, String> attributes;
 		public byte[] binaryFile;
 		
-		public JobListNode(String name, ArrayList<String> cmd, byte[] bin) {
+		public JobListNode(String name) {
 			this.name = name;
-			this.cmdParam = cmd;
-			this.binaryFile = bin;
+			this.attributes = new HashMap<String, String>();
+			this.binaryFile = null;
 			lastExist = -1;
 //			hasBeenExecute = -1;
 			status = JOB_STATUS.Waiting;
@@ -179,7 +181,42 @@ public abstract class AdminAgent extends Agent {
 		public void action() {
 			if(!hasParsed) {
 				// Parse the data with the following function
-				newJob = OnDecodeNewJob(m_data);
+				int c=0;
+				int buffLen;
+				byte[] buff = new byte[0x400], binary = null;
+							
+				newJob = new JobListNode("");
+				
+				ByteArrayInputStream dataInput = new ByteArrayInputStream(m_data);
+				
+				while(dataInput.available()>0) {
+					buffLen =0;
+					while( (c=dataInput.read()) != '\n' ) {
+						buff[buffLen] = (byte)c;
+						buffLen++;
+					}
+					
+					String line = new String (buff, 0, buffLen);
+					int index = line.indexOf(":");
+					String head = line.substring(0, index);
+					String tail = line.substring(index+1);
+					System.out.println(line);
+					
+					if(head.matches("UID")) {
+						newJob.name = tail;
+					} else if(head.matches("BinaryDataLength")){
+						try {
+							int jobLength = Integer.parseInt(tail);
+							binary = new byte[jobLength];
+							dataInput.read(binary, 0, jobLength);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						newJob.binaryFile = binary;
+					} else {
+						OnDecodeNewJob(newJob, head, tail);
+					}
+				}
 				hasParsed = true;
 			}
 			if(newJob==null) return;
@@ -369,7 +406,8 @@ public abstract class AdminAgent extends Agent {
 	}
 	
 	protected abstract String OnEncodeLoadInfo();
-	protected abstract String OnEncodeJobInfo(JobListNode jn);		
-	public abstract JobListNode OnDecodeNewJob(byte[] data);
+	protected abstract String OnEncodeJobInfo(JobListNode jn);
+	
+	public abstract void OnDecodeNewJob(JobListNode jn, String head, String tail);
 	public abstract void OnTerminateCluster();
 }
