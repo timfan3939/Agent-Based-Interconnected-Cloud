@@ -254,14 +254,14 @@ public class SystemMonitoringAgent extends Agent {
 							String aid = msg.getSender().getName();
 							
 
-							String msg1 = "\n\nMessage Sender AID: " + aid;
-							
-							
-							System.out.println(System.currentTimeMillis());
-							System.out.println(msg1);
-							System.out.println("--------------------");
-							System.out.println(content);
-							System.out.println("--------------------");
+//							String msg1 = "\n\nMessage Sender AID: " + aid;
+//							
+//							
+//							System.out.println(System.currentTimeMillis());
+//							System.out.println(msg1);
+//							System.out.println("--------------------");
+//							System.out.println(content);
+//							System.out.println("--------------------");
 							
 							
 							for(ClusterNode cnIter: policy.GetRunningCluster()) {
@@ -289,9 +289,9 @@ public class SystemMonitoringAgent extends Agent {
 									jn.jobType.UpdateJobNodeInfo(subContent[line+1], jn);
 								}
 							}				
-							System.out.println("Waiting Jobs: " + policy.GetWaitingJob().size());
-							System.out.println("Running Jobs: " + policy.GetRunningJob().size());
-							System.out.println("Finished Jobs: " + policy.GetFinishJob().size());
+//							System.out.println("Waiting Jobs: " + policy.GetWaitingJob().size());
+//							System.out.println("Running Jobs: " + policy.GetRunningJob().size());
+//							System.out.println("Finished Jobs: " + policy.GetFinishJob().size());
 						}
 						break;
 					case ACLMessage.REQUEST:

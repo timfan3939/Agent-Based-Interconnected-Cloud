@@ -6,6 +6,7 @@ import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
+import java.util.HashMap;
 
 import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
 import tw.idv.ctfan.cloud.middleware.policy.Policy;
@@ -39,6 +40,10 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	private enum PARCING_STATE {
+		stateBoundary, stateDescriptor, stateReadData,
+		handleJobType,handleAttribute, handleValue, handleBinaryFile
 	}
 	
 	@Override
@@ -114,37 +119,28 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 			
 			// Read body content
 			ByteArrayOutputStream bodyContentStream;
-			int size = 0;
+//			int size = 0;
 			
 			if(connectionType==HTTP_POST) {
-				boolean endOfMessage = false;
+				boolean endOfMessage = false;				
 				
-				// parcing POST multiform state
-				int state = 0x301;
-				final int STATE_BOUNDARY = 0x301;
-				final int STATE_DESCRIPTOR = 0x302;
-				final int STATE_READ_DATA = 0x303;
+				// Parsing POST multi-form state
+				PARCING_STATE state = PARCING_STATE.stateBoundary;
 				
-				// parcing multiple message state
-				int handling = 0;
-				final int HANDLE_JOB_TYPE = 0x401;
-//				final int HANDLE_JOB_NAME = 0x402;
-				final int HANDLE_JOB_INPUT_FOLDER = 0x403;
-				final int HANDLE_JOB_OUTPUT_FOLDER = 0x404;
-				final int HANDLE_JOB_PARAMETER = 0x405;
-				final int HANDLE_BINARY_FILE = 0x406;
+				// Parsing multiple message state
+				PARCING_STATE handling = null;
 				
-				// datas receieved
+				// Data received
 				String jobType = "";
-				String jobName = "";
-				String jobInputFolder = "";
-				String jobOutputFolder = "";
-				String jobParameter = "";
 				byte[] binaryFile = null;
+				JobNode newJob = new JobNode();
+				HashMap<Long, String> Attribute = new HashMap<Long, String>();
+				HashMap<Long, String> Value     = new HashMap<Long, String>();
+				long number = 0;
 				
 				do {
 					switch (state) {
-					case STATE_BOUNDARY: {
+					case stateBoundary: {
 						bodyContentStream = new ByteArrayOutputStream();
 						boolean endOfLine = false;
 						while (!endOfLine) {
@@ -162,20 +158,20 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 						String b = new String(bodyContentStream.toByteArray());
 						if(b.compareTo("--"+boundary)==0) {
 //							System.out.println("--"+boundary);
-							state = STATE_DESCRIPTOR;
+							state = PARCING_STATE.stateDescriptor;
 						} else if(b.compareTo("--"+boundary+"--")==0){
 //							System.out.println("--"+boundary+"--");
 							endOfMessage = true;
 						} else if(b.compareTo(boundary)==0){
 //							System.out.println(boundary);
-							state = STATE_DESCRIPTOR;
+							state = PARCING_STATE.stateDescriptor;
 						} else if(b.compareTo(boundary+"--")==0){
 //							System.out.println(boundary+"--");
 							endOfMessage = true;
 						}
 						bodyContentStream = null;
 					}	break;
-					case STATE_DESCRIPTOR:{
+					case stateDescriptor:{
 						bodyContentStream = new ByteArrayOutputStream();
 						boolean endOfLine = false;
 						while (!endOfLine) {
@@ -192,7 +188,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 						}
 						
 						if(bodyContentStream.size()==0)
-							state = STATE_READ_DATA;
+							state = PARCING_STATE.stateReadData;
 //						else
 //							System.out.println(new String(bodyContentStream.toByteArray()));
 						String info = new String(bodyContentStream.toByteArray());
@@ -201,26 +197,38 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 							String tag = subInfo[2].split("=")[1].split("\"")[1];
 //							System.out.println("tag: " + tag);
 							if(tag.matches("jobType")) {
-								handling = HANDLE_JOB_TYPE;
+								handling = PARCING_STATE.handleJobType;
 							} else if(tag.matches("binaryFile")) {
-								handling = HANDLE_BINARY_FILE;
-								jobName = subInfo[3].split("=")[1].split("\"")[1];
+								handling = PARCING_STATE.handleBinaryFile;
+//								jobName = subInfo[3].split("=")[1].split("\"")[1];
 //								System.out.println("jobName: " + jobName);
-							} else if(tag.matches("parameter")) {
-								handling = HANDLE_JOB_PARAMETER;
-							} else if(tag.matches("hadoopInput")) {
-								handling = HANDLE_JOB_INPUT_FOLDER;
-							} else if(tag.matches("hadoopOutput")) {
-								handling = HANDLE_JOB_OUTPUT_FOLDER;
+							} else if(tag.matches("attribute\\d")) {
+								handling = PARCING_STATE.handleAttribute;
+								try {
+									number = Long.parseLong(tag.substring("attribute".length()));
+								} catch (NumberFormatException e) {
+									System.err.println(tag);
+									e.printStackTrace();
+									number = -1;
+								}
+							} else if(tag.matches("value\\d")) {
+								handling =PARCING_STATE.handleValue;
+								try {
+									number = Long.parseLong(tag.substring("value".length()));
+								} catch (NumberFormatException e) {
+									System.err.println(tag);
+									e.printStackTrace();
+									number = -1;
+								}
 							}
 						}
 						bodyContentStream = null;
 					}	break;
-					case STATE_READ_DATA:{
+					case stateReadData:{
 						bodyContentStream = new ByteArrayOutputStream();
 						boolean[] passes = new boolean[4];
-						for (boolean b:passes) 
-							b = false;
+						for (int i=0; i<passes.length; i++) 
+							passes[i] = false;
 						while(!passes[3]){
 							int ch = input.read();
 							if(!passes[0]) {
@@ -264,42 +272,46 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 //						System.out.println("Got Binary size " + bodyContentStream.size());
 						
 						switch(handling) {
-						case HANDLE_JOB_TYPE:
+						case handleJobType:
 							jobType = new String(bodyContentStream.toByteArray());
-//							System.out.println("jobType: " + jobType);
 							break;
-						case HANDLE_BINARY_FILE:
+						case handleBinaryFile:
 							binaryFile = bodyContentStream.toByteArray();
-//							System.out.println("binaryFile");
 							break;
-						case HANDLE_JOB_PARAMETER:
-							jobParameter = new String(bodyContentStream.toByteArray());
-//							System.out.println("jobParameter: " + jobParameter);
+						case handleAttribute:
+							if(number!=-1) {
+								String s =  new String(bodyContentStream.toByteArray());
+								if(!s.isEmpty())
+									Attribute.put(number,s);
+								number = -1;
+							}
 							break;
-						case HANDLE_JOB_INPUT_FOLDER:
-							jobInputFolder = new String(bodyContentStream.toByteArray());
-//							System.out.println("jobInputFolder: " + jobInputFolder);
-							break;
-						case HANDLE_JOB_OUTPUT_FOLDER:
-							jobOutputFolder = new String(bodyContentStream.toByteArray());
-//							System.out.println("jobOutputFolder: " + jobOutputFolder);
+						case handleValue:
+							if(number!=-1) {
+								String s =  new String(bodyContentStream.toByteArray());
+								if(!s.isEmpty())
+									Value.put(number, s);
+								number = -1;
+							}
 							break;
 						default:
 							break;
 						}						
 						bodyContentStream = null;
-						state = STATE_BOUNDARY;
+						state = PARCING_STATE.stateBoundary;
 					}	break;
 					}					
 					
 				} while (!endOfMessage);
 				
 				if(binaryFile != null) {
-					if(jobType.matches("java")) {
-						JobNode javaNewJob = new JobNode();
-						// TODO: add parameters into its attributes
-						myAgent.SubmitJob(javaNewJob, binaryFile);
+					for(Long l:Attribute.keySet()) {
+						if(Value.get(l)!=null) {
+							newJob.AddDiscreteAttribute(Attribute.get(l), Value.get(l));
+						}
 					}
+					newJob.AddDiscreteAttribute("JobType", jobType);
+					myAgent.SubmitJob(newJob, binaryFile);
 				}				
 			}
 			
@@ -423,9 +435,9 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				// LOGOS
 				output.print("<DIV>");
 //				output.print("<H1><img src=\"http://dmclab.csie.ntpu.edu.tw/web/media/logo_action.gif\" />Hybrid Cloud Information Viewer</H1>");
-				output.print("<H1><IMG style=\"width:64px\" src=\"http://120.126.145.102/mtp/DMCL_logo.gif\" />Federated Cloud Information Viewer</H1>");
-				output.print("<div style=\"text-align:right;\"><h3>Copyright: C.T.Fan</h3></div>");
-				output.print("<h3>Uptime: "+ m_initTime.toString() +"</h3>");
+				output.print("<H1 style=\"font-size:64px; text-align:center; margin:5px\"><IMG style=\"width:64px\" src=\"http://120.126.145.102/mtp/DMCL_logo.gif\" />Federated Cloud Information Viewer</H1>");
+				output.print("<h3 style=\"text-align:right; margin:3px\">Copyright: C.T.Fan</h3>");
+				output.print("<h3 style=\"margin:3px\">Uptime: "+ m_initTime.toString() +"</h3>");
 				output.print("</DIV>");
 				output.print("<HR/>");
 
