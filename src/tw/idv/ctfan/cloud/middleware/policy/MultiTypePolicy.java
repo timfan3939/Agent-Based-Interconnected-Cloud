@@ -277,7 +277,7 @@ public class MultiTypePolicy extends Policy {
 	@Override
 	public void InitClusterList() {
 		String[] ClusterName = {"Java Cluster 1",
-							    "Java Cluster 2",
+//							    "Java Cluster 2",
 		};
 		
 		String[][] Machines = {

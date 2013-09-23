@@ -139,6 +139,7 @@ public class JobDispatchingAgent extends Agent {
 							
 							policy.GetWaitingJob().remove(jn);
 							policy.GetRunningJob().add(jn);
+							jn.runningCluster = dest;
 						}
 					}	
 					ServiceManageBehaviouronlyInstance = null;

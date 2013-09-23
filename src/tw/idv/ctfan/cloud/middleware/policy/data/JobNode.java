@@ -31,9 +31,10 @@ public class JobNode implements Comparable<JobNode> {
 	// Attributes that not in HashMap
 	public long UID;
 	public JobStatus status;
-	public long executionTime;
+	public long executionTime = -1;
 	public long deadline;
 	public JobType jobType;
+	public ClusterNode runningCluster = null;
 
 	private HashMap<String,String> attributes;
 	static public HashMap<String, AttributeType> attributeType = new HashMap<String, AttributeType>();

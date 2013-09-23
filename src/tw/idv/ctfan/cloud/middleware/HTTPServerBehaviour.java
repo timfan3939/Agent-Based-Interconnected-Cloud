@@ -376,7 +376,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 		}
 
 		@Override
-		public void action() {
+		public void action() { synchronized(policy) {
 			try {
 //				System.out.println("StatusResponse Start");
 				PrintStream output = new PrintStream(client.getOutputStream());
@@ -396,18 +396,22 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				
 				// Header
 				output.print("<HEAD><TITLE>Hybrid Cloud Information Viewer</TITLE>" +
-						//"<meta http-equiv=\"refresh\" content=\"5\" />" +
-						"<script language=\"JavaScript\">function onSelectChange(){" +
-						"var j = document.getElementById(\"javaParameter\");"+
-						"var h = document.getElementById(\"hadoopParameter\");"+
-						"j.style.visibility=\"hidden\";"+
-						"h.style.visibility=\"hidden\";"+
-						"var value = document.getElementById(\"jobType\").selectedIndex;"+
-						"if(value==0)"+
-						"{j.style.visibility=\"visible\";}"+
-						"else if(value==1)"+
-						"{h.style.visibility=\"visible\";}}"+
-						"</script>"+
+						
+						// Auto refresh
+//						"<meta http-equiv=\"refresh\" content=\"15\" />" +
+						
+						// Script to change job
+//						"<script language=\"JavaScript\">function onSelectChange(){" +
+//						"var j = document.getElementById(\"javaParameter\");"+
+//						"var h = document.getElementById(\"hadoopParameter\");"+
+//						"j.style.visibility=\"hidden\";"+
+//						"h.style.visibility=\"hidden\";"+
+//						"var value = document.getElementById(\"jobType\").selectedIndex;"+
+//						"if(value==0)"+
+//						"{j.style.visibility=\"visible\";}"+
+//						"else if(value==1)"+
+//						"{h.style.visibility=\"visible\";}}"+
+//						"</script>"+
 						"</HEAD>");
 				
 				// Start of Body
@@ -415,13 +419,14 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 								
 				// LOGOS
 				output.print("<DIV>");
-				//output.print("<H1><img src=\"http://dmclab.csie.ntpu.edu.tw/web/media/logo_action.gif\" />Hybrid Cloud Information Viewer</H1>");
+//				output.print("<H1><img src=\"http://dmclab.csie.ntpu.edu.tw/web/media/logo_action.gif\" />Hybrid Cloud Information Viewer</H1>");
+				output.print("<H1><IMG src=\"http://120.126.145.102/mtp/DMCL_logo.gif\" />Federated Cloud Information Viewer</H1>");
 				output.print("<div style=\"float:right;\"><h3>Copyright: C.T.Fan</h3></div>");
 				output.print("<h3>Uptime: "+ m_initTime.toString() +"</h3>");
 				output.print("</DIV>");
 				output.print("<HR/>");
 
-//				// Submit form
+				// Submit form
 //				output.print("<DIV style=\"border: 1px black solid;\">");
 //				output.print("<H3>Submit Job</H3><BR/>");
 //				output.print("<FORM action=\"submit\" method=\"post\" enctype=\"multipart/form-data\">");
@@ -433,66 +438,65 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 //				output.print("</FORM>");
 //				output.print("</DIV>");
 //				output.print("<HR/>");
-//				
-//
-//				// cluster+running list
-//				output.print("<DIV>");
-//				output.print("<H1>Private Cluster/Job Information</H1>");
-//				output.print("<TABLE style=\"text-align:center; border-collapse:collapse; border:1px black solid; width:100%\">");
-//				
-//				output.print("<THEAD>" +
-//								"<TR style=\"border-top:1px black solid\"><TH style=\"width:25%\">Cluster Name</TH>" +
-//																		 "<TH style=\"width:25%\">Remain Time</TH>" +
-//																		 "<TH style=\"width:25%\">Core</TH>" +
-//																		 "<TH style=\"width:25%\">Memory</TH></TR>"+
-//							 "</THEAD>");
-//				output.print("<TBODY>");
-//				
-//				for(ClusterNode cn : policy.GetRunningCluster()) {
-//					if(cn.vmMaster!=null&&cn.vmMaster.masterType!=VMMasterNode.PRIVATE)
-//						continue;
-//					long remainTime=0;
-//					for(JobNodeBase jn : policy.GetRunningJob()) {
-//						if(jn.currentPosition!=null&&jn.currentPosition.compare(cn)) {
+				
+
+				// cluster+running list
+				output.print("<DIV>");
+				output.print("<H1>Private Cluster/Job Information</H1>");
+				output.print("<TABLE style=\"text-align:center; border-collapse:collapse; border:1px black solid; width:100%\">");
+				
+				output.print("<THEAD>" +
+								"<TR style=\"border-top:1px black solid\"><TH style=\"width:25%\">Cluster Name</TH>" +
+																		 "<TH style=\"width:25%\">Remain Time</TH>" +
+																		 "<TH style=\"width:25%\">Core</TH>" +
+																		 "<TH style=\"width:25%\">Memory</TH></TR>"+
+							 "</THEAD>");
+				output.print("<TBODY>");
+				
+				for(ClusterNode cn : policy.GetRunningCluster()) {
+					long remainTime=0;
+					for(JobNode jn : policy.GetRunningJob()) {
+						if(jn.runningCluster!=null&&jn.runningCluster==cn) {
 //							if(jn.predictTime-jn.hasBeenExecutedTime<0)
 //								remainTime=Long.MAX_VALUE;
 //							else if(remainTime!=Long.MAX_VALUE)
 //								remainTime+=(jn.predictTime-jn.hasBeenExecutedTime);
-//						}
-//					}
-//					output.print("<TR style=\"border-top:1px solid black\"><TD>" + cn.name + "</TD>" +
-//								     									  "<TD>" + remainTime + "</TD>" +
-//								     									  "<TD>" + cn.core+"</TD>" +
-//								     									  "<TD>" + cn.memory+"</TD></TR>");
-//					output.print("<tr><td>&nbsp;</td><td colspan=\"3\">");
-//					
-//					output.print("<table style=\"text-align:center; border-collapse:collapse; border:1px black solid;width:100%;background-color:#dddddd;\">");
-//					output.print("<thead>" +
-//							"<tr style=\"border-top:1px solid black\"><th style=\"width:20%\">Job Name</th>" +
-//							                                         "<th style=\"width:20%\">Job Type</th>" +
-//							                                         "<th style=\"width:20%\">Estimated Time</th>" +
-//							                                         "<th style=\"width:20%\">Running Time</th>" +
-//							                                         "<th style=\"width:20%\">Deadline</th></tr></thead>");
-//					for(JobNodeBase jn: policy.GetRunningJob()) {
-//						if(jn.currentPosition!=null&&jn.currentPosition.compare(cn))
-//							output.print("<tr style=\"border-top:1px solid black\"><td>" + jn.UID + "</td>" +
-//									                                              "<td>" + jn.jobName + "</td>" +
-//									                                              "<td>" + jn.predictTime/1000 + "</td>" +
-//									                                              "<td>" + jn.hasBeenExecutedTime + "</td>" +
-//									                                              "<td>" + jn.deadline + "</tr>");
-//					}
-//					
-//					output.print("</table>");
-//					
-//					output.print("</td></tr>");
-//				}
-//				output.print("</TBODY>");
-//				
-//				output.print("</TABLE>");
-//				
-//				output.print("</DIV>");
-//				
-//
+							remainTime += 10000;
+						}
+					}
+					output.print("<TR style=\"border-top:1px solid black\"><TD>" + cn.clusterName + "</TD>" +
+								     									  "<TD>" + remainTime + "</TD>" +
+								     									  "<TD>" + cn.core+"</TD>" +
+								     									  "<TD>" + cn.memory+"</TD></TR>");
+					output.print("<tr><td>&nbsp;</td><td colspan=\"3\">");
+					
+					output.print("<table style=\"text-align:center; border-collapse:collapse; border:1px black solid;width:100%;background-color:#dddddd;\">");
+					output.print("<thead>" +
+							"<tr style=\"border-top:1px solid black\"><th style=\"width:20%\">Job Name</th>" +
+							                                         "<th style=\"width:20%\">Job Type</th>" +
+							                                         "<th style=\"width:20%\">Estimated Time</th>" +
+							                                         "<th style=\"width:20%\">Running Time</th>" +
+							                                         "<th style=\"width:20%\">Deadline</th></tr></thead>");
+					for(JobNode jn: policy.GetRunningJob()) {
+						if(jn.runningCluster!=null&&jn.runningCluster==cn)
+							output.print("<tr style=\"border-top:1px solid black\"><td>" + jn.UID + "</td>" +
+									                                              "<td>" + jn.jobType.getTypeName() + "</td>" +
+									                                              "<td>" + "Unknown" + "</td>" +
+									                                              "<td>" + jn.executionTime + "</td>" +
+									                                              "<td>" + jn.deadline + "</tr>");
+					}
+					
+					output.print("</table>");
+					
+					output.print("</td></tr>");
+				}
+				output.print("</TBODY>");
+				
+				output.print("</TABLE>");
+				
+				output.print("</DIV>");
+				
+
 //				output.print("<DIV>");
 //				output.print("<H1>Public Cluster/Job Information</H1>");
 //				output.print("<TABLE style=\"text-align:center; border-collapse:collapse; border:1px black solid; width:100%\">");
@@ -548,62 +552,63 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 //				output.print("</TABLE>");
 //				
 //				output.print("</DIV>");
-//				
-//				
-//				// waiting list
-//				
-//				output.print("<div>");
-//				output.print("<h1>Waiting Job List</h1>");
-//				output.print("<TABLE style=\"text-align:center; border-collapse:collapse; border:1px black solid; width:100%\">");
-//				
-//				output.print("<THEAD>" +
-//								"<TR style=\"border-top:1px black solid\"><TH style=\"width:34%\">Job Name</TH>" +
-//																	     "<TH style=\"width:33%\">Job Type</TH>" +
-//																	     "<TH style=\"width:33%\">Deadline</TH>" +
-//							 "</THEAD>");
-//				
-//				for(JobNodeBase jn:policy.GetWaitingJob()) {
-//					output.print("<tr style=\"border-top:1px solid black\"><td>" + jn.UID + "</td>" +
-//																		  "<td>" + jn.jobName + "</td>" +
-//																		  "<td>" + jn.deadline + "</td>" +
-//																		  "</tr>");
-//				}
-//				
-//				output.print("</TBODY>");
-//				
-//				output.print("</TABLE>");
-//				
-//				output.print("</DIV>");
-//				
-//				// finish list			
-//				
-//				output.print("<div>");
-//				output.print("<h1>Finished Job List</h1>");
-//				output.print("<TABLE style=\"text-align:center; border-collapse:collapse; border:1px black solid; width:100%\">");
-//				
-//				output.print("<THEAD>" +
-//								"<TR style=\"border-top:1px black solid\"><TH style=\"width:15%\">Job Name</TH>" +
-//																		 "<TH style=\"width:15%\">Job Type</TH>" +
-//																		 "<TH style=\"width:15%\">Finished Time</TH>" +
-//																		 "<TH style=\"width:15%\">Differences%</TH>" +
-//																		 "<TH style=\"width:15%\">Start Time</TH>" +
-//																		 "<TH style=\"width:15%\">Finish Time</TH></TR>"+
-//							 "</THEAD>");
-//				
-//				for(JobNodeBase jn:policy.GetFinishJob()) {
-//					output.print("<tr style=\"border-top:1px solid black\"><td>" + jn.UID + "</td>" +
-//																		  "<td>" + jn.jobName + "</td>" +
-//																		  "<td>" + jn.executeTime + "</td>" +
-//																		  "<td>" + (((double)jn.predictTime - (double)jn.executeTime)/(double)jn.executeTime) + "</td>" +
-//																		  "<td>" + jn.startTime+ "</td>" +
-//																		  "<td>" + jn.finishTime + "</td></tr>");
-//				}
-//				
-//				output.print("</TBODY>");
-//				
-//				output.print("</TABLE>");
-//				
-//				output.print("</DIV>");
+				
+				
+				// waiting list
+				
+				output.print("<div>");
+				output.print("<h1>Waiting Job List</h1>");
+				output.print("<TABLE style=\"text-align:center; border-collapse:collapse; border:1px black solid; width:100%\">");
+				
+				output.print("<THEAD>" +
+								"<TR style=\"border-top:1px black solid\"><TH style=\"width:34%\">Job Name</TH>" +
+																	     "<TH style=\"width:33%\">Job Type</TH>" +
+																	     "<TH style=\"width:33%\">Deadline</TH>" +
+							 "</THEAD>");
+				
+				for(JobNode jn:policy.GetWaitingJob()) {
+					output.print("<tr style=\"border-top:1px solid black\"><td>" + jn.UID + "</td>" +
+																		  "<td>" + jn.jobType.getTypeName() + "</td>" +
+																		  "<td>" + jn.deadline + "</td>" +
+																		  "</tr>");
+				}
+				
+				output.print("</TBODY>");
+				
+				output.print("</TABLE>");
+				
+				output.print("</DIV>");
+				
+				// finish list			
+				
+				output.print("<div>");
+				output.print("<h1>Finished Job List</h1>");
+				output.print("<TABLE style=\"text-align:center; border-collapse:collapse; border:1px black solid; width:100%\">");
+				
+				output.print("<THEAD>" +
+								"<TR style=\"border-top:1px black solid\"><TH style=\"width:15%\">Job Name</TH>" +
+																		 "<TH style=\"width:15%\">Job Type</TH>" +
+																		 "<TH style=\"width:15%\">Finished Time</TH>" +
+																		 "<TH style=\"width:15%\">Differences%</TH>" +
+																		 "<TH style=\"width:15%\">Start Time</TH>" +
+																		 "<TH style=\"width:15%\">Finish Time</TH></TR>"+
+							 "</THEAD>");
+				
+				for(JobNode jn:policy.GetFinishJob()) {
+					output.print("<tr style=\"border-top:1px solid black\"><td>" + jn.UID + "</td>" +
+																		  "<td>" + jn.jobType.getTypeName() + "</td>" +
+																		  "<td>" + jn.executionTime + "</td>" +
+																		  // TODO: deadline
+																		  "<td>" + (((double)jn.deadline - (double)jn.executionTime)/(double)jn.executionTime) + "</td>" +
+																		  "<td>" + "??" + "</td>" +
+																		  "<td>" + "??" + "</td></tr>");
+				}
+				
+				output.print("</TBODY>");
+				
+				output.print("</TABLE>");
+				
+				output.print("</DIV>");
 				
 				// End of Body
 				output.print("</BODY>");
@@ -619,9 +624,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 			} catch(Exception e) {
 				System.err.println("Error in tw.idv.ctfan.cloud.middleware.HTTPServerBehaviour.StatusResponse");
 				e.printStackTrace();
-			}
-		}
-		
-	}
-	
+			} 
+		} }
+	}	
 }
