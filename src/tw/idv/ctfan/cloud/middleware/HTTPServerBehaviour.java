@@ -7,6 +7,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
 
+import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
 import tw.idv.ctfan.cloud.middleware.policy.Policy;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
@@ -369,6 +370,8 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 	private class StatusResponse extends OneShotBehaviour {
 		private static final long serialVersionUID = 1L;
 		Socket client;
+		private static final String styleRight = "border: 3px black solid; float: right; display:inline-block; margin:5px; width:35%";
+		private static final String styleLeft = "border: 3px black solid; float: left; display:inline-block; margin:5px; width:60%";
 		
 		public StatusResponse(Agent a, Socket s) {
 			super(a);
@@ -420,28 +423,40 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				// LOGOS
 				output.print("<DIV>");
 //				output.print("<H1><img src=\"http://dmclab.csie.ntpu.edu.tw/web/media/logo_action.gif\" />Hybrid Cloud Information Viewer</H1>");
-				output.print("<H1><IMG src=\"http://120.126.145.102/mtp/DMCL_logo.gif\" />Federated Cloud Information Viewer</H1>");
-				output.print("<div style=\"float:right;\"><h3>Copyright: C.T.Fan</h3></div>");
+				output.print("<H1><IMG style=\"width:64px\" src=\"http://120.126.145.102/mtp/DMCL_logo.gif\" />Federated Cloud Information Viewer</H1>");
+				output.print("<div style=\"text-align:right;\"><h3>Copyright: C.T.Fan</h3></div>");
 				output.print("<h3>Uptime: "+ m_initTime.toString() +"</h3>");
 				output.print("</DIV>");
 				output.print("<HR/>");
 
 				// Submit form
-//				output.print("<DIV style=\"border: 1px black solid;\">");
-//				output.print("<H3>Submit Job</H3><BR/>");
-//				output.print("<FORM action=\"submit\" method=\"post\" enctype=\"multipart/form-data\">");
-//				output.print("Job Type: <select name=\"jobType\" id=\"jobType\" onchange=\"onSelectChange()\"><option value=\""+JavaJobNode.JOBTYPENAME+"\">Java</option><option value=\"Hadoop\">Hadoop</option></select>");
-//				output.print("Binary File: <INPUT type=\"file\" name=\"binaryFile\" accept=\"application/java-archive\" /><br/>");
-//				output.print("<div id=\"javaParameter\">Parameter: <INPUT type=\"text\" name=\"parameter\" /></div>");
-//				output.print("<div id=\"hadoopParameter\" style=\"visibility:hidden;\">Input Folder: <INPUT type=\"text\" name=\"hadoopInput\" /> Output Folder: <INPUT type=\"text\" name=\"hadoopOutput\" /></div>");
-//				output.print("<INPUT type=\"submit\" value=\"submit\" />");
-//				output.print("</FORM>");
-//				output.print("</DIV>");
-//				output.print("<HR/>");
+				output.print("<DIV style=\"" + styleRight + "\">");
+				output.print("<H1>Submit Job</H3><BR/>");
+				output.print("<FORM action=\"submit\" method=\"post\" enctype=\"multipart/form-data\">");
+				
+				output.print("Job Type: <select name=\"jobType\" id=\"jobType\">");
+				for(JobType jt:policy.GetJobTypeList()) {
+					output.print("<option value=\""+jt.getTypeName()+"\">" + jt.getTypeName() + "</option>");
+				}				
+				output.print("</select>");
+				
+				output.print("Binary File: <INPUT type=\"file\" name=\"binaryFile\" accept=\"application/java-archive\" /><br/>");
+				
+				for(int i=0; i<5; i++) {
+					String s = 
+						"Attribute" + i + ": <INPUT type=\"text\" name=\"attribute" + i + "\"/>" +
+						"Value" + i + ": <INPUT type=\"text\" name=\"value" + i + "\"/>" + 
+						"<BR />";
+					output.print(s);
+				}
+				
+				output.print("<INPUT type=\"submit\" value=\"submit\" />");
+				output.print("</FORM>");
+				output.print("</DIV>");
 				
 
 				// cluster+running list
-				output.print("<DIV>");
+				output.print("<DIV style=\"" + styleLeft + "\">");
 				output.print("<H1>Private Cluster/Job Information</H1>");
 				output.print("<TABLE style=\"text-align:center; border-collapse:collapse; border:1px black solid; width:100%\">");
 				
@@ -492,12 +507,12 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				}
 				output.print("</TBODY>");
 				
-				output.print("</TABLE>");
-				
+				output.print("</TABLE>");		
 				output.print("</DIV>");
 				
 
-//				output.print("<DIV>");
+//				
+//				output.print("<DIV style=\"" + styleLeft + "\">");
 //				output.print("<H1>Public Cluster/Job Information</H1>");
 //				output.print("<TABLE style=\"text-align:center; border-collapse:collapse; border:1px black solid; width:100%\">");
 //				
@@ -555,8 +570,8 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				
 				
 				// waiting list
-				
-				output.print("<div>");
+
+				output.print("<DIV style=\"" + styleLeft + "\">");
 				output.print("<h1>Waiting Job List</h1>");
 				output.print("<TABLE style=\"text-align:center; border-collapse:collapse; border:1px black solid; width:100%\">");
 				
@@ -580,8 +595,8 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				output.print("</DIV>");
 				
 				// finish list			
-				
-				output.print("<div>");
+
+				output.print("<DIV style=\"" + styleLeft + "\">");
 				output.print("<h1>Finished Job List</h1>");
 				output.print("<TABLE style=\"text-align:center; border-collapse:collapse; border:1px black solid; width:100%\">");
 				

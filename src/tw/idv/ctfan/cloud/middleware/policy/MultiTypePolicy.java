@@ -277,7 +277,7 @@ public class MultiTypePolicy extends Policy {
 	@Override
 	public void InitClusterList() {
 		String[] ClusterName = {"Java Cluster 1",
-//							    "Java Cluster 2",
+							    "Hadoop Cluster 2",
 		};
 		
 		String[][] Machines = {
@@ -300,7 +300,7 @@ public class MultiTypePolicy extends Policy {
 		
 		try {
 			for(int i=0; i<ClusterName.length; i++) {
-				ClusterNode cn = new ClusterNode(ClusterName[i], clusterType[0]);
+				ClusterNode cn = new ClusterNode(ClusterName[i], clusterType[i%2]);
 				for(int j=0; j<Machines[i].length; j++) {
 					VirtualMachineNode vmn = null;
 					Set<VM> vmSet;
