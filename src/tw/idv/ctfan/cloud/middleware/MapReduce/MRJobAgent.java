@@ -8,8 +8,7 @@ public class MRJobAgent extends JobAgent {
 
 	@Override
 	protected String OnHeartBeat() {
-		// TODO Auto-generated method stub
-		return null;
+		return "Hello, There.";
 	}
 
 	@Override

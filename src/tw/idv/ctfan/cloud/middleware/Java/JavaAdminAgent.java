@@ -30,6 +30,7 @@ public class JavaAdminAgent extends AdminAgent {
 	@Override
 	public void OnTerminateCluster() {
 		System.out.println("I'm going to be terminated.");
+		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -41,5 +42,10 @@ public class JavaAdminAgent extends AdminAgent {
 	
 	public String GetJobAgentClassName(){
 		return tw.idv.ctfan.cloud.middleware.Java.JavaJobAgent.class.getName();
+	}
+
+	@Override
+	public boolean InitilizeCluster() {
+		return true;
 	}
 }

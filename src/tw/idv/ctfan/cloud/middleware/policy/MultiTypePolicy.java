@@ -11,6 +11,7 @@ import com.xensource.xenapi.VM;
 import tw.idv.ctfan.RoughSet.RoughSet;
 import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
 import tw.idv.ctfan.cloud.middleware.Java.JavaJobType;
+import tw.idv.ctfan.cloud.middleware.MapReduce.MRJobType;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.DispatchDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.MigrationDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.VMManagementDecision;
@@ -277,16 +278,16 @@ public class MultiTypePolicy extends Policy {
 	@Override
 	public void InitClusterList() {
 		String[] ClusterName = {"Java Cluster 1",
-//							    "Hadoop Cluster 2",
+							    "Hadoop Cluster 1",
 		};
 		
 		String[][] Machines = {
 				{"hdp201"},
-				{"hdp206"}
+				{"hdp206", "hdp205", "hdp204", "hdp203"},
 		};
 		
 		JobType java = new JavaJobType();
-		JobType hadoop = new JavaJobType();
+		JobType hadoop = new MRJobType();
 		JobType[] clusterType = {
 				java, hadoop
 		};
@@ -300,7 +301,7 @@ public class MultiTypePolicy extends Policy {
 		
 		try {
 			for(int i=0; i<ClusterName.length; i++) {
-				ClusterNode cn = new ClusterNode(ClusterName[i], clusterType[i%2]);
+				ClusterNode cn = new ClusterNode(ClusterName[i], clusterType[i]);
 				for(int j=0; j<Machines[i].length; j++) {
 					VirtualMachineNode vmn = null;
 					Set<VM> vmSet;

@@ -13,8 +13,10 @@ public class MRJobType extends JobType {
 
 	@Override
 	public int DecodeLoadInfo(String line) {
-		// TODO Auto-generated method stub
-		return 0;
+		if(line.matches("Free")) 
+			return 0;
+		else
+			return 100;
 	}
 
 	@Override
@@ -31,8 +33,7 @@ public class MRJobType extends JobType {
 
 	@Override
 	public String GetExtension() {
-		// TODO Auto-generated method stub
-		return null;
+		return ".jar";
 	}
 
 	@Override

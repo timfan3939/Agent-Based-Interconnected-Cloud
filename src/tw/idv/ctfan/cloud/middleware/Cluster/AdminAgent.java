@@ -71,8 +71,33 @@ public abstract class AdminAgent extends Agent {
 		// TODO: command line
 		m_masterIP = "120.126.145.102";
 		
-		this.addBehaviour(new MessageListeningBehaviour(this));
-		this.addBehaviour(new HeartBeatBehaviour(this, 3000));
+		this.addBehaviour(new InitilizeClusterBehaviour(this));
+	}
+	
+	private class InitilizeClusterBehaviour extends Behaviour {
+		private static final long serialVersionUID = -5196327916599266133L;
+		
+		boolean doneYet = false;
+		AdminAgent theAgent;
+
+		public InitilizeClusterBehaviour(AdminAgent a){
+			super(a);
+			theAgent = a;
+		}		
+
+		@Override
+		public void action() {
+			if( !doneYet && ((doneYet = InitilizeCluster()) == true) ) {
+				theAgent.addBehaviour(new MessageListeningBehaviour(theAgent));
+				theAgent.addBehaviour(new HeartBeatBehaviour(theAgent, 3000));
+			}
+		}
+
+		@Override
+		public boolean done() {
+			return doneYet;
+		}
+		
 	}
 
 	protected String getJarPath() {
@@ -417,4 +442,6 @@ public abstract class AdminAgent extends Agent {
 	public abstract String OnEncodeNewJobAgent(JobListNode jn);
 	public abstract void OnTerminateCluster();
 	public abstract String GetJobAgentClassName();
+	
+	public abstract boolean InitilizeCluster();
 }
