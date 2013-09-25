@@ -1,5 +1,6 @@
 package tw.idv.ctfan.cloud.middleware.MapReduce;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 
@@ -71,6 +72,14 @@ public class MRAdminAgent extends AdminAgent {
 
 	@Override
 	public boolean InitilizeCluster() {
+		if(m_jobTracker!=null) {
+			try {
+				return m_jobTracker.getClusterStatus().getJobTrackerState() == org.apache.hadoop.mapred.JobTracker.State.RUNNING;
+			} catch (IOException e) {
+				System.err.println("Get cluster status error");
+				e.printStackTrace();
+			}
+		}
 		return false;
 	}
 

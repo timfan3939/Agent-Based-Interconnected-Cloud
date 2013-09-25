@@ -88,6 +88,7 @@ public abstract class AdminAgent extends Agent {
 		@Override
 		public void action() {
 			if( !doneYet && ((doneYet = InitilizeCluster()) == true) ) {
+				System.out.println("Starting other behaviour");
 				theAgent.addBehaviour(new MessageListeningBehaviour(theAgent));
 				theAgent.addBehaviour(new HeartBeatBehaviour(theAgent, 3000));
 			}

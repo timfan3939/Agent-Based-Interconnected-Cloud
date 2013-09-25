@@ -9,6 +9,8 @@ public class MRClusterStart {
 	
 	private static JobClient jobClient;
 	private static Process p;
+	
+	// TODO: output process message
 
 	public static void main(String[] args) { 
 		StartMapReduce();
