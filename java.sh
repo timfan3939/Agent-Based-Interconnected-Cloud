@@ -5,5 +5,15 @@ export CLASSPATH;
 
 #/home/hadoop/hadoop/bin/hadoop fs -rmr /usr/ctfan/output;
 
-java jade.Boot -host 120.126.145.102 -container -container-name private201 -jade_core_messaging_MessageManager_maxqueuesize 40000000 -jade_http_mtp_proxyHost 120.126.145.102 java201Admin:tw.idv.ctfan.cloud.middleware.Java.JavaAdminAgent\("/home/hadoop/ctfan, 120.126.145.102"\);
+NOW=$(date +%s)
+
+FILE="/home/hadoop/ctfan/scripLog/${NOW}.log"
+
+NOW=$(date +%c)
+
+echo $NOW
+
+echo $NOW >> $FILE
+
+java jade.Boot -host 120.126.145.102 -container -container-name private201 -jade_core_messaging_MessageManager_maxqueuesize 40000000 -jade_http_mtp_proxyHost 120.126.145.102 java201Admin:tw.idv.ctfan.cloud.middleware.Java.JavaAdminAgent\("/home/hadoop/ctfan, 120.126.145.102"\) 2>&1 | tee $FILE | tee
 
