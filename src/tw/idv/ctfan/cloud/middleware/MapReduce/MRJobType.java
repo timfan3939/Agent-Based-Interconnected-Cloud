@@ -35,7 +35,7 @@ public class MRJobType extends JobType {
 
 	@Override
 	public String OnDispatchJobMsg(JobNode jn) {
-		return ("Parameter:" + jn.GetDiscreteAttribute("Parameter"));
+		return ("Command:" + jn.GetDiscreteAttribute("Command"));
 	}
 
 	@Override
@@ -52,8 +52,10 @@ public class MRJobType extends JobType {
 
 	@Override
 	public boolean varifyJob(JobNode jn) {
-		// TODO Auto-generated method stub
-		return false;
+		if(jn.GetDiscreteAttribute("Command")==null) return false;
+		if(jn.GetDiscreteAttribute("InputFolder")==null) return false;
+		if(jn.GetDiscreteAttribute("OutputFolder")==null) return false;
+		return true;
 	}
 
 }

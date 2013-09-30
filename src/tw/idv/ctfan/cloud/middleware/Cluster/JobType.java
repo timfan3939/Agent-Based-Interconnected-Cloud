@@ -44,7 +44,7 @@ public abstract class JobType {
 	/**
 	 * Help verify the job.  check if the job meets the standard of the type
 	 * @param jn
-	 * @return
+	 * @return True if the job is OK, false otherwise
 	 */
 	public abstract boolean varifyJob(JobNode jn);
 	

@@ -38,7 +38,7 @@ public class JavaJobType extends JobType {
 	@Override
 	public boolean varifyJob(JobNode jn) {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
