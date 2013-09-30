@@ -6,7 +6,7 @@ import java.io.FileInputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
-public class Test {
+public class TestMR {
 
 	public static void main(String[] args) {
 		try {
