@@ -61,7 +61,9 @@ public class MRJobType extends JobType {
 
 	@Override
 	public String OnDispatchJobMsg(JobNode jn) {
-		return ("Command:" + jn.GetDiscreteAttribute("Command"));
+		return ("Command:" + jn.GetDiscreteAttribute("Command") + "\n" +
+				"InputFolder:" + jn.GetDiscreteAttribute("InputFolder") +"\n" +
+				"OutputFolder:" + jn.GetDiscreteAttribute("OutputFolder"));
 	}
 
 	@Override

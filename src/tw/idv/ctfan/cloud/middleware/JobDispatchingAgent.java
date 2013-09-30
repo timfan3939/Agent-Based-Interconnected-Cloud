@@ -104,6 +104,8 @@ public class JobDispatchingAgent extends Agent {
 							msgContent += "UID:" + jn.UID + "\n";
 							msgContent += jn.jobType.OnDispatchJobMsg(jn) + "\n";
 							
+							System.out.println(msgContent);
+							
 							byte[] binaryFile;
 							try {
 								File f = new File(fileDirectory + jn.UID + jn.jobType.GetExtension());

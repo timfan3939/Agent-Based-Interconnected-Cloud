@@ -223,10 +223,15 @@ public abstract class AdminAgent extends Agent {
 					}
 					
 					String line = new String (buff, 0, buffLen);
+					System.out.println(line);
 					int index = line.indexOf(":");
+					if(index==-1) {
+						System.err.println("Line has some problem");
+						System.err.println(line);
+						continue;
+					}
 					String head = line.substring(0, index);
 					String tail = line.substring(index+1);
-					System.out.println(line);
 					
 					if(head.matches("UID")) {
 						newJob.name = tail;
