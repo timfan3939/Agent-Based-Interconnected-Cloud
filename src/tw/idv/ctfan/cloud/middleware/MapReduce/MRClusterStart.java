@@ -1,5 +1,6 @@
 package tw.idv.ctfan.cloud.middleware.MapReduce;
 
+import java.io.BufferedInputStream;
 import java.net.InetSocketAddress;
 
 import org.apache.hadoop.conf.Configuration;
@@ -9,6 +10,12 @@ public class MRClusterStart {
 	
 	private static JobClient jobClient;
 	private static Process p;
+	
+	static BufferedInputStream m_buffErrorInput;
+	static BufferedInputStream m_buffNormalInput;
+	static StringBuffer m_output = new StringBuffer();
+	static byte[] buff2k = new byte[0x400];
+	static int buffLen;
 	
 	// TODO: output process message
 
@@ -24,8 +31,36 @@ public class MRClusterStart {
 			Runtime rt = Runtime.getRuntime();
 			String command = "/home/hadoop/ctfan/jade/java70_64.sh";
 			p = rt.exec(command);
+			m_buffErrorInput = new BufferedInputStream(p.getErrorStream());
+			m_buffNormalInput= new BufferedInputStream(p.getInputStream());
+			
 			
 			Thread.sleep(1000);
+			
+			while(true) {
+				try {
+					if( (buffLen = m_buffErrorInput.read(buff2k)) >0 ) {
+						m_output.append("\n-Error-----------------------\n");
+						m_output.append(new String(buff2k), 0, buffLen);
+						m_output.append("\n-----------------------------\n");
+						
+						System.out.println(m_output.toString());
+						m_output.delete(0, m_output.length());
+					}
+					if( (buffLen = m_buffNormalInput.read(buff2k)) >0 ) {
+						m_output.append("\n-Normal----------------------\n");
+						m_output.append(new String(buff2k), 0, buffLen);
+						m_output.append("\n-----------------------------\n");
+						
+						System.out.println(m_output.toString());
+						m_output.delete(0, m_output.length());
+					}
+					
+					p.exitValue();
+					break;
+				} catch(IllegalThreadStateException e) {
+				}
+			}
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -74,9 +109,28 @@ public class MRClusterStart {
 			Process p;
 			String command = "/root/hadoop/bin/start-all.sh";
 			p = rt.exec(command);
+			m_buffErrorInput = new BufferedInputStream(p.getErrorStream());
+			m_buffNormalInput= new BufferedInputStream(p.getInputStream());
 			
 			while(true) {
 				try {
+					if( (buffLen = m_buffErrorInput.read(buff2k)) >0 ) {
+						m_output.append("\n-Error-----------------------\n");
+						m_output.append(new String(buff2k), 0, buffLen);
+						m_output.append("\n-----------------------------\n");
+						System.out.println(m_output.toString());
+						m_output.delete(0, m_output.length());
+					}
+
+					if( (buffLen = m_buffNormalInput.read(buff2k)) >0 ) {
+						m_output.append("\n-Normal----------------------\n");
+						m_output.append(new String(buff2k), 0, buffLen);
+						m_output.append("\n-----------------------------\n");
+						
+						System.out.println(m_output.toString());
+						m_output.delete(0, m_output.length());
+					}
+					
 					p.exitValue();
 					break;
 				} catch(IllegalThreadStateException e) {
