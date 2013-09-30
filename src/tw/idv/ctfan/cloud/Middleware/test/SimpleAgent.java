@@ -4,7 +4,6 @@ import jade.core.AID;
 import jade.core.Agent;
 import jade.core.ContainerID;
 import jade.core.PlatformID;
-import jade.core.ProfileImpl;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.ThreadedBehaviourFactory;
 import jade.lang.acl.ACLMessage;
@@ -70,6 +69,7 @@ public class SimpleAgent extends Agent {
 		System.out.println("After Move");
 	}
 	
+	@SuppressWarnings("unused")
 	private class GetMessageBehaviour extends Behaviour
 	{
 		private static final long serialVersionUID = 1L;
@@ -94,6 +94,7 @@ public class SimpleAgent extends Agent {
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private class receBehaviour extends Behaviour
 	{
 		private static final long serialVersionUID = 1L;

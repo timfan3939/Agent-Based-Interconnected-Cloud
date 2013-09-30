@@ -2,10 +2,8 @@ package tw.idv.ctfan.cloud.middleware.MapReduce;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.URI;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.mapred.JobClient;
 
 import tw.idv.ctfan.cloud.middleware.Cluster.AdminAgent;
@@ -15,7 +13,7 @@ public class MRAdminAgent extends AdminAgent {
 	
 	// hadoop hdfs and job tracker interfaces
 	private JobClient m_jobTracker;
-	private FileSystem m_nameNode;
+//	private FileSystem m_nameNode;
 
 	public MRAdminAgent() {
 		super(new MRJobType());
@@ -27,12 +25,12 @@ public class MRAdminAgent extends AdminAgent {
 			e.printStackTrace();
 		}
 		
-		try {
-			m_nameNode = FileSystem.get(new URI("hdfs://localhost:9000"), new Configuration());
-		} catch (Exception e) {
-			System.err.println("Name Node Problem");
-			e.printStackTrace();
-		} 
+//		try {
+//			m_nameNode = FileSystem.get(new URI("hdfs://localhost:9000"), new Configuration());
+//		} catch (Exception e) {
+//			System.err.println("Name Node Problem");
+//			e.printStackTrace();
+//		} 
 	}
 
 	@Override
