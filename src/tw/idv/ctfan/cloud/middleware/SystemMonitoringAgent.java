@@ -254,14 +254,14 @@ public class SystemMonitoringAgent extends Agent {
 							String aid = msg.getSender().getName();
 							
 
-//							String msg1 = "\n\nMessage Sender AID: " + aid;
-//							
-//							
-//							System.out.println(System.currentTimeMillis());
-//							System.out.println(msg1);
-//							System.out.println("--------------------");
-//							System.out.println(content);
-//							System.out.println("--------------------");
+							String msg1 = "\n\nMessage Sender AID: " + aid;
+							
+							
+							System.out.println(System.currentTimeMillis());
+							System.out.println(msg1);
+							System.out.println("--------------------");
+							System.out.println(content);
+							System.out.println("--------------------");
 							
 							
 							for(ClusterNode cnIter: policy.GetRunningCluster()) {

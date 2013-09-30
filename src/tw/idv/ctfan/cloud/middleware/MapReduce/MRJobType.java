@@ -67,7 +67,7 @@ public class MRJobType extends JobType {
 	@Override
 	public void SetJobInfo(JobNode jn) {
 		try {
-			FileSystem fs = FileSystem.get(new URI("hdfs://140.133.200.203:9000"), new Configuration());
+			FileSystem fs = FileSystem.get(new URI("hdfs://10.133.200.203:9000"), new Configuration());
 			
 			Path path = new Path(jn.GetDiscreteAttribute("InputFolder"));
 			
@@ -90,6 +90,8 @@ public class MRJobType extends JobType {
 		catch (Exception e) {
 			System.err.println("Getting File system info error");
 			e.printStackTrace();
+			jn.AddContinuousAttribute("InputFileSize", 0);
+			jn.AddContinuousAttribute("InputFileCount", 0);		
 		}
 	}
 

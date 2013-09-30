@@ -253,7 +253,16 @@ public class MultiTypePolicy extends Policy {
 	public DispatchDecision GetNewJobDestination() {
 		// TODO Auto-generated method stub
 		if(this.m_waitingJobList.size()!=0 && this.m_runningClusterList.size()!=0) {
-			return new DispatchDecision(this.m_waitingJobList.get(0), this.m_runningClusterList.get(0));
+			JobNode jn = this.m_waitingJobList.get(0);
+			ClusterNode cn = null;
+			for(ClusterNode c:this.m_runningClusterList) {
+				if(jn.jobType == c.jobType) {
+					cn = c;
+					break;
+				}
+			}
+			if(cn != null)
+			return new DispatchDecision(jn, cn);
 		}
 		return null;
 	}

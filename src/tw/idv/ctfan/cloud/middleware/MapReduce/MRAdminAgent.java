@@ -43,6 +43,7 @@ public class MRAdminAgent extends AdminAgent {
 	@Override
 	public void OnDecodeNewJob(JobListNode jn, String head, String tail) {
 		jn.attributes.put(head, tail);
+		System.out.println(jn.name + " " + head + ":" + tail);
 	}
 
 	@Override
