@@ -438,14 +438,14 @@ public abstract class AdminAgent extends Agent {
 	
 	/**
 	 * Encode the cluster's load information.  The information will be sent to {@link SystemMonitoringAgent}
-	 * This function is accompany to the {@link JobType.DecodeClusterLoadInfo}
+	 * This function is accompany to the {@link JobType#DecodeClusterLoadInfo}
 	 * @return
 	 */
 	protected abstract String OnEncodeClusterLoadInfo();
 	
 	/**
 	 * Encode the job's information.  
-	 * This function is accompany to the {@link JobType.UpdateJobNodeInfo}
+	 * This function is accompany to the {@link JobType#UpdateJobNodeInfo}
 	 * @param jn
 	 * @return
 	 */
@@ -454,7 +454,7 @@ public abstract class AdminAgent extends Agent {
 	/**
 	 * This function is called when the request message is being decoded.
 	 * All parameters except UID and binaryFile will be decode by this function.
-	 * This function is accompany to JobType.OnDispatchJobMsg
+	 * This function is accompany to {@link JobType.OnDispatchJobMsg}
 	 * @param jn The job
 	 * @param head The parameter name
 	 * @param tail The parameter value

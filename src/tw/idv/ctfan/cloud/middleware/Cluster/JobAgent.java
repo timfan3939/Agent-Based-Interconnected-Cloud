@@ -139,8 +139,17 @@ public abstract class JobAgent extends Agent {
 		finishedYet = true;
 	}
 	
+	/**
+	 * Start a job
+	 * @param myAgent
+	 * @param info
+	 */
 	protected abstract void StartJob(Agent myAgent, String info);
 	
+	/**
+	 * Return jobAgent info to {@link AdminAgent}
+	 * @return
+	 */
 	protected abstract String OnHeartBeat();
 
 }

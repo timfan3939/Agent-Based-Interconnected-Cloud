@@ -9,15 +9,15 @@ import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
  * 
  * @author C.T.Fan
  * 
- * Accepted job type: java runnable archive, with only one Long type command.
+ * Accepted job type: java runnable archive, with only one Long type command.<br>
  * The long type command will be treated as the size of the job.
- * 
- * Must have attribute:
- * JobType:Java
- * Command:<The Long type command to execute the job>
- * Name:<Program name>  (Optional)
- * Deadline:<The Deadline of the job>  (Optional)
- * BinaryDataLength<length of the Archive>
+ * <p>
+ * Must have attribute:<br>
+ * JobType:Java<br>
+ * Command:<The Long type command to execute the job><br>
+ * Name:<Program name>  (Optional)<br>
+ * Deadline:<The Deadline of the job>  (Optional)<br>
+ * BinaryDataLength:<length of the Archive>\n<binaryFileContent><br>
  *
  */
 

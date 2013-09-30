@@ -27,7 +27,7 @@ public abstract class JobType {
 	
 	/**
 	 * Decode the cluster's load information.
-	 * This function is accompany to the {@link AdminAgent.OnEncodeClusterLoadInfo}
+	 * This function is accompany to the {@link AdminAgent#OnEncodeClusterLoadInfo}
 	 * @param line
 	 * @return
 	 */
@@ -35,7 +35,7 @@ public abstract class JobType {
 	
 	/**
 	 * Decode and update the job's information
-	 * This function is accompany
+	 * This function is accompany to {@link AdminAgent#OnEncodeJobInfo}
 	 * @param line
 	 * @param jn
 	 */
@@ -67,7 +67,7 @@ public abstract class JobType {
 	 * Before the new-job-request message is sent to the {@link AdminAgent},
 	 * you should define the information that is used to execute a job
 	 * Note that both UID and binaryFile should not handle here.
-	 * This function is accompany to {@link AdminAgent.OnEncodeNewJob} 
+	 * This function is accompany to {@link AdminAgent#OnEncodeNewJob} 
 	 * @param jn
 	 * @return
 	 */

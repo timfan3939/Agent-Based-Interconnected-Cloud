@@ -58,8 +58,8 @@ public class MRAdminAgent extends AdminAgent {
 
 	@Override
 	public String OnEncodeNewJobAgent(JobListNode jn) {
-		if(jn.attributes.containsKey("Parameter"))
-			return jn.attributes.get("Parameter");
+		if(jn.attributes.containsKey("Command"))
+			return jn.attributes.get("Command");
 		return "";
 	}
 
