@@ -42,8 +42,7 @@ public class MRAdminAgent extends AdminAgent {
 
 	@Override
 	public void OnDecodeNewJob(JobListNode jn, String head, String tail) {
-		// TODO Auto-generated method stub
-
+		jn.attributes.put(head, tail);
 	}
 
 	@Override
@@ -53,14 +52,15 @@ public class MRAdminAgent extends AdminAgent {
 	}
 
 	@Override
-	protected String OnEncodeLoadInfo() {
+	protected String OnEncodeClusterLoadInfo() {
 		return (super.m_jobList.size()>0?"Busy":"Free");
 	}
 
 	@Override
 	public String OnEncodeNewJobAgent(JobListNode jn) {
-		// TODO Auto-generated method stub
-		return null;
+		if(jn.attributes.containsKey("Parameter"))
+			return jn.attributes.get("Parameter");
+		return "";
 	}
 
 	@Override

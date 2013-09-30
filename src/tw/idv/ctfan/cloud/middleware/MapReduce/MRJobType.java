@@ -12,7 +12,7 @@ public class MRJobType extends JobType {
 	}
 
 	@Override
-	public int DecodeLoadInfo(String line) {
+	public int DecodeClusterLoadInfo(String line) {
 		if(line.matches("Free")) 
 			return 0;
 		else
@@ -20,15 +20,12 @@ public class MRJobType extends JobType {
 	}
 
 	@Override
-	public String EncodeParameter(JobNode jn) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public ContainerID ExtractContainer(ACLMessage msg) {
-		// TODO Auto-generated method stub
-		return null;
+		String content = msg.getContent();
+		String[] line = content.split("\n");
+		ContainerID cid = new ContainerID();
+		cid.setName(line[2]);
+		return cid;
 	}
 
 	@Override
@@ -38,8 +35,7 @@ public class MRJobType extends JobType {
 
 	@Override
 	public String OnDispatchJobMsg(JobNode jn) {
-		// TODO Auto-generated method stub
-		return null;
+		return ("Parameter:" + jn.GetDiscreteAttribute("Parameter"));
 	}
 
 	@Override

@@ -332,7 +332,7 @@ public abstract class AdminAgent extends Agent {
 			String content ="";
 			
 			content += (EncodeAgentPositionInfo() + "\n");
-			content += (OnEncodeLoadInfo() + "\n");
+			content += (OnEncodeClusterLoadInfo() + "\n");
 			
 			for(JobListNode jn:m_jobList) {
 				content += EncodeJobExcutionInfo(jn) + "\n";
@@ -436,13 +436,54 @@ public abstract class AdminAgent extends Agent {
 		}		
 	}
 	
-	protected abstract String OnEncodeLoadInfo();
+	/**
+	 * Encode the cluster's load information.  The information will be sent to {@link SystemMonitoringAgent}
+	 * This function is accompany to the {@link JobType.DecodeClusterLoadInfo}
+	 * @return
+	 */
+	protected abstract String OnEncodeClusterLoadInfo();
+	
+	/**
+	 * Encode the job's information.  
+	 * This function is accompany to the {@link JobType.UpdateJobNodeInfo}
+	 * @param jn
+	 * @return
+	 */
 	protected abstract String OnEncodeJobInfo(JobListNode jn);
 	
+	/**
+	 * This function is called when the request message is being decoded.
+	 * All parameters except UID and binaryFile will be decode by this function.
+	 * This function is accompany to JobType.OnDispatchJobMsg
+	 * @param jn The job
+	 * @param head The parameter name
+	 * @param tail The parameter value
+	 */
 	public abstract void OnDecodeNewJob(JobListNode jn, String head, String tail);
+	
+	/**
+	 * This function returns the command that is used to initialize the {@link JobAgent}
+	 * @param jn
+	 * @return
+	 */
 	public abstract String OnEncodeNewJobAgent(JobListNode jn);
+	
+	/**
+	 * This function is used when the cluster is going to be shut.
+	 * You can use this function to terminate the environment (Not machine, but the execution environment) properly.
+	 */
 	public abstract void OnTerminateCluster();
+	
+	/**
+	 * This function should return the name of your agent that extends the {@link JobAgent} .
+	 * @return
+	 */
 	public abstract String GetJobAgentClassName();
 	
+	/**
+	 * This function is used to make sure the cluster is ready to serve.
+	 * For example, the environment is ready to perform a job.
+	 * @return
+	 */
 	public abstract boolean InitilizeCluster();
 }

@@ -155,7 +155,7 @@ public class TestJava {
 				stream.write(java.getTypeName().getBytes());
 				stream.write("\n".getBytes());
 												
-				stream.write("Parameter:".getBytes());
+				stream.write("Command:".getBytes());
 				stream.write(Integer.toString(testSize[i]).getBytes());
 				stream.write("\n".getBytes());
 				

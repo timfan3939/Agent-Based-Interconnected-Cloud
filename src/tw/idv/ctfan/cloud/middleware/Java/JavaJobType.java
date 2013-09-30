@@ -5,6 +5,22 @@ import jade.lang.acl.ACLMessage;
 import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
 import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
 
+/**
+ * 
+ * @author C.T.Fan
+ * 
+ * Accepted job type: java runnable archive, with only one Long type command.
+ * The long type command will be treated as the size of the job.
+ * 
+ * Must have attribute:
+ * JobType:Java
+ * Command:<The Long type command to execute the job>
+ * Name:<Program name>  (Optional)
+ * Deadline:<The Deadline of the job>  (Optional)
+ * BinaryDataLength<length of the Archive>
+ *
+ */
+
 public class JavaJobType extends JobType {
 
 	public JavaJobType() {
@@ -12,7 +28,7 @@ public class JavaJobType extends JobType {
 	}
 
 	@Override
-	public int DecodeLoadInfo(String line) {
+	public int DecodeClusterLoadInfo(String line) {
 		if(line.compareTo("Free")==0)
 			return 0;
 		else
@@ -33,7 +49,7 @@ public class JavaJobType extends JobType {
 	@Override
 	public void SetJobInfo(JobNode jn) {
 		try {
-			long size = Long.parseLong(jn.GetDiscreteAttribute("Parameter"));
+			long size = Long.parseLong(jn.GetDiscreteAttribute("Command"));
 			jn.AddContinuousAttribute("JobSize", size);
 		} catch(Exception e) {
 			System.out.println("JavaJobType.SetJobInfo() got some problems");
@@ -50,14 +66,10 @@ public class JavaJobType extends JobType {
 		return cid;
 	}
 
-	@Override
-	public String EncodeParameter(JobNode jn) {
-		return jn.GetDiscreteAttribute("Command");
-	}
 
 	@Override
 	public String OnDispatchJobMsg(JobNode jn) {
-		return ("Parameter:" + jn.GetDiscreteAttribute("Parameter"));
+		return ("Command:" + jn.GetDiscreteAttribute("Command"));
 	}
 
 	@Override

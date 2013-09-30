@@ -283,7 +283,7 @@ public class SystemMonitoringAgent extends Agent {
 							
 							for(int line=0; line<subContent.length; line+=2) {
 								if(line==0) {
-									cn.load = cn.jobType.DecodeLoadInfo(subContent[1]);
+									cn.load = cn.jobType.DecodeClusterLoadInfo(subContent[1]);
 								} else {
 									JobNode jn = FindAndUpdateJobNode(subContent[line]);
 									jn.jobType.UpdateJobNodeInfo(subContent[line+1], jn);
