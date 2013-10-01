@@ -64,6 +64,9 @@ public abstract class JobType {
 	
 	
 	/**
+	 * 
+	 * <b>Removed because JobNode can encapsulate a job itself</b>
+	 * 
 	 * Before the new-job-request message is sent to the {@link AdminAgent},
 	 * you should define the information that is used to execute a job
 	 * Note that both UID and binaryFile should not handle here.
@@ -71,8 +74,7 @@ public abstract class JobType {
 	 * @param jn
 	 * @return
 	 */
-	public abstract String OnDispatchJobMsg(JobNode jn);
-	//TODO: Add proper classes
+//	public abstract String OnDispatchJobMsg(JobNode jn);
 	
 	/**
 	 * This function return the extension type of this kind of job.

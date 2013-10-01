@@ -99,8 +99,9 @@ public class JobDispatchingAgent extends Agent {
 							msg.addReceiver(aid);
 							
 							String msgContent = "";
-							msgContent += "UID:" + jn.UID + "\n";
-							msgContent += jn.jobType.OnDispatchJobMsg(jn) + "\n";
+//							msgContent += "UID:" + jn.UID + "\n";
+//							msgContent += jn.jobType.OnDispatchJobMsg(jn) + "\n";
+							msgContent = jn.EncapsulateJob();
 							
 							System.out.println(msgContent);
 							

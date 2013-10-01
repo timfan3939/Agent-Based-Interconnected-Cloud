@@ -1,6 +1,7 @@
 package tw.idv.ctfan.cloud.middleware.Java;
 
 import tw.idv.ctfan.cloud.middleware.Cluster.*;
+import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
 
 public class JavaAdminAgent extends AdminAgent {
 
@@ -9,18 +10,6 @@ public class JavaAdminAgent extends AdminAgent {
 	}
 
 	private static final long serialVersionUID = 1L;
-
-	@Override
-	public void OnDecodeNewJob(JobListNode jn, String head, String tail) {
-		jn.attributes.put(head, tail);
-	}
-
-	@Override
-	protected String OnEncodeJobInfo(JobListNode jn) {
-//		long currentTime = System.currentTimeMillis();
-//		return "java " + jn.name + " running " + (currentTime-jn.lastExist) + " " + (currentTime-jn.executedTime);
-		return "nothing to tell";
-	}
 
 	@Override
 	protected String OnEncodeClusterLoadInfo() {
@@ -34,9 +23,9 @@ public class JavaAdminAgent extends AdminAgent {
 	}
 
 	@Override
-	public String OnEncodeNewJobAgent(JobListNode jn) {
-		if(jn.attributes.containsKey("Command"))
-			return jn.attributes.get("Command");
+	public String OnEncodeNewJobAgent(JobNode jn) {
+		if(jn.GetDiscreteAttribute("Command")!=null)
+			return jn.GetDiscreteAttribute("Command");
 		return "";
 	}
 	
@@ -48,4 +37,10 @@ public class JavaAdminAgent extends AdminAgent {
 	public boolean InitilizeCluster() {
 		return true;
 	}
+
+	@Override
+	protected String OnEncodeJobInfo(JobNode jn) {
+		return "Nothing to tell";
+	}
+
 }

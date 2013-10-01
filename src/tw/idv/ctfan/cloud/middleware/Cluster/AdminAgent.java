@@ -4,7 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
+
+import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
 
 import jade.core.AID;
 import jade.core.Agent;
@@ -32,34 +33,7 @@ public abstract class AdminAgent extends Agent {
 	private boolean firstHeartBeat = false;
 	private int startHeartBeat = 5;
 
-	protected enum JOB_STATUS {
-		Waiting, Running, Finished;
-	}
-	
-	protected class JobListNode {
-		public String name;
-		public long lastExist;
-//		public int hasBeenExecute;
-		public long executedTime = 0;
-		JOB_STATUS status;
-		public HashMap<String, String> attributes;
-		public byte[] binaryFile;
-		
-		public JobListNode(String name) {
-			this.name = name;
-			this.attributes = new HashMap<String, String>();
-			this.binaryFile = null;
-			lastExist = -1;
-//			hasBeenExecute = -1;
-			status = JOB_STATUS.Waiting;
-		}
-		
-		public void SetExist() {
-			lastExist = System.currentTimeMillis();
-		}
-	}
-	
-	protected ArrayList<JobListNode> m_jobList = new ArrayList<JobListNode>();
+	protected ArrayList<JobNode> m_jobList = new ArrayList<JobNode>();
 	
 	public AdminAgent(JobType jt) {
 		m_jobType = jt;
@@ -166,15 +140,15 @@ public abstract class AdminAgent extends Agent {
 				} break;
 				case ACLMessage.PROPOSE:
 				case ACLMessage.CONFIRM: synchronized(m_jobList) {
-					for(JobListNode jn:m_jobList) {
-						if(jn.name.compareTo(msg.getSender().getLocalName()) == 0) {
-							jn.SetExist();
+					for(JobNode jn:m_jobList) {
+						if(jn.UID == Long.parseLong(msg.getSender().getLocalName()) ) {
+							jn.SetExists();
 							if(msg.getContent().compareTo("WAITING")==0) {
-								jn.status = JOB_STATUS.Waiting;
+								jn.status = JobNode.JobStatus.Waiting;
 							} else if(msg.getContent().compareTo("FINISHED") == 0) {
-								jn.status = JOB_STATUS.Finished;
+								jn.status = JobNode.JobStatus.Finished;
 							} else {
-								jn.status = JOB_STATUS.Running;
+								jn.status = JobNode.JobStatus.Running;
 							}
 							break;
 						}
@@ -195,7 +169,9 @@ public abstract class AdminAgent extends Agent {
 		boolean hasParsed = false;  // avoid init agent error
 		boolean doneYet = false;
 		
-		JobListNode newJob;
+		JobNode newJob;
+		String job;
+		byte[] binaryFile;
 
 		public NewJobBehaviour(Agent a, byte[] program) {
 			super(a);
@@ -209,9 +185,10 @@ public abstract class AdminAgent extends Agent {
 				// Parse the data with the following function
 				int c=0;
 				int buffLen;
-				byte[] buff = new byte[0x400], binary = null;
+				byte[] buff = new byte[0x400];
 							
-				newJob = new JobListNode("");
+				newJob = new JobNode();
+				job = "";
 				
 				ByteArrayInputStream dataInput = new ByteArrayInputStream(m_data);
 				
@@ -233,32 +210,34 @@ public abstract class AdminAgent extends Agent {
 					String head = line.substring(0, index);
 					String tail = line.substring(index+1);
 					
-					if(head.matches("UID")) {
-						newJob.name = tail;
-					} else if(head.matches("BinaryDataLength")){
+					if(head.matches("BinaryDataLength")){
 						try {
 							int jobLength = Integer.parseInt(tail);
-							binary = new byte[jobLength];
-							dataInput.read(binary, 0, jobLength);
+							binaryFile = new byte[jobLength];
+							dataInput.read(binaryFile, 0, jobLength);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
-						newJob.binaryFile = binary;
 					} else {
-						OnDecodeNewJob(newJob, head, tail);
+						job += line + "\n";
 					}
+				}
+				if(!newJob.DecapsulateJob(job, m_jobType)) {
+					doneYet = true;
+					System.err.println("Job " + newJob.UID + " has some problem with its job type");
+					return;
 				}
 				hasParsed = true;
 			}
 			if(newJob==null) return;
 			synchronized(m_jobList) {
 				try {
-					File f = new File(m_jarPath + "/job" + newJob.name + m_jobType.GetExtension());
+					File f = new File(m_jarPath + "/job" + newJob.UID + m_jobType.GetExtension());
 					if(!f.exists()) {
 						FileOutputStream output = new FileOutputStream(f);
-						output.write(newJob.binaryFile);
+						output.write(binaryFile);
 						output.close();
-						newJob.binaryFile = null;
+						binaryFile = null;
 					}
 					
 					m_jobList.add(newJob);
@@ -266,12 +245,13 @@ public abstract class AdminAgent extends Agent {
 					ArrayList<String> cmd = new ArrayList<String>();
 					cmd.add(myAgent.getLocalName());
 					cmd.add(m_jarPath);
-					cmd.add("job" + newJob.name + m_jobType.GetExtension());
+					cmd.add("job" + newJob.UID + m_jobType.GetExtension());
 					cmd.add(OnEncodeNewJobAgent(newJob));
 					
-					myAgent.getContainerController().createNewAgent(newJob.name, GetJobAgentClassName() ,cmd.toArray()).start();
-					System.out.println("===== Agent " + newJob.name + " Start=====");
+					myAgent.getContainerController().createNewAgent(Long.toString(newJob.UID), GetJobAgentClassName() ,cmd.toArray()).start();
+					System.out.println("===== Agent " + newJob.UID + " Start=====");
 					doneYet = true;				
+					newJob.status = JobNode.JobStatus.Waiting;
 				} catch (StaleProxyException e) {
 					System.err.println("Agent Exception");
 					e.printStackTrace();
@@ -339,7 +319,7 @@ public abstract class AdminAgent extends Agent {
 			content += (EncodeAgentPositionInfo() + "\n");
 			content += (OnEncodeClusterLoadInfo() + "\n");
 			
-			for(JobListNode jn:m_jobList) {
+			for(JobNode jn:m_jobList) {
 				content += EncodeJobExcutionInfo(jn) + "\n";
 				content += (OnEncodeJobInfo(jn)) + "\n";
 				switch(jn.status) {
@@ -362,7 +342,7 @@ public abstract class AdminAgent extends Agent {
 			
 			if(finishedJobCount>0) {
 				for(int i=0; i<m_jobList.size(); i++) {
-					if(m_jobList.get(i).status==JOB_STATUS.Finished) {
+					if(m_jobList.get(i).status==JobNode.JobStatus.Finished) {
 						m_jobList.remove(i);
 						i--;
 					}
@@ -372,24 +352,24 @@ public abstract class AdminAgent extends Agent {
 			if(waitingJobCount>0) {
 				if(runningJobCount<maxExecuteJobNumber){
 					if(lastAskExecuteJob<=0){
-						JobListNode jn = null;
+						JobNode jn = null;
 						for(int i=0; i<m_jobList.size(); i++) {
 							jn = m_jobList.get(i);
-							if(jn.status == JOB_STATUS.Waiting) break;
+							if(jn.status == JobNode.JobStatus.Waiting) break;
 							jn = null;
 						}
 						if(jn!=null) {
 							lastAskExecuteJob = 5;
 							
 							ACLMessage msg = new ACLMessage(ACLMessage.CONFIRM);
-							AID aid = new AID(jn.name + "@" + myAgent.getHap(), AID.ISGUID);
+							AID aid = new AID(jn.UID + "@" + myAgent.getHap(), AID.ISGUID);
 							
 							msg.addReceiver(aid);
 							msg.setContent("START");
 							
 							myAgent.send(msg);
-							jn.executedTime = System.currentTimeMillis();
-							jn.status = JOB_STATUS.Running;
+							jn.startTime = System.currentTimeMillis();
+							jn.status = JobNode.JobStatus.Running;
 						}
 					} else {
 						lastAskExecuteJob--;
@@ -406,12 +386,12 @@ public abstract class AdminAgent extends Agent {
 					this.getHap().split(":")[0]);
 	}
 	
-	private String EncodeJobExcutionInfo(JobListNode jn) {
+	private String EncodeJobExcutionInfo(JobNode jn) {
 		long currentTime = System.currentTimeMillis();
-		String status = (jn.status==JOB_STATUS.Running?"Running":
-			(jn.status==JOB_STATUS.Waiting?"Waiting":"Finished"));
-		return jn.name + " " + status + " " + (currentTime-jn.lastExist) + " " + 
-				(currentTime-jn.executedTime);
+		String status = (jn.status==JobNode.JobStatus.Running?"Running":
+			(jn.status==JobNode.JobStatus.Waiting?"Waiting":"Finished"));
+		return jn.UID + " " + status + " " + (currentTime-jn.lastSeen) + " " + 
+				(currentTime-jn.startTime);
 	}
 	
 	
@@ -454,24 +434,15 @@ public abstract class AdminAgent extends Agent {
 	 * @param jn
 	 * @return
 	 */
-	protected abstract String OnEncodeJobInfo(JobListNode jn);
+	protected abstract String OnEncodeJobInfo(JobNode jn);
 	
-	/**
-	 * This function is called when the request message is being decoded.
-	 * All parameters except UID and binaryFile will be decode by this function.
-	 * This function is accompany to {@link JobType.OnDispatchJobMsg}
-	 * @param jn The job
-	 * @param head The parameter name
-	 * @param tail The parameter value
-	 */
-	public abstract void OnDecodeNewJob(JobListNode jn, String head, String tail);
 	
 	/**
 	 * This function returns the command that is used to initialize the {@link JobAgent}
 	 * @param jn
 	 * @return
 	 */
-	public abstract String OnEncodeNewJobAgent(JobListNode jn);
+	public abstract String OnEncodeNewJobAgent(JobNode jn);
 	
 	/**
 	 * This function is used when the cluster is going to be shut.

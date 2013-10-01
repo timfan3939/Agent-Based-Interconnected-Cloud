@@ -59,12 +59,12 @@ public class MRJobType extends JobType {
 		return ".jar";
 	}
 
-	@Override
-	public String OnDispatchJobMsg(JobNode jn) {
-		return ("Command:" + jn.GetDiscreteAttribute("Command") + "\n" +
-				"InputFolder:" + jn.GetDiscreteAttribute("InputFolder") +"\n" +
-				"OutputFolder:" + jn.GetDiscreteAttribute("OutputFolder"));
-	}
+//	@Override
+//	public String OnDispatchJobMsg(JobNode jn) {
+//		return ("Command:" + jn.GetDiscreteAttribute("Command") + "\n" +
+//				"InputFolder:" + jn.GetDiscreteAttribute("InputFolder") +"\n" +
+//				"OutputFolder:" + jn.GetDiscreteAttribute("OutputFolder"));
+//	}
 
 	@Override
 	public void SetJobInfo(JobNode jn) {

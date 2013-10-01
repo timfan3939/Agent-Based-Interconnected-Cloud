@@ -74,6 +74,20 @@ public class JobNode implements Comparable<JobNode> {
 	 * null if not running on any cluster.
 	 */
 	public ClusterNode runningCluster = null;
+	
+	/**
+	 * -+-----------------+-------------------+------------------------------------------------------
+	 *  |-Submit time     |-Start time        |-finish time
+	 *                    |--Execution time---|
+	 */
+	public long submitTime;
+	public long startTime;
+	public long finishTime;
+	public long lastSeen;
+	
+	public void SetExists() {
+		lastSeen = System.currentTimeMillis();
+	}
 
 	/**
 	 * The attributes of a job.<br/>
@@ -98,6 +112,57 @@ public class JobNode implements Comparable<JobNode> {
 		this.completionTime = -1;
 		this.deadline = -1;
 		attributes = new HashMap<String, String>();
+	}
+	
+	/**
+	 * Encapsulate the job's attribute and return the string.
+	 * @return
+	 */
+	public String EncapsulateJob() {
+		String job = "";
+		job += "UID:" + UID + "\n";
+		job += "JobType:" + jobType.getTypeName() + "\n";
+		for(String typeName:attributeType.keySet()) {
+			switch(attributeType.get(typeName)) {
+			case Discrete:
+				String value;
+				if( (value = attributes.get(typeName)) != null ) {
+					job += typeName + ":Discrete:" + value + "\n";
+				}
+				break;
+			case Continuous:
+				Long valueL;
+				if( (valueL = this.GetContinuousAttribute(typeName)) >0 ) {
+					job += typeName + ":Continuous:" + valueL + "\n";
+				}
+				break;
+			}
+		}
+		
+		return job;
+	}
+	
+	/**
+	 * This function is only used at the {@link AdminAgent} site.
+	 * Note that jobType will not be set when return.
+	 * @param job
+	 * @param jt
+	 * @return
+	 */
+	public boolean DecapsulateJob(String job, JobType jt) {
+		String[] jobInfo = job.split("\n");
+		UID = Long.parseLong(jobInfo[0].split(":")[1]);
+		for(int i=2; i<jobInfo.length; i++) {
+			String[] lineInfo = jobInfo[i].split(":");
+			if(lineInfo.length==3) {
+				if(lineInfo[1].equals("Discrete")) {
+					this.AddDiscreteAttribute(lineInfo[0], lineInfo[2]);
+				} else if(lineInfo[1].equals("Continuous")) {
+					this.AddContinuousAttribute(lineInfo[0], Long.parseLong(lineInfo[2]));
+				}
+			}
+		}
+		return jobInfo[1].split(":")[1].equals(jt.getTypeName());
 	}
 	
 	/**

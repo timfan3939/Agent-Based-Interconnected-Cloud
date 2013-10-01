@@ -7,6 +7,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.JobClient;
 
 import tw.idv.ctfan.cloud.middleware.Cluster.AdminAgent;
+import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
 
 public class MRAdminAgent extends AdminAgent {
 	private static final long serialVersionUID = -6536487006364985284L;
@@ -39,13 +40,7 @@ public class MRAdminAgent extends AdminAgent {
 	}
 
 	@Override
-	public void OnDecodeNewJob(JobListNode jn, String head, String tail) {
-		jn.attributes.put(head, tail);
-		System.out.println(jn.name + " " + head + ":" + tail);
-	}
-
-	@Override
-	protected String OnEncodeJobInfo(JobListNode jn) {
+	protected String OnEncodeJobInfo(JobNode jn) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -56,9 +51,9 @@ public class MRAdminAgent extends AdminAgent {
 	}
 
 	@Override
-	public String OnEncodeNewJobAgent(JobListNode jn) {
-		if(jn.attributes.containsKey("Command"))
-			return jn.attributes.get("Command");
+	public String OnEncodeNewJobAgent(JobNode jn) {
+		if(jn.GetDiscreteAttribute("Command")!=null)
+			return jn.GetDiscreteAttribute("Command");
 		return "";
 	}
 

@@ -67,10 +67,10 @@ public class JavaJobType extends JobType {
 	}
 
 
-	@Override
-	public String OnDispatchJobMsg(JobNode jn) {
-		return ("Command:" + jn.GetDiscreteAttribute("Command"));
-	}
+//	@Override
+//	public String OnDispatchJobMsg(JobNode jn) {
+//		return ("Command:" + jn.GetDiscreteAttribute("Command"));
+//	}
 
 	@Override
 	public void UpdateJobNodeInfo(String line, JobNode jn) {
