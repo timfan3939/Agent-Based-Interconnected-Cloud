@@ -19,12 +19,18 @@ import jade.lang.acl.MessageTemplate;
 
 public class SystemMonitoringAgent extends Agent {
 	
+	private static final long serialVersionUID = -5271213701466983534L;
 	ThreadedBehaviourFactory tbf;	
-	Policy policy;
-	private static final long serialVersionUID = 1L;	
+	Policy policy;	
 	
+	/**
+	 * Where the binary files will be stored.
+	 */
 	private final String fileDirectory = "C:\\ctfan\\middlewareFile\\";
 	
+	/**
+	 * I'm busy on other feature.  This feature
+	 */
 	public static final String NAME = "SyMA@120.126.145.102:1099/JADE";
 	
 	public void setup() {
@@ -39,12 +45,16 @@ public class SystemMonitoringAgent extends Agent {
 		this.addBehaviour(tbf.wrap(new ListeningBehaviour(this) ) );
 	}
 	
+	/**
+	 * Quick way to add a threaded behaviour from other behaviour.
+	 * @param b
+	 */
 	public void AddTbfBehaviour(Behaviour b) {
 		this.addBehaviour(this.tbf.wrap(b));
 	}
 	
 	/**
-	 * Quick submit behaviour
+	 * Quick submit behaviour.  Port 50031 is used.
 	 * @author C.T.Fan
 	 *
 	 */
@@ -134,11 +144,21 @@ public class SystemMonitoringAgent extends Agent {
 		}		
 	}
 	
+	/**
+	 * Used by the HTTP behaviour.
+	 * @param newJob
+	 * @param binaryFile
+	 */
 	public void SubmitJob(JobNode newJob, byte[] binaryFile) {
 		// Method for HTTPServerBehaviour
 		this.addBehaviour(tbf.wrap(new GetJobInfoBehaviour(this, newJob, binaryFile)));
 	}
 	
+	/**
+	 * Job's info is handled here.  For example, providing the size of a job.
+	 * @author C.T.Fan
+	 *
+	 */
 	private class GetJobInfoBehaviour extends OneShotBehaviour {
 		private static final long serialVersionUID = 3514767295404355772L;
 		JobNode m_job;
@@ -191,13 +211,19 @@ public class SystemMonitoringAgent extends Agent {
 		}
 	}
 	
+	/**
+	 * Simple function used to update informations about a job.<br/>
+	 * This function only deal with internal data.<br/>
+	 * @param line
+	 * @return
+	 */
 	private JobNode FindAndUpdateJobNode(String line) {
 		String[] subLine = line.split(" ");
 		JobNode jn = null;
 		for(JobNode j:policy.GetRunningJob()) {
 			if(Long.parseLong(subLine[0])==j.UID) {
 				jn = j;
-				jn.executionTime = Long.parseLong(subLine[3]);
+				jn.completionTime = Long.parseLong(subLine[3]);
 				if(subLine[1].matches("Finished")) {
 					policy.GetRunningJob().remove(jn);
 					policy.GetFinishJob().add(jn);
@@ -212,6 +238,11 @@ public class SystemMonitoringAgent extends Agent {
 		return jn;
 	}
 	
+	/**
+	 * {@link ACLMessage} listening method.
+	 * @author C.T.Fan
+	 *
+	 */
 	private class ListeningBehaviour extends CyclicBehaviour
 	{
 		private static final long serialVersionUID = 1L;

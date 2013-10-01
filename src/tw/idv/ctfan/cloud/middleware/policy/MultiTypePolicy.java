@@ -96,10 +96,10 @@ public class MultiTypePolicy extends Policy {
 			element = this.FillConditinAttributes(jn);
 			
 			int decision = 0;
-			decision = (int) executionTimeAttribute.CalculateGroup(jn.executionTime);
+			decision = (int) executionTimeAttribute.CalculateGroup(jn.completionTime);
 			if(decision==numSubSet) decision--;
 			setCount[decision]++;
-			decisionExecutionTime[decision] += jn.executionTime;
+			decisionExecutionTime[decision] += jn.completionTime;
 			set.AddElement(element, decision);
 		}
 		
@@ -169,14 +169,14 @@ public class MultiTypePolicy extends Policy {
 		isFirst = true;
 		for(JobNode jn : m_finishJobList) {
 			if(!isFirst) {
-				if(executionTimeAttribute.maxValue<jn.executionTime)
-					executionTimeAttribute.maxValue = jn.executionTime;
-				else if(executionTimeAttribute.minValue>jn.executionTime)
-					executionTimeAttribute.minValue = jn.executionTime;
+				if(executionTimeAttribute.maxValue<jn.completionTime)
+					executionTimeAttribute.maxValue = jn.completionTime;
+				else if(executionTimeAttribute.minValue>jn.completionTime)
+					executionTimeAttribute.minValue = jn.completionTime;
 			} else {
 				executionTimeAttribute.maxValue = 
 					executionTimeAttribute.minValue = 
-						jn.executionTime;
+						jn.completionTime;
 			}
 		}
 		executionTimeAttribute.CalculateDiv(numSubSet);

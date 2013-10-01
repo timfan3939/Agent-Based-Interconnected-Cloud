@@ -17,7 +17,7 @@ import jade.core.behaviours.ThreadedBehaviourFactory;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 
-/*
+/**
  * This agent manage all service's migration policy.  It first
  * requests lists of all clusters and all jobs' info.  Then, it will
  * compute and determine whether or not to migrate service from one
@@ -38,10 +38,8 @@ public class JobDispatchingAgent extends Agent {
 	public void setup()
 	{
 		super.setup();
-
 		
-		tbf = new ThreadedBehaviourFactory();		
-		
+		tbf = new ThreadedBehaviourFactory();				
 		
 		this.addBehaviour(tbf.wrap(new TickerBehaviour(this, 3000)
 		{

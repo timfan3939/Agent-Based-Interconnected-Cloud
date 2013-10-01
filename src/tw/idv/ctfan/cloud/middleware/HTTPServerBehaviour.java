@@ -41,6 +41,12 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * The states used while parcing the HTTP content
+	 * @author C.T.Fan
+	 *
+	 */
 	private enum PARCING_STATE {
 		stateBoundary, stateDescriptor, stateReadData,
 		handleJobType,handleAttribute, handleValue, handleBinaryFile
@@ -509,7 +515,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 							output.print("<tr style=\"border-top:1px solid black\"><td>" + jn.UID + "</td>" +
 									                                              "<td>" + jn.jobType.getTypeName() + "</td>" +
 									                                              "<td>" + "Unknown" + "</td>" +
-									                                              "<td>" + jn.executionTime + "</td>" +
+									                                              "<td>" + jn.completionTime + "</td>" +
 									                                              "<td>" + jn.deadline + "</tr>");
 					}
 					
@@ -624,9 +630,9 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				for(JobNode jn:policy.GetFinishJob()) {
 					output.print("<tr style=\"border-top:1px solid black\"><td>" + jn.UID + "</td>" +
 																		  "<td>" + jn.jobType.getTypeName() + "</td>" +
-																		  "<td>" + jn.executionTime + "</td>" +
+																		  "<td>" + jn.completionTime + "</td>" +
 																		  // TODO: deadline
-																		  "<td>" + (((double)jn.deadline - (double)jn.executionTime)/(double)jn.executionTime) + "</td>" +
+																		  "<td>" + (((double)jn.deadline - (double)jn.completionTime)/(double)jn.completionTime) + "</td>" +
 																		  "<td>" + "??" + "</td>" +
 																		  "<td>" + "??" + "</td></tr>");
 				}
