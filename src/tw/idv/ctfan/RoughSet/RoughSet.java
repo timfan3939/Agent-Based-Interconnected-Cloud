@@ -150,16 +150,21 @@ public class RoughSet {
 		m_mainTabular.ShowCoreAttribute();
 	}
 	
-	public long GetDecision(Element decision){
+	public long[] GetDecision(Element decision){
+		ArrayList<Long>result = new ArrayList<Long>();
 		int i=0;
 		for(Element e:m_elements) {
 //			System.out.println("Testing " + i++ + " Object");
-			if(e.Similar(decision))
-				System.out.println("Match Object " + i);
+			if(e.Similar(decision)) {
+//				System.out.println("Match Object " + i);
+				result.add(e.decision);
+			}
 			i++;
 		}
-		
-		return 0;
+		long[] r = new long[result.size()];
+		for(i=0; i<r.length; i++)
+			r[i] = result.get(i);
+		return r;
 	}
 }
 
