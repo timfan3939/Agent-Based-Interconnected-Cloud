@@ -71,10 +71,23 @@ public class MultiTypePolicy extends Policy {
 	
 	private final int maxSubSetSize = 5;
 	int numSubSet;
-	int[] decisionExecutionTime;
+	long[] decisionExecutionTime;
 	
 	/**
-	 * Regenerate a rough set
+	 * Regenerate a rough set<br/>
+	 * 
+	 * Procedure of refreshing a rough set object<br/>
+	 * <ol>
+	 * <li>Check if updating the rough set is needed.  If not needed, just return directly.</li>
+	 * <li>Get all the Attribute Names, calculate the number of attributes</li>
+	 * <li>Calculate each attribute's Minimum and Maximum</li>
+	 * <li>Calculate each attribute's Division number</li>
+	 * <li>Calculate the decision value array</li>
+	 * <li>Create new {@link RoughSet} object</li>
+	 * <li>Fill the new {@link RoughSet} object with each {@link JobNode}</li>
+	 * <li>Run {@link RoughSet#Calculate}</li>
+	 * <li>Calculate the result to the new coming {@link JobNode}</li>
+	 * </ol>
 	 */
 	private void RefreshRoughSet(){
 		if(this.m_finishJobList.size()<2*recalculateRoughSet) {
@@ -85,22 +98,27 @@ public class MultiTypePolicy extends Policy {
 		}
 		lastFinishedNumber = this.m_finishJobList.size();
 		
+		ObtainAllAttributes();
+		
+		// Re-calculate the rough set
 		ComputeMaxMinAttribute();
+		
+		
 		set = new RoughSet(numberOfConditionElement);
-		int[] element;
+		long[] element;
 		int[] setCount = new int[numSubSet];
-		decisionExecutionTime = new int[numSubSet];
+		decisionExecutionTime = new long[numSubSet];
 		
 		for(JobNode jn:m_finishJobList) {
 			
 			element = this.FillConditinAttributes(jn);
 			
-			int decision = 0;
+			long decision = 0;
 			decision = (int) executionTimeAttribute.CalculateGroup(jn.completionTime);
 			if(decision==numSubSet) decision--;
-			setCount[decision]++;
-			decisionExecutionTime[decision] += jn.completionTime;
-			set.AddElement(element, decision);
+			setCount[(int) decision]++;
+			decisionExecutionTime[(int) decision] += jn.completionTime;
+			set.AddElement(set.new Element(element, decision));
 		}
 		
 		for(int i=0; i<decisionExecutionTime.length; i++) {
@@ -108,8 +126,11 @@ public class MultiTypePolicy extends Policy {
 				decisionExecutionTime[i] /= setCount[i];
 		}
 		
-		set.FindCore();
-		set.FindDecisionList();
+		set.Calculate();
+	}
+	
+	private void ObtainAllAttributes() {
+		
 	}
 	
 	private class Attribute {
@@ -134,6 +155,7 @@ public class MultiTypePolicy extends Policy {
 		boolean isFirst = true;
 		numSubSet = m_finishJobList.size()/this.maxSubSetSize;
 		
+		// Getting every possible attributes and find the minimum and maximum of the value
 		for(String key : JobNode.attributeType.keySet()) {
 			isFirst = true;
 			Attribute a = new Attribute();
@@ -182,8 +204,8 @@ public class MultiTypePolicy extends Policy {
 		executionTimeAttribute.CalculateDiv(numSubSet);
 	}
 	
-	private int[] FillConditinAttributes(JobNode jn) {
-		int[] element = new int[numberOfConditionElement];
+	private long[] FillConditinAttributes(JobNode jn) {
+		long[] element = new long[numberOfConditionElement];
 		int elementCount = 0;
 		for(String key : JobNode.attributeType.keySet()) {
 			Attribute a = attributes.get(key);
@@ -222,15 +244,15 @@ public class MultiTypePolicy extends Policy {
 		if(set == null)
 			return 0;
 		
-		int[] element = this.FillConditinAttributes(jn);
+		long[] element = this.FillConditinAttributes(jn);
 		
 		long result = 0;
-		Object[] d = set.GetExactDecision(element);
+		long[] d = set.GetDecision(set.new Element(element, -1));
 		if(d==null) return 0;
 		else if(d.length==0) return 0;
 		
-		for(Object i: d) {
-			result += this.decisionExecutionTime[(Integer)i];
+		for(long i: d) {
+			result += this.decisionExecutionTime[(int) i];
 		}
 		
 		result /= d.length;
