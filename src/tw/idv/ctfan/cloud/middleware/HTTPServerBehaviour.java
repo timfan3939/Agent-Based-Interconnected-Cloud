@@ -633,8 +633,8 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 																		  "<td>" + jn.completionTime + "</td>" +
 																		  // TODO: deadline
 																		  "<td>" + (((double)jn.deadline - (double)jn.completionTime)/(double)jn.completionTime) + "</td>" +
-																		  "<td>" + "??" + "</td>" +
-																		  "<td>" + "??" + "</td></tr>");
+																		  "<td>" + jn.startTime + "</td>" +
+																		  "<td>" + jn.finishTime + "</td></tr>");
 				}
 				
 				output.print("</TBODY>");

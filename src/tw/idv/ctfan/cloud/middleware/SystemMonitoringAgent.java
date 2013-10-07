@@ -223,10 +223,14 @@ public class SystemMonitoringAgent extends Agent {
 		for(JobNode j:policy.GetRunningJob()) {
 			if(Long.parseLong(subLine[0])==j.UID) {
 				jn = j;
-				jn.completionTime = Long.parseLong(subLine[3]);
 				if(subLine[1].matches("Finished")) {
 					policy.GetRunningJob().remove(jn);
 					policy.GetFinishJob().add(jn);
+					jn.finishTime = System.currentTimeMillis();
+					jn.completionTime = Long.parseLong(subLine[3]);
+				}
+				else if(subLine[1].matches("Waiting")) {
+					jn.startTime = System.currentTimeMillis();
 				}
 				break;
 			}
@@ -285,14 +289,14 @@ public class SystemMonitoringAgent extends Agent {
 							String aid = msg.getSender().getName();
 							
 
-							String msg1 = "\n\nMessage Sender AID: " + aid;
-							
-							
-							System.out.println(System.currentTimeMillis());
-							System.out.println(msg1);
-							System.out.println("--------------------");
-							System.out.println(content);
-							System.out.println("--------------------");
+//							String msg1 = "\n\nMessage Sender AID: " + aid;
+//							
+//							
+//							System.out.println(System.currentTimeMillis());
+//							System.out.println(msg1);
+//							System.out.println("--------------------");
+//							System.out.println(content);
+//							System.out.println("--------------------");
 							
 							
 							for(ClusterNode cnIter: policy.GetRunningCluster()) {

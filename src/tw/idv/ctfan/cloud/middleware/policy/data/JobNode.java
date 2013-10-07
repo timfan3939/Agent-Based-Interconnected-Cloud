@@ -155,7 +155,7 @@ public class JobNode implements Comparable<JobNode> {
 	}
 	
 	private boolean ReservedAttributeKey(String key) {
-		if(key.equals("JobType")) return true;
+//		if(key.equals("JobType")) return true;
 		return false;
 	}
 	

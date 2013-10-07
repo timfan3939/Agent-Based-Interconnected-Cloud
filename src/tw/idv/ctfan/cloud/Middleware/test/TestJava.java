@@ -22,11 +22,11 @@ public class TestJava {
 			String m_pathToFile = "C:\\ctfan\\ComputePi.jar";
 			
 
-			int size = 3;
+			int size = 11;
 			int testSize[] = new int[size];
 			java.util.Random rand = new java.util.Random();
 			for(int i=0; i<size; i++)
-				testSize[i] = rand.nextInt(/*100000*/100)+50000;
+				testSize[i] = rand.nextInt(100000)+50000;
 			JobType java = new JavaJobType();
 			
 //			int testSize[] = {113065, 75788, 109289, 149627, 78317, 72055, 53281, 92010, 51899, 87078, 
@@ -182,7 +182,7 @@ public class TestJava {
 				//System.out.println("" + i + "\tdone");
 				
 //				if(i>6)
-					Thread.sleep(8000);
+					Thread.sleep(9000);
 			}
 			
 			

@@ -91,6 +91,7 @@ public class JobDispatchingAgent extends Agent {
 						if(dispatchDecision!=null) {
 							ClusterNode dest = dispatchDecision.whereToRun;
 							JobNode jn = dispatchDecision.jobToRun;
+							jn.startTime = System.currentTimeMillis();
 						
 							msg = new ACLMessage(ACLMessage.REQUEST);
 							AID aid = new AID(dest.agentID, AID.ISGUID);
