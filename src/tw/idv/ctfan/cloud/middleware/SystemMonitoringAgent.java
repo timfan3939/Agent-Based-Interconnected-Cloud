@@ -267,7 +267,7 @@ public class SystemMonitoringAgent extends Agent {
 					block();
 					return;
 				}
-				System.out.println("Got Message");
+//				System.out.println("Got Message");
 				synchronized(policy) {
 					switch(msg.getPerformative())
 					{

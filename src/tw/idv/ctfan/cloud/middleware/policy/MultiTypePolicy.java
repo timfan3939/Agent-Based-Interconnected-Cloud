@@ -153,6 +153,14 @@ public class MultiTypePolicy extends Policy {
 		for(String key: ClusterNode.attributeType.keySet()) {
 			this.attributes.add(new Attribute("Cluster." + key, ClusterNode.attributeType.get(key)));
 		}
+		
+		// Remove unnecessary attribute
+		for(Attribute attribute:attributes) {
+			if(attribute.attributeName.equals("Job.Command")) {
+				attributes.remove(attribute);
+				break;
+			}
+		}
 	}
 	
 	
@@ -398,16 +406,21 @@ public class MultiTypePolicy extends Policy {
 		// TODO Auto-generated method stub
 		if(this.m_runningClusterList.size()>0)
 		{
-			RefreshRoughSet();
-			System.out.println("Done Refreshing");
-			JobNode jn = this.m_waitingJobList.get(0);
-			jn.runningCluster = this.m_runningClusterList.get(0);
-			System.out.println("start get result");
-			long result = this.GetPredictionResult(jn);
-			
-			jn.runningCluster = null;
-			System.out.println("Result " + result);
-			System.out.println("Finished: " + this.m_finishJobList.size());
+			try {
+				RefreshRoughSet();
+				System.out.println("Done Refreshing");
+				JobNode jn = this.m_waitingJobList.get(0);
+				jn.runningCluster = this.m_runningClusterList.get(0);
+				System.out.println("start get result");
+				long result = this.GetPredictionResult(jn);
+				jn.deadline = result;
+				jn.runningCluster = null;
+				System.out.println("Result " + result);
+				System.out.println("Finished: " + this.m_finishJobList.size());
+			} catch(Exception e) {
+				e.printStackTrace();
+				System.out.println("Please go on.  Thanks");
+			}
 		}
 		
 		

@@ -6,7 +6,7 @@ import java.util.Collections;
 
 
 public class QuineMcCluskey {
-	private boolean debug = false;
+	private boolean debug = true;
 	private final int m_numOfCondAttr;
 	
 	public QuineMcCluskey(int num){
@@ -22,6 +22,9 @@ public class QuineMcCluskey {
 		ShowDNF();
 		TranslateDNF_To_CNF();
 		ShowCNF();
+		
+		if(this.m_discernibilityFunc_CNF.size()==0)
+			return;
 		
 		CalculateImplicationTable();
 		ShowImplicationTable();
@@ -52,7 +55,10 @@ public class QuineMcCluskey {
 			}
 			if(found) break;
 		}
-		if(!found) m_discernibilityFunc_DNF.add(term);
+		int count = 0;
+		for(boolean b:term) 
+			if(b) count++;
+		if(!found&&count>0) m_discernibilityFunc_DNF.add(term);
 	}
 	
 	private ArrayList<boolean[]> m_discernibilityFunc_CNF;
@@ -96,11 +102,15 @@ public class QuineMcCluskey {
 			}
 			if(found) break;
 		}
-		if(!found) m_discernibilityFunc_CNF.add(term);
+		int count = 0;
+		for(boolean b:term) 
+			if(b) count++;
+		if(!found&&count>0) m_discernibilityFunc_CNF.add(term);
 	}
 	
 	private void ShowDNF() {
 		if(!debug) return;
+		System.out.println("CNF=========");
 		for(boolean[] term:m_discernibilityFunc_DNF) {
 			boolean first = true;
 			System.out.print("*(");
@@ -117,6 +127,7 @@ public class QuineMcCluskey {
 	
 	private void ShowCNF() {
 		if(!debug) return;
+		System.out.println("CNF=========");
 		for(boolean[] term:m_discernibilityFunc_CNF) {
 			boolean first = true;
 			System.out.print("+(");
@@ -155,14 +166,14 @@ public class QuineMcCluskey {
 		}
 		
 		public String toString() {
-			String s = "";
+			String s = "]";
 			for(int i=0; i<m_numOfCondAttr; i++) {
 				if(dontCare[i]) s += "x";
 				else {
 					s += (term[i]?"1":"0");
 				}
 			}
-			s += " (" + NumOfOnes() + ")";
+			s += "[ (" + NumOfOnes() + ")";
 			return s;
 		}
 		
@@ -485,7 +496,7 @@ public class QuineMcCluskey {
 			}
 
 			if(least != -1){
-//				System.out.println(nCore[i]+ " " + count[i] + "\\" + nCore[least]+ " " + count[least]);
+				System.out.println(nCore[i]+ " " + count[i] + "\\" + nCore[least]+ " " + count[least]);
 				if(nCore[i]>nCore[least]) {
 					least = i;
 				} else if (nCore[i]==nCore[least] && count[least]>count[i]) {
