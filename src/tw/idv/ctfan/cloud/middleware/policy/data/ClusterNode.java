@@ -40,12 +40,31 @@ public class ClusterNode implements Comparable<ClusterNode>
 	//public String siteIP;
 	
 	// Attributes about Clusters
-	static public enum AttributeType {
-		Continuous, Discrete
-	}
 	private HashMap<String,String> attributes = new HashMap<String, String>();
 	static public HashMap<String, AttributeType> attributeType = new HashMap<String, AttributeType>();
-	private ArrayList<VirtualMachineNode> machines = new ArrayList<VirtualMachineNode>();	
+	private ArrayList<VirtualMachineNode> machines = new ArrayList<VirtualMachineNode>();
+	
+	private boolean ReservedAttributeKey(String key) {
+		if(key.equals("ClusterName")) return true;
+		if(key.equals("Core")) return true;
+		if(key.equals("Memory")) return true;
+		
+		return false;
+	}
+	
+	private long GetContinuousReservedAttributeKey(String key) {
+		if(key.equals("Core")) return this.core;
+		if(key.equals("Memory")) return this.memory;
+		
+		return -1;
+	}
+	
+	private String GetDiscreteReservedAttributeKey(String key) {
+		if(key.equals("ClusterName")) return this.clusterName;
+		return null;
+	}
+	
+	
 		
 
 	// Other Related
@@ -54,7 +73,11 @@ public class ClusterNode implements Comparable<ClusterNode>
 	public boolean AddDiscreteAttribute(String key, String value){
 		if(!attributeType.containsKey(key)) {
 			attributeType.put(key, AttributeType.Discrete);
-		} else if(attributeType.get(key)!=AttributeType.Discrete) {
+		}
+		else if(ReservedAttributeKey(key)) {
+			return true;
+		}		
+		else if(attributeType.get(key)!=AttributeType.Discrete) {
 			return true;
 		}
 		
@@ -65,7 +88,11 @@ public class ClusterNode implements Comparable<ClusterNode>
 	public boolean AddContinuousAttribute(String key, long value) {
 		if(!attributeType.containsKey(key)) {
 			attributeType.put(key, AttributeType.Continuous);
-		} else if(attributeType.get(key)!=AttributeType.Continuous) {
+		}
+		else if(ReservedAttributeKey(key)) {
+			return true;
+		}		
+		else if(attributeType.get(key)!=AttributeType.Continuous) {
 			return true;
 		}
 		
@@ -74,13 +101,19 @@ public class ClusterNode implements Comparable<ClusterNode>
 	}
 	
 	public String GetDiscreteAttribute(String key) {
-		return attributes.get(key);
+		if(!ReservedAttributeKey(key))
+			return attributes.get(key);
+		else
+			return GetDiscreteReservedAttributeKey(key);
 	}
 	
 	public long GetContinuousAttribute(String key) {
-		if(attributeType.get(key)==AttributeType.Continuous)
-			return Long.parseLong(attributes.get(key));
-		return -1;
+		if(!ReservedAttributeKey(key)) {
+			if(attributeType.get(key)==AttributeType.Continuous)
+				return Long.parseLong(attributes.get(key));
+			else return -1;
+		} else
+			return GetContinuousReservedAttributeKey(key);
 	}	
 	
 	public boolean AddMachine(VirtualMachineNode vmn) {

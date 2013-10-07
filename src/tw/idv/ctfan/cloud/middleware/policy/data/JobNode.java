@@ -20,17 +20,6 @@ import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
 
 public class JobNode implements Comparable<JobNode> {
 	
-	
-	/**
-	 * Attribute type.  Help to manage job's attribute
-	 * @author C.T.Fan
-	 * @see JobNode#attributeType
-	 *
-	 */
-	static public enum AttributeType {
-		Continuous, Discrete
-	}
-	
 	/**
 	 * Representing job's status
 	 * @author C.T.Fan
@@ -165,6 +154,11 @@ public class JobNode implements Comparable<JobNode> {
 		return jobInfo[1].split(":")[1].equals(jt.getTypeName());
 	}
 	
+	private boolean ReservedAttributeKey(String key) {
+		if(key.equals("JobType")) return true;
+		return false;
+	}
+	
 	/**
 	 * @see JobNode#attributes
 	 * @param key
@@ -174,6 +168,8 @@ public class JobNode implements Comparable<JobNode> {
 	public boolean AddDiscreteAttribute(String key, String value){
 		if(!attributeType.containsKey(key)) {
 			attributeType.put(key, AttributeType.Discrete);
+		} else if(ReservedAttributeKey(key)) {
+			return true;
 		} else if(attributeType.get(key)!=AttributeType.Discrete) {
 			return true;
 		}
@@ -191,7 +187,9 @@ public class JobNode implements Comparable<JobNode> {
 	public boolean AddContinuousAttribute(String key, long value) {
 		if(!attributeType.containsKey(key)) {
 			attributeType.put(key, AttributeType.Continuous);
-		} else if(attributeType.get(key)!=AttributeType.Continuous) {
+		} else if(ReservedAttributeKey(key)) {
+			return true;
+		}else if(attributeType.get(key)!=AttributeType.Continuous) {
 			return true;
 		}
 		
@@ -203,9 +201,12 @@ public class JobNode implements Comparable<JobNode> {
 	 * @see JobNode#attributes
 	 * @param key
 	 * @return
-	 */
+	 */	
 	public String GetDiscreteAttribute(String key) {
-		return attributes.get(key);
+		if(!ReservedAttributeKey(key))
+			return attributes.get(key);
+		else
+			return GetDiscreteReservedAttributeKey(key);
 	}
 	
 	/**
@@ -214,10 +215,22 @@ public class JobNode implements Comparable<JobNode> {
 	 * @return
 	 */
 	public long GetContinuousAttribute(String key) {
-		if(attributeType.get(key)==AttributeType.Continuous &&
-				attributes.get(key)!=null)
-			return Long.parseLong(attributes.get(key));
+		if(!ReservedAttributeKey(key)) {
+			if(attributeType.get(key)==AttributeType.Continuous)
+				return Long.parseLong(attributes.get(key));
+			else return -1;
+		} else
+			return GetContinuousReservedAttributeKey(key);
+	}	
+	
+
+	private long GetContinuousReservedAttributeKey(String key) {		
 		return -1;
+	}
+	
+	private String GetDiscreteReservedAttributeKey(String key) {
+		if(key.equals("JobType")) return this.jobType.getTypeName();
+		return null;
 	}
 	
 	
