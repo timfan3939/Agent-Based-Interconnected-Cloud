@@ -26,7 +26,7 @@ public class TestJava {
 			int testSize[] = new int[size];
 			java.util.Random rand = new java.util.Random();
 			for(int i=0; i<size; i++)
-				testSize[i] = rand.nextInt(10000/*0*/)+50000;
+				testSize[i] = rand.nextInt(1000/*00*/)+/*50000*/10000;
 			JobType java = new JavaJobType();
 			
 //			int testSize[] = {113065, 75788, 109289, 149627, 78317, 72055, 53281, 92010, 51899, 87078, 

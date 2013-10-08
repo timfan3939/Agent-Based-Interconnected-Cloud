@@ -110,7 +110,7 @@ public class QuineMcCluskey {
 	
 	private void ShowDNF() {
 		if(!debug) return;
-		System.out.println("CNF=========");
+		System.out.println("DNF=========");
 		for(boolean[] term:m_discernibilityFunc_DNF) {
 			boolean first = true;
 			System.out.print("*(");
@@ -166,7 +166,7 @@ public class QuineMcCluskey {
 		}
 		
 		public String toString() {
-			String s = "]";
+			String s = "DCTerm]";
 			for(int i=0; i<m_numOfCondAttr; i++) {
 				if(dontCare[i]) s += "x";
 				else {

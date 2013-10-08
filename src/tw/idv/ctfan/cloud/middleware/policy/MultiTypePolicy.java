@@ -46,6 +46,8 @@ public class MultiTypePolicy extends Policy {
 			e.printStackTrace();
 		}
 		
+		JobNode.attributeType.put("PredictionTime", AttributeType.Continuous);
+		
 		RefreshRoughSet();
 		System.out.println("=====Policy ready=====");
 		WriteLog("=====Policy ready=====");
@@ -100,6 +102,8 @@ public class MultiTypePolicy extends Policy {
 		lastFinishedNumber = this.m_finishJobList.size();
 		
 		ObtainAllAttributes();
+		
+		RemoveUnusedAttribute();
 				
 		// Re-calculate the rough set
 		ComputeMaxMinAttribute();
@@ -153,14 +157,18 @@ public class MultiTypePolicy extends Policy {
 		for(String key: ClusterNode.attributeType.keySet()) {
 			this.attributes.add(new Attribute("Cluster." + key, ClusterNode.attributeType.get(key)));
 		}
-		
+	}
+	
+	private void RemoveUnusedAttribute() {
 		// Remove unnecessary attribute
-		for(Attribute attribute:attributes) {
-			if(attribute.attributeName.equals("Job.Command")) {
+		for(int i=0; i<attributes.size(); i++) {
+			Attribute attribute = attributes.get(i);
+			if(attribute.attributeName.equals("Job.Command") ||
+					attribute.attributeName.equals("Job.PredictionTime")) {
 				attributes.remove(attribute);
-				break;
+				i--;
 			}
-		}
+		}		
 	}
 	
 	
@@ -401,42 +409,82 @@ public class MultiTypePolicy extends Policy {
 		return null;
 	}
 
+	/**
+	 * This function dispatch the job by predicting the execution time of a job on every machine.  After that, 
+	 * the cluster that can finish the job first will be dispatched the job.
+	 * 
+	 * @return Dispatch Command
+	 * @see DispatchDecision
+	 */
 	@Override
 	public DispatchDecision GetNewJobDestination() {
-		// TODO Auto-generated method stub
-		if(this.m_runningClusterList.size()>0)
-		{
-			try {
-				RefreshRoughSet();
-				System.out.println("Done Refreshing");
-				JobNode jn = this.m_waitingJobList.get(0);
-				jn.runningCluster = this.m_runningClusterList.get(0);
-				System.out.println("start get result");
-				long result = this.GetPredictionResult(jn);
-				jn.deadline = result;
-				jn.runningCluster = null;
-				System.out.println("Result " + result);
-				System.out.println("Finished: " + this.m_finishJobList.size());
-			} catch(Exception e) {
-				e.printStackTrace();
-				System.out.println("Please go on.  Thanks");
-			}
-		}
+		if(this.m_runningClusterList.size()==0) return null;
+		int runningClusterSize = this.m_runningClusterList.size();
+		long[] remainTime = new long[runningClusterSize];
+		long[] predictionResult = new long[runningClusterSize];
+		int[] jobcount = new int[runningClusterSize];
+		Arrays.fill(jobcount, 0);
+		JobNode nextJob = this.m_waitingJobList.get(0);
 		
-		
-		if(this.m_waitingJobList.size()!=0 && this.m_runningClusterList.size()!=0) {
-			JobNode jn = this.m_waitingJobList.get(0);
-			ClusterNode cn = null;
-			for(ClusterNode c:this.m_runningClusterList) {
-				if(jn.jobType == c.jobType) {
-					cn = c;
-					break;
+		for(int i=0; i<runningClusterSize; i++) {
+			ClusterNode cn = this.m_runningClusterList.get(i);
+			for(JobNode jn : this.m_runningJobList) {
+				if(jn.runningCluster == cn) {
+					remainTime[i] += (jn.GetContinuousAttribute("PredictionTime")-jn.completionTime);
+					jobcount[i]++;
+					
 				}
 			}
-			if(cn != null && this.m_runningJobList.size()<3)
-			return new DispatchDecision(jn, cn);
 		}
-		return null;
+		
+		try {
+			RefreshRoughSet();
+		} catch(Exception e) {
+			System.out.println("Error while Refreshing the RoughSet");
+			e.printStackTrace();
+		}
+		
+		for(int i=0; i<runningClusterSize; i++) {
+			ClusterNode destination = this.m_runningClusterList.get(i);
+			if(nextJob.jobType == destination.jobType)
+			try {
+				nextJob.runningCluster = destination;
+				predictionResult[i] = this.GetPredictionResult(nextJob);
+			} catch(Exception e) {
+				e.printStackTrace();
+				System.out.println("Prediction Error");
+				predictionResult[i] = 0;
+			} finally {
+				nextJob.runningCluster = null;
+			}
+			else {
+				predictionResult[i] = -1;
+			}
+		}
+		
+		int least = -1;
+		long[] totalResult = new long[runningClusterSize];
+		for(int i=0; i<runningClusterSize; i++) {
+			if(predictionResult[i]!=-1) {
+				totalResult[i] = remainTime[i] + predictionResult[i];
+				
+				if(least!=-1) {
+					if(totalResult[least]>totalResult[i]) {
+						least = i;
+					}
+				} else {
+					least = i;
+				}
+			}
+		}
+		
+		if(least == -1 || totalResult[least]>12000 || jobcount[least]>=3)
+			return null;
+		else {
+			DispatchDecision dd = new DispatchDecision(nextJob, this.m_runningClusterList.get(least));
+			nextJob.AddContinuousAttribute("PredictionTime", predictionResult[least]);
+			return dd;
+		}
 	}
 
 	@Override

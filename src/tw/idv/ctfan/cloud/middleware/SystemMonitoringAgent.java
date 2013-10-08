@@ -167,6 +167,7 @@ public class SystemMonitoringAgent extends Agent {
 		GetJobInfoBehaviour(Agent a, JobNode jn, byte[] binaryFile) {
 			super(a);
 			m_job = jn;
+			m_job.submitTime = System.currentTimeMillis();
 			m_binary = binaryFile;
 		}
 		@Override
@@ -229,8 +230,12 @@ public class SystemMonitoringAgent extends Agent {
 					jn.finishTime = System.currentTimeMillis();
 					jn.completionTime = Long.parseLong(subLine[3]);
 				}
+				else if(subLine[1].equals("Running")){
+					jn.lastSeen = Long.parseLong(subLine[2]);
+					jn.completionTime = Long.parseLong(subLine[3]);
+				}
 				else if(subLine[1].matches("Waiting")) {
-					jn.startTime = System.currentTimeMillis();
+					jn.lastSeen = Long.parseLong(subLine[2]);
 				}
 				break;
 			}

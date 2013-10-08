@@ -514,7 +514,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 						if(jn.runningCluster!=null&&jn.runningCluster==cn)
 							output.print("<tr style=\"border-top:1px solid black\"><td>" + jn.UID + "</td>" +
 									                                              "<td>" + jn.jobType.getTypeName() + "</td>" +
-									                                              "<td>" + "Unknown" + "</td>" +
+									                                              "<td>" + jn.GetContinuousAttribute("PredictionTime") + "</td>" +
 									                                              "<td>" + jn.completionTime + "</td>" +
 									                                              "<td>" + jn.deadline + "</tr>");
 					}
@@ -622,7 +622,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 								"<TR style=\"border-top:1px black solid\"><TH style=\"width:15%\">Job Name</TH>" +
 																		 "<TH style=\"width:15%\">Job Type</TH>" +
 																		 "<TH style=\"width:15%\">Finished Time</TH>" +
-																		 "<TH style=\"width:15%\">Differences%</TH>" +
+																		 "<TH style=\"width:15%\">Prediction Time</TH>" +
 																		 "<TH style=\"width:15%\">Start Time</TH>" +
 																		 "<TH style=\"width:15%\">Finish Time</TH></TR>"+
 							 "</THEAD>");
@@ -631,8 +631,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 					output.print("<tr style=\"border-top:1px solid black\"><td>" + jn.UID + "</td>" +
 																		  "<td>" + jn.jobType.getTypeName() + "</td>" +
 																		  "<td>" + jn.completionTime + "</td>" +
-																		  // TODO: deadline
-																		  "<td>" + (((double)jn.deadline - (double)jn.completionTime)/(double)jn.completionTime) + "</td>" +
+																		  "<td>" + jn.GetContinuousAttribute("PredictionTime") + "</td>" +
 																		  "<td>" + jn.startTime + "</td>" +
 																		  "<td>" + jn.finishTime + "</td></tr>");
 				}

@@ -40,6 +40,7 @@ public class RoughSet {
 //				System.out.println("================================================");
 			}
 			boolean[] decision = decisionRule.GetSmallestReductAttribute(m_reducedCoreAttr);
+			if(decision.length==0) return false;
 			
 			for(int a=0, offset=0; a<m_numOfCondAttr; a++) {
 				if(m_leastReductAttr[a]) {

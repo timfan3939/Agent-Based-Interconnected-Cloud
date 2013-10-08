@@ -216,7 +216,7 @@ public class JobNode implements Comparable<JobNode> {
 	 */
 	public long GetContinuousAttribute(String key) {
 		if(!ReservedAttributeKey(key)) {
-			if(attributeType.get(key)==AttributeType.Continuous)
+			if(attributeType.get(key)==AttributeType.Continuous&&attributes.containsKey(key))
 				return Long.parseLong(attributes.get(key));
 			else return -1;
 		} else
