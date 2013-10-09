@@ -430,7 +430,9 @@ public class MultiTypePolicy extends Policy {
 			ClusterNode cn = this.m_runningClusterList.get(i);
 			for(JobNode jn : this.m_runningJobList) {
 				if(jn.runningCluster == cn) {
-					remainTime[i] += (jn.GetContinuousAttribute("PredictionTime")-jn.completionTime);
+					long time = jn.GetContinuousAttribute("PredictionTime");
+					if(time <= 0) time = 2000000;
+					remainTime[i] += (time-jn.completionTime);
 					jobcount[i]++;
 					
 				}
@@ -478,7 +480,9 @@ public class MultiTypePolicy extends Policy {
 			}
 		}
 		
-		if(least == -1 || totalResult[least]>12000 || jobcount[least]>=3)
+		if(least == -1 )
+			return null;
+		else if(jobcount[least]!=0 && (totalResult[least]>20000 || jobcount[least]>=3 ))
 			return null;
 		else {
 			DispatchDecision dd = new DispatchDecision(nextJob, this.m_runningClusterList.get(least));
@@ -490,9 +494,9 @@ public class MultiTypePolicy extends Policy {
 	@Override
 	public VMManagementDecision GetVMManagementDecision() {
 		// TODO Auto-generated method stub
-//		if(this.m_availableClusterList.size()>0) {
-//			return new VMManagementDecision(m_availableClusterList.get(0), VMManagementDecision.Command.START_VM);
-//		}
+		if(this.m_availableClusterList.size()>0&& this.m_waitingJobList.size()>5) {
+			return new VMManagementDecision(m_availableClusterList.get(0), VMManagementDecision.Command.START_VM);
+		}
 		return null;
 	}
 
@@ -507,18 +511,20 @@ public class MultiTypePolicy extends Policy {
 	@Override
 	public void InitClusterList() {
 		String[] ClusterName = {"Java Cluster 1",
+								"Java Cluster 2",
 //							    "Hadoop Cluster 1",
 		};
 		
 		String[][] Machines = {
 				{"hdp201"},
+				{"hdp202"},
 				{"hdp206", "hdp205", "hdp204", "hdp203"},
 		};
 		
 		JobType java = new JavaJobType();
 		JobType hadoop = new MRJobType();
 		JobType[] clusterType = {
-				java, hadoop
+				java, java, hadoop
 		};
 		
 		for(JobType jn : clusterType) {

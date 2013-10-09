@@ -490,11 +490,9 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 					long remainTime=0;
 					for(JobNode jn : policy.GetRunningJob()) {
 						if(jn.runningCluster!=null&&jn.runningCluster==cn) {
-//							if(jn.predictTime-jn.hasBeenExecutedTime<0)
-//								remainTime=Long.MAX_VALUE;
-//							else if(remainTime!=Long.MAX_VALUE)
-//								remainTime+=(jn.predictTime-jn.hasBeenExecutedTime);
-							remainTime += 10000;
+							long time = jn.GetContinuousAttribute("PredictionTime");
+							if(time<=0) time = 2000000;
+							remainTime += time-jn.completionTime;
 						}
 					}
 					output.print("<TR style=\"border-top:1px solid black\"><TD>" + cn.clusterName + "</TD>" +
