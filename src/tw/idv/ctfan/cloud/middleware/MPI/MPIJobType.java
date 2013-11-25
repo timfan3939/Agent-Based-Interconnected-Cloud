@@ -5,6 +5,22 @@ import jade.lang.acl.ACLMessage;
 import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
 import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
 
+/**
+ * 
+ * @author C.T.Fan
+ *
+ * Accepted job type: MPI program (Compiled), with number of thread and string type command.<br>
+ * The number of thread will be treated as the size of the job.
+ * <p>
+ * Must have attribute:<br>
+ * JobType:MPI<br>
+ * Command:<String type command allows you to have user defined parameter<br>
+ * Name:<Program name> (Optional)<br>
+ * Deadline:<The Deadline of the job> (Optional)<br>
+ * BinaryDataLength:<length of the Archive>\n<binaryFileContent><br>
+ * Thread:<Number of threads>
+ */
+
 public class MPIJobType extends JobType {
 
 	public MPIJobType() {
@@ -31,12 +47,18 @@ public class MPIJobType extends JobType {
 
 	@Override
 	public String GetExtension() {
-		return "bin";
+		return ".out";
 	}
 
 	@Override
 	public void SetJobInfo(JobNode jn) {
-		// TODO Auto-generated method stub
+		try {
+			long size = Long.parseLong(jn.GetDiscreteAttribute("Thread"));
+			jn.AddContinuousAttribute("JobSize", size);
+		} catch(Exception e) {
+			System.out.println("MPIJobType.SetJobInfo() got some problems");
+			e.printStackTrace();
+		}
 
 	}
 
@@ -49,7 +71,7 @@ public class MPIJobType extends JobType {
 	@Override
 	public boolean varifyJob(JobNode jn) {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 }
