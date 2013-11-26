@@ -90,7 +90,8 @@ public class ResourceReconfigurationAgent extends Agent {
 							!vm.getIsControlDomain(vmc.xenConnection) &&
 							!vm.getIsSnapshotFromVmpp(vmc.xenConnection))
 								if(vm.getPowerState(vmc.xenConnection)==Types.VmPowerState.RUNNING)
-									vm.hardShutdown(vmc.xenConnection);
+									if(!vm.getNameLabel(vmc.xenConnection).equals("hdp218"))
+										vm.hardShutdown(vmc.xenConnection);
 				}
 			}
 		} catch (Exception e) {

@@ -11,6 +11,7 @@ import com.xensource.xenapi.VM;
 import tw.idv.ctfan.RoughSet.RoughSet;
 import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
 import tw.idv.ctfan.cloud.middleware.Java.JavaJobType;
+import tw.idv.ctfan.cloud.middleware.MPI.MPIJobType;
 import tw.idv.ctfan.cloud.middleware.MapReduce.MRJobType;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.DispatchDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.MigrationDecision;
@@ -511,20 +512,21 @@ public class MultiTypePolicy extends Policy {
 	@Override
 	public void InitClusterList() {
 		String[] ClusterName = {"Java Cluster 1",
-								"Java Cluster 2",
-//							    "Hadoop Cluster 1",
+								"MPI Cluster 1",
+							    "Hadoop Cluster 1",
 		};
 		
 		String[][] Machines = {
 				{"hdp201"},
-				{"hdp202"},
+				{"hdp202", "hdp207", "hdp208"},
 				{"hdp206", "hdp205", "hdp204", "hdp203"},
 		};
 		
 		JobType java = new JavaJobType();
 		JobType hadoop = new MRJobType();
+		JobType MPI = new MPIJobType();
 		JobType[] clusterType = {
-				java, java, hadoop
+				java, MPI, hadoop
 		};
 		
 		for(JobType jn : clusterType) {
