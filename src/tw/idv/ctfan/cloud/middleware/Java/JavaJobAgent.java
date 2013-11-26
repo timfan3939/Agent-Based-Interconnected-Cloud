@@ -78,8 +78,7 @@ public class JavaJobAgent extends JobAgent {
 				
 			} catch (Exception e) {
 				e.printStackTrace();
-			}
-			
+			}			
 		}
 
 		@Override
@@ -87,7 +86,5 @@ public class JavaJobAgent extends JobAgent {
 			if(doneYet == true) JobFinished();
 			return doneYet;
 		}
-		
 	}
-
 }
