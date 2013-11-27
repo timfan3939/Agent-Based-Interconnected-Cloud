@@ -53,10 +53,13 @@ public class MPIJobType extends JobType {
 	@Override
 	public void SetJobInfo(JobNode jn) {
 		try {
-			long size = Long.parseLong(jn.GetDiscreteAttribute("Thread"));
-			jn.AddContinuousAttribute("JobSize", size);
+			long size = (jn.GetContinuousAttribute("Thread"));
+			if(size>=0)
+				jn.AddContinuousAttribute("JobSize", size);
 		} catch(Exception e) {
 			System.out.println("MPIJobType.SetJobInfo() got some problems");
+			jn.AddContinuousAttribute("JobSize", 10);
+			jn.AddContinuousAttribute("Thread", 10);
 			e.printStackTrace();
 		}
 

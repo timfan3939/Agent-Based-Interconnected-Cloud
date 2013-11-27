@@ -32,14 +32,25 @@ public class MPIAdminAgent extends AdminAgent {
 
 	@Override
 	public String OnEncodeNewJobAgent(JobNode jn) {
+		System.out.println("==");
+		jn.DisplayDetailedInfo();
 		String result = "";
-			if(jn.GetContinuousAttribute("Thread")!=-1) {
+//			if(jn.GetContinuousAttribute("Thread")>0) {
+//				result += jn.GetContinuousAttribute("Thread");
+			if(jn.GetDiscreteAttribute("Thread")!=null) {
+				// All attribute value are treated as discrete value
 				result += jn.GetDiscreteAttribute("Thread");
+			} else {
+				result += "10";
 			}
 			result += "\t";
 			if(jn.GetDiscreteAttribute("Command")!=null) {
 				result += jn.GetDiscreteAttribute("Command");
+			} else {
+				result += " ";
 			}
+		System.out.println("OnEncodeNewJobAgent " + result + "_");
+		System.out.println("==");
 		return result;
 	}
 

@@ -48,6 +48,7 @@ public class MultiTypePolicy extends Policy {
 		}
 		
 		JobNode.attributeType.put("PredictionTime", AttributeType.Continuous);
+//		JobNode.attributeType.put("Thread", AttributeType.Continuous);
 		
 		RefreshRoughSet();
 		System.out.println("=====Policy ready=====");
@@ -511,7 +512,8 @@ public class MultiTypePolicy extends Policy {
 
 	@Override
 	public void InitClusterList() {
-		String[] ClusterName = {"Java Cluster 1",
+		String[] ClusterName = {
+								"Java Cluster 1",
 								"MPI Cluster 1",
 							    "Hadoop Cluster 1",
 		};
@@ -526,7 +528,9 @@ public class MultiTypePolicy extends Policy {
 		JobType hadoop = new MRJobType();
 		JobType MPI = new MPIJobType();
 		JobType[] clusterType = {
-				java, MPI, hadoop
+				java,
+				MPI,
+				hadoop
 		};
 		
 		for(JobType jn : clusterType) {
