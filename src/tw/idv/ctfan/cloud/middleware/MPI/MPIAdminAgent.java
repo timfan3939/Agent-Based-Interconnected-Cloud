@@ -5,6 +5,8 @@ import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
 
 public class MPIAdminAgent extends AdminAgent {
 	private static final long serialVersionUID = -6002055057210057475L;
+	
+	String hostsValue;
 
 	public MPIAdminAgent() {
 		super(new MPIJobType());
@@ -43,12 +45,19 @@ public class MPIAdminAgent extends AdminAgent {
 			} else {
 				result += "10";
 			}
+			
 			result += "\t";
+			
 			if(jn.GetDiscreteAttribute("Command")!=null) {
 				result += jn.GetDiscreteAttribute("Command");
 			} else {
 				result += " ";
 			}
+			
+			result += "\t";
+			
+			result += hostsValue;
+			
 		System.out.println("OnEncodeNewJobAgent " + result + "_");
 		System.out.println("==");
 		return result;
@@ -64,6 +73,7 @@ public class MPIAdminAgent extends AdminAgent {
 		if(args.length<3) 
 			return false;
 		
+		hostsValue = (String) args[2];
 		
 		return true;
 	}

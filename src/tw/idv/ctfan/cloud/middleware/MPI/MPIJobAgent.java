@@ -10,8 +10,6 @@ import tw.idv.ctfan.cloud.middleware.Cluster.JobAgent;
 public class MPIJobAgent extends JobAgent {
 	private static final long serialVersionUID = -3787070421334031975L;
 	
-	private String hosts = "hdp207,hdp208";
-
 	@Override
 	protected String OnHeartBeat() {
 		return "Hello, There";
@@ -21,13 +19,13 @@ public class MPIJobAgent extends JobAgent {
 	protected void StartJob(Agent myAgent, String info) {
 		WriteLog("Info: " + info);
 		String[] cmd = info.split("\t");
-		if(cmd.length!=2) {
+		if(cmd.length!=3) {
 			WriteLog("Info size is not 2");
 			WriteLog(info);
 			JobFinished();
 			return;
 		}
-		String command = "mpiexec --host " + hosts + " -n " + cmd[0] + " " + GetBinaryFullPath() + " " + cmd[1];
+		String command = "mpiexec --host " + cmd[2] + " -n " + cmd[0] + " " + GetBinaryFullPath() + " " + cmd[1];
 		WriteLog(command);
 		
 		Runtime rt = Runtime.getRuntime();

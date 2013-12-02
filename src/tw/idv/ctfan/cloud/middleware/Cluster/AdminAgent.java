@@ -435,8 +435,10 @@ public abstract class AdminAgent extends Agent {
 
 	/**
 	 * When setup the agent, this will help the {@link AdminAgent} to set user-defined
-	 * Argument
+	 * Argument<p>
 	 * 
+	 * Note that the first and the second (a.k.a., args[0] and args[1]) are reserved for the {@link AdminAgent}.
+	 *  
 	 * @param args Arguments
 	 * @return true if no problem while setting the Arguments.  False otherwise (and will {@link Agent#doDelete()} the agent)
 	 */
