@@ -43,4 +43,9 @@ public class JavaAdminAgent extends AdminAgent {
 		return "Nothing to tell";
 	}
 
+	@Override
+	protected boolean SetArguments(Object[] args) {
+		return args.length>2;
+	}
+
 }

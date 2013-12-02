@@ -77,4 +77,9 @@ public class MRAdminAgent extends AdminAgent {
 		return false;
 	}
 
+	@Override
+	protected boolean SetArguments(Object[] args) {
+		return args.length>2;
+	}
+
 }

@@ -59,4 +59,13 @@ public class MPIAdminAgent extends AdminAgent {
 		System.out.println("I'm going to be terminated.");
 	}
 
+	@Override
+	protected boolean SetArguments(Object[] args) {
+		if(args.length<3) 
+			return false;
+		
+		
+		return true;
+	}
+
 }

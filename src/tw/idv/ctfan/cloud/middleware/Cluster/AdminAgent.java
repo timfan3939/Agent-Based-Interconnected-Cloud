@@ -43,7 +43,18 @@ public abstract class AdminAgent extends Agent {
 		super.setup();		
 		
 		// TODO: command line
-		m_masterIP = "120.126.145.102";
+//		m_masterIP = "120.126.145.102";
+		Object[] args = this.getArguments();
+		if(args.length<2) {
+			System.err.println("Arguments should larger than 2");
+			this.doDelete();
+		} else if(!this.SetArguments(args)) {
+			System.err.println("Arguments Initializing Error");
+			this.doDelete();
+		}
+		
+		m_masterIP = (String) args[1];
+		m_jarPath = (String) args[0];		
 		
 		this.addBehaviour(new InitilizeClusterBehaviour(this));
 	}
@@ -420,6 +431,16 @@ public abstract class AdminAgent extends Agent {
 			}
 		}		
 	}
+	
+
+	/**
+	 * When setup the agent, this will help the {@link AdminAgent} to set user-defined
+	 * Argument
+	 * 
+	 * @param args Arguments
+	 * @return true if no problem while setting the Arguments.  False otherwise (and will {@link Agent#doDelete()} the agent)
+	 */
+	protected abstract boolean SetArguments(Object[] args);
 	
 	/**
 	 * Encode the cluster's load information.  The information will be sent to {@link SystemMonitoringAgent}
