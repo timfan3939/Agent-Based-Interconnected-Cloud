@@ -506,6 +506,7 @@ public class MultiTypePolicy extends Policy {
 	public ArrayList<VMController> InitVMMasterList() {
 		
 		this.m_vmControllerList.add(new VMController("10.133.200.4", "root", "unigrid", VMController.VirtualMachineType.Private));
+		this.m_vmControllerList.add(new VMController("10.133.200.3", "root", "unigrid", VMController.VirtualMachineType.Public));
 		
 		return m_vmControllerList;
 	}
@@ -516,12 +517,20 @@ public class MultiTypePolicy extends Policy {
 								"Java Cluster 1",
 								"MPI Cluster 1",
 							    "Hadoop Cluster 1",
+								"Java Cluster 2",
+								"Java Cluster 3",
+								"MPI Cluster 2",
+							    "Hadoop Cluster 2",
 		};
 		
 		String[][] Machines = {
 				{"hdp201"},
 				{"hdp202", "hdp207", "hdp208"},
 				{"hdp206", "hdp205", "hdp204", "hdp203"},
+				{"hdp209"},
+				{"hdp210"},
+				{"hdp211", "hdp213", "hdp215", "hdp217"},
+				{"hdp214", "hdp216", "hdp212"},
 		};
 		
 		JobType java = new JavaJobType();
@@ -530,12 +539,19 @@ public class MultiTypePolicy extends Policy {
 		JobType[] clusterType = {
 				java,
 				MPI,
+				hadoop,
+				java,
+				java,
+				MPI,
 				hadoop
 		};
 		
-		for(JobType jn : clusterType) {
-			m_jobTypeList.add(jn);
-		}
+//		for(JobType jn : clusterType) {
+//			m_jobTypeList.add(jn);
+//		}
+		m_jobTypeList.add(java);
+		m_jobTypeList.add(hadoop);
+		m_jobTypeList.add(MPI);
 		
 //		JobNode.attributeType.put("Command", JobNode.AttributeType.Discrete);
 		

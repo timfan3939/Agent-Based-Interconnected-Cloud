@@ -36,7 +36,7 @@ public class TestMR {
 //			int testSize[] = {8,6,2,0,3,4,2,3,4,1,1,7,0,9,5};
 //			int testSize[] = {0,9,3,8,4,4,6,0,9,5,5,8,2,2,3,1,7,1,7,6};
 
-			int size = 2;
+			int size = 20;
 			int testSize[] = new int[size];
 			java.util.Random rand = new java.util.Random();
 			for(int i=0; i<size; i++)

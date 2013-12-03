@@ -121,6 +121,7 @@ public class ResourceReconfigurationAgent extends Agent {
 							openingCluster.add(cn);
 							policy.GetAvailableCluster().remove(cn);
 //							System.out.println("Cluster " + openingCluster.size());
+							
 							break;
 						}
 					}
