@@ -88,7 +88,7 @@ public class MPIJobAgent extends JobAgent {
 						m_output.append("\n--\n");
 					}
 				}
-				WriteLog("--");
+				WriteLog("--------------------");
 				WriteLog(m_output.toString());
 				
 				if(m_buffInput2.available()>0 || m_buffInput.available()>0) {
