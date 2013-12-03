@@ -48,8 +48,8 @@ public abstract class AdminAgent extends Agent {
 		if(args.length<2) {
 			System.err.println("Arguments should larger than 2");
 			this.doDelete();
-		} else if(!this.SetArguments(args)) {
-			System.err.println("Arguments Initializing Error");
+		} else if(!this.OnSetArguments(args)) {
+			System.err.println("Arguments Initializing Error, and It was your fault in your function");
 			this.doDelete();
 		}
 		
@@ -442,7 +442,7 @@ public abstract class AdminAgent extends Agent {
 	 * @param args Arguments
 	 * @return true if no problem while setting the Arguments.  False otherwise (and will {@link Agent#doDelete()} the agent)
 	 */
-	protected abstract boolean SetArguments(Object[] args);
+	protected abstract boolean OnSetArguments(Object[] args);
 	
 	/**
 	 * Encode the cluster's load information.  The information will be sent to {@link SystemMonitoringAgent}

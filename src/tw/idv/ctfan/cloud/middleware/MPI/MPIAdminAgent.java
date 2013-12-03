@@ -69,11 +69,12 @@ public class MPIAdminAgent extends AdminAgent {
 	}
 
 	@Override
-	protected boolean SetArguments(Object[] args) {
+	protected boolean OnSetArguments(Object[] args) {
 		if(args.length<3) 
 			return false;
 		
-		hostsValue = (String) args[2];
+		for(int i=2; i<args.length; i++)
+			hostsValue = ( (i!=2?",":"") + (String) args[i] );
 		
 		return true;
 	}

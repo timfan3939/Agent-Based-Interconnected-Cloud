@@ -78,8 +78,8 @@ public class MRAdminAgent extends AdminAgent {
 	}
 
 	@Override
-	protected boolean SetArguments(Object[] args) {
-		return args.length>2;
+	protected boolean OnSetArguments(Object[] args) {
+		return args.length>=2;
 	}
 
 }
