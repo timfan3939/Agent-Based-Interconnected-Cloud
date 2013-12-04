@@ -410,6 +410,31 @@ public class MultiTypePolicy extends Policy {
 		// This will be future work
 		return null;
 	}
+	
+	private int nextJobType = 0;
+	private JobNode GetNextJob() {
+		if(this.m_waitingJobList.size() == 0)
+			return null;
+		
+		JobNode nextJob = null;
+		
+		for(int jobIndex=nextJobType; jobIndex!=nextJobType; jobIndex = (jobIndex+1)%this.m_jobTypeList.size() ) {
+			JobType jt = m_jobTypeList.get(jobIndex);
+			System.out.println("Get Next Job is checking: " + jt.getTypeName());
+			
+			for(int i=0; i<this.m_waitingJobList.size(); i++) {
+				if(this.m_waitingJobList.get(i).jobType == jt) {
+					nextJob = this.m_waitingJobList.get(i);
+					break;
+				}
+			}
+		}
+		
+		// Updating nextJobType
+		nextJobType = (nextJobType+1)%m_jobTypeList.size();
+		
+		return nextJob;
+	}
 
 	/**
 	 * This function dispatch the job by predicting the execution time of a job on every machine.  After that, 
@@ -421,12 +446,13 @@ public class MultiTypePolicy extends Policy {
 	@Override
 	public DispatchDecision GetNewJobDestination() {
 		if(this.m_runningClusterList.size()==0) return null;
+		
 		int runningClusterSize = this.m_runningClusterList.size();
 		long[] remainTime = new long[runningClusterSize];
 		long[] predictionResult = new long[runningClusterSize];
 		int[] jobcount = new int[runningClusterSize];
 		Arrays.fill(jobcount, 0);
-		JobNode nextJob = this.m_waitingJobList.get(0);
+		JobNode nextJob = GetNextJob();
 		
 		for(int i=0; i<runningClusterSize; i++) {
 			ClusterNode cn = this.m_runningClusterList.get(i);
@@ -492,13 +518,27 @@ public class MultiTypePolicy extends Policy {
 			return dd;
 		}
 	}
-
+	
+	private int nextVMManageType = 0;
 	@Override
 	public VMManagementDecision GetVMManagementDecision() {
-		// TODO Auto-generated method stub
-		if(this.m_availableClusterList.size()>0&& this.m_waitingJobList.size()>5) {
-			return new VMManagementDecision(m_availableClusterList.get(0), VMManagementDecision.Command.START_VM);
+		JobType jt = this.m_jobTypeList.get(nextVMManageType);
+		System.out.println("VM Manage is checking: " + jt.getTypeName());
+		nextVMManageType = (nextVMManageType+1)%this.m_jobTypeList.size();
+		
+		for(int VMindex = 0; VMindex<this.m_availableClusterList.size(); VMindex++ ) {
+			if(this.m_availableClusterList.get(VMindex).jobType == jt) {
+				int jobCount = 0;
+				for(JobNode jn:this.m_waitingJobList) {
+					if(jn.jobType==jt) jobCount++;
+				}
+				
+				if(jobCount>5) {
+					return new VMManagementDecision(this.m_availableClusterList.get(VMindex), VMManagementDecision.Command.START_VM);
+				}
+			}
 		}
+				
 		return null;
 	}
 
@@ -515,21 +555,21 @@ public class MultiTypePolicy extends Policy {
 	public void InitClusterList() {
 		String[] ClusterName = {
 								"Java Cluster 1",
-								"MPI Cluster 1",
-							    "Hadoop Cluster 1",
 								"Java Cluster 2",
 								"Java Cluster 3",
+								"MPI Cluster 1",
 								"MPI Cluster 2",
+							    "Hadoop Cluster 1",
 							    "Hadoop Cluster 2",
 		};
 		
 		String[][] Machines = {
 				{"hdp201"},
-				{"hdp202", "hdp207", "hdp208"},
-				{"hdp206", "hdp205", "hdp204", "hdp203"},
 				{"hdp209"},
 				{"hdp210"},
+				{"hdp202", "hdp207", "hdp208"},
 				{"hdp211", "hdp213", "hdp215", "hdp217"},
+				{"hdp206", "hdp205", "hdp204", "hdp203"},
 				{"hdp214", "hdp216", "hdp212"},
 		};
 		
@@ -538,12 +578,12 @@ public class MultiTypePolicy extends Policy {
 		JobType MPI = new MPIJobType();
 		JobType[] clusterType = {
 				java,
+				java,
+				java,
+				MPI,
 				MPI,
 				hadoop,
-				java,
-				java,
-				MPI,
-				hadoop
+				hadoop,
 		};
 		
 		m_jobTypeList.add(java);
