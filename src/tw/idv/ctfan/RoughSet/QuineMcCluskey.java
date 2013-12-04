@@ -6,7 +6,15 @@ import java.util.Collections;
 
 
 public class QuineMcCluskey {
-	private boolean debug = true;
+	private boolean debug = false;
+	
+	/**
+	 * This is a switch that enable or disable {@link QuineMcCluskey#TranslateDNF_To_CNF()}<br>
+	 * If true, the function will active.  Transforming from DNF to CNF may takes lots of time.
+	 * 
+	 * If false, then the default (that is, all attributes will be taken into account) is used.
+	 */
+	private boolean DNF2CNF = false;
 	private final int m_numOfCondAttr;
 	
 	public QuineMcCluskey(int num){
@@ -14,7 +22,7 @@ public class QuineMcCluskey {
 		m_discernibilityFunc_DNF = new ArrayList<boolean[]>();
 	}
 	
-	private boolean calculated = false;
+	private boolean calculated = true;
 	
 	public void Calculate() {	
 		if(calculated) return;
@@ -68,7 +76,12 @@ public class QuineMcCluskey {
 		m_discernibilityFunc_CNF = new ArrayList<boolean[]>();
 		tmpTerm = new boolean[m_numOfCondAttr];
 		
-		Recurrsive_TranslateDNF_To_CNF(0);
+		if(DNF2CNF) {
+			Recurrsive_TranslateDNF_To_CNF(0);
+		} else {
+			Arrays.fill(tmpTerm, true);
+			AddCNF(tmpTerm.clone());
+		}
 	}
 	
 	private void Recurrsive_TranslateDNF_To_CNF(int level) {
