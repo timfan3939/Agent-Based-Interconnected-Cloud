@@ -546,9 +546,6 @@ public class MultiTypePolicy extends Policy {
 				hadoop
 		};
 		
-//		for(JobType jn : clusterType) {
-//			m_jobTypeList.add(jn);
-//		}
 		m_jobTypeList.add(java);
 		m_jobTypeList.add(hadoop);
 		m_jobTypeList.add(MPI);
