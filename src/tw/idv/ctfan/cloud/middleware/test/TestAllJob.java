@@ -144,8 +144,10 @@ public class TestAllJob {
 				
 				//System.out.println("" + i + "\tdone");
 				
-//				if(i>6)
-					Thread.sleep(5000);
+				if(jobTypes[job]==hadoop)
+					Thread.sleep(10000);
+				else
+					Thread.sleep(100);
 			}
 			
 			

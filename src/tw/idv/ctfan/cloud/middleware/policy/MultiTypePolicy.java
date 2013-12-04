@@ -413,12 +413,18 @@ public class MultiTypePolicy extends Policy {
 	
 	private int nextJobType = 0;
 	private JobNode GetNextJob() {
-		if(this.m_waitingJobList.size() == 0)
+		if(this.m_waitingJobList.size() == 0) {
+			System.out.println("There are no jobs to be dispatched.");
 			return null;
+		}
 		
 		JobNode nextJob = null;
+		int jobTypeSize = this.m_jobTypeList.size();
+		int endJobType = (nextJobType+jobTypeSize-1)%jobTypeSize;
 		
-		for(int jobIndex=nextJobType; jobIndex!=nextJobType; jobIndex = (jobIndex+1)%this.m_jobTypeList.size() ) {
+		for(int jobIndex = nextJobType; 
+					jobIndex != endJobType; 
+					jobIndex = (jobIndex+1)%jobTypeSize ) {
 			JobType jt = m_jobTypeList.get(jobIndex);
 			System.out.println("Get Next Job is checking: " + jt.getTypeName());
 			
@@ -445,7 +451,10 @@ public class MultiTypePolicy extends Policy {
 	 */
 	@Override
 	public DispatchDecision GetNewJobDestination() {
-		if(this.m_runningClusterList.size()==0) return null;
+		if(this.m_runningClusterList.size()==0){
+			System.out.println("No VMs are running, Hense no job to be dispatched.");
+			return null;
+		}
 		
 		int runningClusterSize = this.m_runningClusterList.size();
 		long[] remainTime = new long[runningClusterSize];
@@ -453,6 +462,10 @@ public class MultiTypePolicy extends Policy {
 		int[] jobcount = new int[runningClusterSize];
 		Arrays.fill(jobcount, 0);
 		JobNode nextJob = GetNextJob();
+		if(nextJob==null) {
+			System.out.println("No Next Job Found.");
+			return null;
+		}
 		
 		for(int i=0; i<runningClusterSize; i++) {
 			ClusterNode cn = this.m_runningClusterList.get(i);
@@ -564,11 +577,16 @@ public class MultiTypePolicy extends Policy {
 		};
 		
 		String[][] Machines = {
+				// Java Clusters
 				{"hdp201"},
 				{"hdp209"},
 				{"hdp210"},
+				
+				// MPI Clusters
 				{"hdp202", "hdp207", "hdp208"},
 				{"hdp211", "hdp213", "hdp215", "hdp217"},
+				
+				// Hadoop Clusters
 				{"hdp206", "hdp205", "hdp204", "hdp203"},
 				{"hdp214", "hdp216", "hdp212"},
 		};
