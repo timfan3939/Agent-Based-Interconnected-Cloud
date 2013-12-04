@@ -12,6 +12,7 @@ import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
 import tw.idv.ctfan.cloud.middleware.policy.Policy;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
+import tw.idv.ctfan.cloud.middleware.policy.data.VMController;
 
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
@@ -487,6 +488,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				output.print("<TBODY>");
 				
 				for(ClusterNode cn : policy.GetRunningCluster()) {
+					if(cn.GetMachineList().get(0).vmController.masterType != VMController.VirtualMachineType.Private) continue;
 					long remainTime=0;
 					for(JobNode jn : policy.GetRunningJob()) {
 						if(jn.runningCluster!=null&&jn.runningCluster==cn) {
@@ -527,62 +529,60 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				output.print("</DIV>");
 				
 
-//				
-//				output.print("<DIV style=\"" + styleLeft + "\">");
-//				output.print("<H1>Public Cluster/Job Information</H1>");
-//				output.print("<TABLE style=\"text-align:center; border-collapse:collapse; border:1px black solid; width:100%\">");
-//				
-//				output.print("<THEAD>" +
-//								"<TR style=\"border-top:1px black solid\"><TH style=\"width:25%\">Cluster Name</TH>" +
-//																		 "<TH style=\"width:25%\">Remain Time</TH>" +
-//																		 "<TH style=\"width:25%\">Core</TH>" +
-//																		 "<TH style=\"width:25%\">Memory</TH></TR>"+
-//							 "</THEAD>");
-//				output.print("<TBODY>");
-//				
-//				for(ClusterNode cn : policy.GetRunningCluster()) {
-//					if(cn.vmMaster!=null&&cn.vmMaster.masterType!=VMMasterNode.PUBLIC)
-//						continue;
-//					long remainTime=0;
-//					for(JobNodeBase jn : policy.GetRunningJob()) {
-//						if(jn.currentPosition!=null&&jn.currentPosition.compare(cn)) {
-//							if(jn.predictTime-jn.hasBeenExecutedTime<0)
-//								remainTime=Long.MAX_VALUE;
-//							else if(remainTime!=Long.MAX_VALUE)
-//								remainTime+=(jn.predictTime-jn.hasBeenExecutedTime);
-//						}
-//					}
-//					output.print("<TR style=\"border-top:1px solid black\"><TD>" + cn.name + "</TD>" +
-//								     									  "<TD>" + remainTime + "</TD>" +
-//								     									  "<TD>" + cn.core+"</TD>" +
-//								     									  "<TD>" + cn.memory+"</TD></TR>");
-//					output.print("<tr><td>&nbsp;</td><td colspan=\"3\">");
-//					
-//					output.print("<table style=\"text-align:center; border-collapse:collapse; border:1px black solid;width:100%;background-color:#dddddd;\">");
-//					output.print("<thead>" +
-//							"<tr style=\"border-top:1px solid black\"><th style=\"width:20%\">Job Name</th>" +
-//							                                         "<th style=\"width:20%\">Job Type</th>" +
-//							                                         "<th style=\"width:20%\">Estimated Time</th>" +
-//							                                         "<th style=\"width:20%\">Running Time</th>" +
-//							                                         "<th style=\"width:20%\">Deadline</th></tr></thead>");
-//					for(JobNodeBase jn: policy.GetRunningJob()) {
-//						if(jn.currentPosition!=null&&jn.currentPosition.compare(cn))
-//							output.print("<tr style=\"border-top:1px solid black\"><td>" + jn.UID + "</td>" +
-//									                                              "<td>" + jn.jobName + "</td>" +
-//									                                              "<td>" + jn.predictTime/1000 + "</td>" +
-//									                                              "<td>" + jn.hasBeenExecutedTime + "</td>" +
-//									                                              "<td>" + jn.deadline + "</tr>");
-//					}
-//					
-//					output.print("</table>");
-//					
-//					output.print("</td></tr>");
-//				}
-//				output.print("</TBODY>");
-//				
-//				output.print("</TABLE>");
-//				
-//				output.print("</DIV>");
+				
+
+				output.print("<DIV style=\"" + styleLeft + "\">");
+				output.print("<H1>Public Cluster/Job Information</H1>");
+				output.print("<TABLE style=\"text-align:center; border-collapse:collapse; border:1px black solid; width:100%\">");
+				
+				output.print("<THEAD>" +
+								"<TR style=\"border-top:1px black solid\"><TH style=\"width:25%\">Cluster Name</TH>" +
+																		 "<TH style=\"width:25%\">Remain Time</TH>" +
+																		 "<TH style=\"width:25%\">Core</TH>" +
+																		 "<TH style=\"width:25%\">Memory</TH></TR>"+
+							 "</THEAD>");
+				output.print("<TBODY>");
+				
+				for(ClusterNode cn : policy.GetRunningCluster()) {
+					if(cn.GetMachineList().get(0).vmController.masterType != VMController.VirtualMachineType.Public) continue;
+					long remainTime=0;
+					for(JobNode jn : policy.GetRunningJob()) {
+						if(jn.runningCluster!=null&&jn.runningCluster==cn) {
+							long time = jn.GetContinuousAttribute("PredictionTime");
+							if(time<=0) time = 2000000;
+							remainTime += time-jn.completionTime;
+						}
+					}
+					output.print("<TR style=\"border-top:1px solid black\"><TD>" + cn.clusterName + "</TD>" +
+								     									  "<TD>" + remainTime + "</TD>" +
+								     									  "<TD>" + cn.core+"</TD>" +
+								     									  "<TD>" + cn.memory+"</TD></TR>");
+					output.print("<tr><td>&nbsp;</td><td colspan=\"3\">");
+					
+					output.print("<table style=\"text-align:center; border-collapse:collapse; border:1px black solid;width:100%;background-color:#dddddd;\">");
+					output.print("<thead>" +
+							"<tr style=\"border-top:1px solid black\"><th style=\"width:20%\">Job Name</th>" +
+							                                         "<th style=\"width:20%\">Job Type</th>" +
+							                                         "<th style=\"width:20%\">Estimated Time</th>" +
+							                                         "<th style=\"width:20%\">Running Time</th>" +
+							                                         "<th style=\"width:20%\">Deadline</th></tr></thead>");
+					for(JobNode jn: policy.GetRunningJob()) {
+						if(jn.runningCluster!=null&&jn.runningCluster==cn)
+							output.print("<tr style=\"border-top:1px solid black\"><td>" + jn.UID + "</td>" +
+									                                              "<td>" + jn.jobType.getTypeName() + "</td>" +
+									                                              "<td>" + jn.GetContinuousAttribute("PredictionTime") + "</td>" +
+									                                              "<td>" + jn.completionTime + "</td>" +
+									                                              "<td>" + jn.deadline + "</tr>");
+					}
+					
+					output.print("</table>");
+					
+					output.print("</td></tr>");
+				}
+				output.print("</TBODY>");
+				
+				output.print("</TABLE>");		
+				output.print("</DIV>");
 				
 				
 				// waiting list
