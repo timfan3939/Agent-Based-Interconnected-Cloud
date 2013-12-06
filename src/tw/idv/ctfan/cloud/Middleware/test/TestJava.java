@@ -164,7 +164,7 @@ public class TestJava {
 				stream.write("\n".getBytes());
 				
 				//if(rand.nextInt(2)==0)
-				if(i%2==0) {
+				if(i%2==0 && i>5) {
 					stream.write("Deadline:".getBytes());
 					stream.write(Integer.toString(120000).getBytes());
 					stream.write("\n".getBytes());
@@ -186,7 +186,7 @@ public class TestJava {
 				//System.out.println("" + i + "\tdone");
 				
 //				if(i>6)
-					Thread.sleep(100);
+					Thread.sleep(5000);
 			}
 			
 			

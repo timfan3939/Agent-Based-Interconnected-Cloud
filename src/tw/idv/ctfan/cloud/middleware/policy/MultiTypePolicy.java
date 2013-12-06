@@ -414,7 +414,7 @@ public class MultiTypePolicy extends Policy {
 	private int nextJobType = 0;
 	private JobNode GetNextJob() {
 		if(this.m_waitingJobList.size() == 0) {
-			System.out.println("There are no jobs to be dispatched.");
+//			System.out.println("There are no jobs to be dispatched.");
 			return null;
 		}
 		
@@ -426,14 +426,14 @@ public class MultiTypePolicy extends Policy {
 					jobIndex != endJobType; 
 					jobIndex = (jobIndex+1)%jobTypeSize ) {
 			JobType jt = m_jobTypeList.get(jobIndex);
-			System.out.println("Get Next Job is checking: " + jt.getTypeName());
+//			System.out.println("Get Next Job is checking: " + jt.getTypeName());
 			
 			// First finding jobs with Deadline
 			for(int i=0; i<this.m_waitingJobList.size(); i++) {
 				nextJob = this.m_waitingJobList.get(i);
 				if(nextJob.jobType == jt && nextJob.deadline > 0) {
 					nextJobType = (nextJobType+1)%m_jobTypeList.size();
-					System.out.println("Return Deadline Job");
+//					System.out.println("Return Deadline Job");
 					return nextJob;
 				}
 				nextJob = null;
@@ -444,7 +444,7 @@ public class MultiTypePolicy extends Policy {
 				nextJob = this.m_waitingJobList.get(i);
 				if(nextJob.jobType == jt) {
 					nextJobType = (nextJobType+1)%m_jobTypeList.size();
-					System.out.println("Return General Job");
+//					System.out.println("Return General Job");
 					return nextJob;
 				}
 				nextJob = null;
@@ -456,6 +456,8 @@ public class MultiTypePolicy extends Policy {
 		
 		return nextJob;
 	}
+	
+	private static final long defaultPredictionTime = 50000;
 
 	/**
 	 * This function dispatch the job by predicting the execution time of a job on every machine.  After that, 
@@ -474,13 +476,16 @@ public class MultiTypePolicy extends Policy {
 		int runningClusterSize = this.m_runningClusterList.size();
 		long[] remainTime = new long[runningClusterSize];
 		long[] predictionResult = new long[runningClusterSize];
-		int[] jobcount = new int[runningClusterSize];
-		Arrays.fill(jobcount, 0);
+		int[] jobCount = new int[runningClusterSize];
+		int[] deadlineJobCount = new int [runningClusterSize];
+		Arrays.fill(jobCount, 0);
+		Arrays.fill(deadlineJobCount, 0);
 		JobNode nextJob = GetNextJob();
 		if(nextJob==null) {
 			System.out.println("No Next Job Found.");
 			return null;
 		}
+		boolean isDeadlineJob = (nextJob.deadline>0);
 		
 		for(int i=0; i<runningClusterSize; i++) {
 			ClusterNode cn = this.m_runningClusterList.get(i);
@@ -489,8 +494,9 @@ public class MultiTypePolicy extends Policy {
 					long time = jn.GetContinuousAttribute("PredictionTime");
 					if(time <= 0) time = 2000000;
 					remainTime[i] += (time-jn.completionTime);
-					jobcount[i]++;
-					
+					jobCount[i]++;
+					if(jn.deadline>0)
+						deadlineJobCount[i]++;					
 				}
 			}
 		}
@@ -511,12 +517,12 @@ public class MultiTypePolicy extends Policy {
 			} catch(Exception e) {
 				e.printStackTrace();
 				System.out.println("Prediction Error");
-				predictionResult[i] = 0;
+				predictionResult[i] = defaultPredictionTime;
 			} finally {
 				nextJob.runningCluster = null;
 			}
 			else {
-				predictionResult[i] = -1;
+				predictionResult[i] = defaultPredictionTime;
 			}
 		}
 		
@@ -538,7 +544,15 @@ public class MultiTypePolicy extends Policy {
 		
 		if(least == -1 )
 			return null;
-		else if(jobcount[least]!=0 && (totalResult[least]>20000 || jobcount[least]>=3 ))
+		
+		// Special case if a job has deadline
+		else if(isDeadlineJob && jobCount[least]<2 && 
+				( (System.currentTimeMillis() + totalResult[least] ) < (nextJob.deadline*1000+nextJob.submitTime) ) ) {
+			DispatchDecision dd = new DispatchDecision(nextJob, this.m_runningClusterList.get(least));
+			nextJob.AddContinuousAttribute("PredictionTime", predictionResult[least]);
+			return dd;
+		}
+		else if(jobCount[least]!=0 && (totalResult[least]>20000 || jobCount[least]>=3 ))
 			return null;
 		else {
 			DispatchDecision dd = new DispatchDecision(nextJob, this.m_runningClusterList.get(least));
@@ -551,14 +565,14 @@ public class MultiTypePolicy extends Policy {
 	@Override
 	public VMManagementDecision GetVMManagementDecision() {
 		JobType jt = this.m_jobTypeList.get(nextVMManageType);
-		System.out.println("VM Manage is checking: " + jt.getTypeName());
+//		System.out.println("VM Manage is checking: " + jt.getTypeName());
 		nextVMManageType = (nextVMManageType+1)%this.m_jobTypeList.size();
 		
 		for(int VMindex = 0; VMindex<this.m_availableClusterList.size(); VMindex++ ) {
 			if(this.m_availableClusterList.get(VMindex).jobType == jt) {
 				int jobCount = 0;
 				for(JobNode jn:this.m_waitingJobList) {
-					if(jn.jobType==jt) jobCount++;
+					if(jn.jobType==jt && jn.deadline>0) jobCount++;
 				}
 				
 				if(jobCount>5) {
