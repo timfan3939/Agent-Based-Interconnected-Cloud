@@ -505,18 +505,25 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 					
 					output.print("<table style=\"text-align:center; border-collapse:collapse; border:1px black solid;width:100%;background-color:#dddddd;\">");
 					output.print("<thead>" +
-							"<tr style=\"border-top:1px solid black\"><th style=\"width:20%\">Job Name</th>" +
-							                                         "<th style=\"width:20%\">Job Type</th>" +
-							                                         "<th style=\"width:20%\">Estimated Time</th>" +
-							                                         "<th style=\"width:20%\">Running Time</th>" +
-							                                         "<th style=\"width:20%\">Deadline</th></tr></thead>");
+							"<tr style=\"border-top:1px solid black\"><th style=\"width:10%\">ID</th>" +
+							                                         "<th style=\"width:10%\">Type</th>" +
+							                                         "<th style=\"width:10%\">Name</th>" +
+							                                         "<th style=\"width:25%\">Command</th>" +
+							                                         "<th style=\"width:15%\">Estimated Time</th>" +
+							                                         "<th style=\"width:15%\">Running Time</th>" +
+							                                         "<th style=\"width:15%\">Deadline</th></tr></thead>");
 					for(JobNode jn: policy.GetRunningJob()) {
-						if(jn.runningCluster!=null&&jn.runningCluster==cn)
+						if(jn.runningCluster!=null&&jn.runningCluster==cn) {
+							String name = jn.GetDiscreteAttribute("Name");
+							String cmd = jn.GetDiscreteAttribute("Command");
 							output.print("<tr style=\"border-top:1px solid black\"><td>" + jn.UID + "</td>" +
 									                                              "<td>" + jn.jobType.getTypeName() + "</td>" +
+																				  "<td>" + (name==null?"N/A":name) + "</td>" +
+																				  "<td>" + (cmd==null?"N/A":cmd) + "</td>" +
 									                                              "<td>" + jn.GetContinuousAttribute("PredictionTime") + "</td>" +
 									                                              "<td>" + jn.completionTime + "</td>" +
 									                                              "<td>" + jn.deadline + "</tr>");
+						}
 					}
 					
 					output.print("</table>");
@@ -561,18 +568,25 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 					
 					output.print("<table style=\"text-align:center; border-collapse:collapse; border:1px black solid;width:100%;background-color:#dddddd;\">");
 					output.print("<thead>" +
-							"<tr style=\"border-top:1px solid black\"><th style=\"width:20%\">Job Name</th>" +
-							                                         "<th style=\"width:20%\">Job Type</th>" +
-							                                         "<th style=\"width:20%\">Estimated Time</th>" +
-							                                         "<th style=\"width:20%\">Running Time</th>" +
-							                                         "<th style=\"width:20%\">Deadline</th></tr></thead>");
+							"<tr style=\"border-top:1px solid black\"><th style=\"width:10%\">ID</th>" +
+							                                         "<th style=\"width:10%\">Type</th>" +
+							                                         "<th style=\"width:10%\">Name</th>" +
+							                                         "<th style=\"width:25%\">Command</th>" +
+							                                         "<th style=\"width:15%\">Estimated Time</th>" +
+							                                         "<th style=\"width:15%\">Running Time</th>" +
+							                                         "<th style=\"width:15%\">Deadline</th></tr></thead>");
 					for(JobNode jn: policy.GetRunningJob()) {
-						if(jn.runningCluster!=null&&jn.runningCluster==cn)
+						if(jn.runningCluster!=null&&jn.runningCluster==cn) {
+							String name = jn.GetDiscreteAttribute("Name");
+							String cmd = jn.GetDiscreteAttribute("Command");
 							output.print("<tr style=\"border-top:1px solid black\"><td>" + jn.UID + "</td>" +
 									                                              "<td>" + jn.jobType.getTypeName() + "</td>" +
+																				  "<td>" + (name==null?"N/A":name) + "</td>" +
+																				  "<td>" + (cmd==null?"N/A":cmd) + "</td>" +
 									                                              "<td>" + jn.GetContinuousAttribute("PredictionTime") + "</td>" +
 									                                              "<td>" + jn.completionTime + "</td>" +
 									                                              "<td>" + jn.deadline + "</tr>");
+						}
 					}
 					
 					output.print("</table>");
@@ -592,14 +606,20 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				output.print("<TABLE style=\"text-align:center; border-collapse:collapse; border:1px black solid; width:100%\">");
 				
 				output.print("<THEAD>" +
-								"<TR style=\"border-top:1px black solid\"><TH style=\"width:34%\">Job Name</TH>" +
-																	     "<TH style=\"width:33%\">Job Type</TH>" +
-																	     "<TH style=\"width:33%\">Deadline</TH>" +
+								"<TR style=\"border-top:1px black solid\"><TH style=\"width:10%\">ID</TH>" +
+																	     "<TH style=\"width:10%\">Type</TH>" +
+																	     "<TH style=\"width:10%\">Name</TH>" +
+																	     "<TH style=\"width:15%\">Command</TH>" +
+																	     "<TH style=\"width:20%\">Deadline</TH>" +
 							 "</THEAD>");
 				
 				for(JobNode jn:policy.GetWaitingJob()) {
+					String name = jn.GetDiscreteAttribute("Name");
+					String cmd = jn.GetDiscreteAttribute("Command");
 					output.print("<tr style=\"border-top:1px solid black\"><td>" + jn.UID + "</td>" +
 																		  "<td>" + jn.jobType.getTypeName() + "</td>" +
+																		  "<td>" + (name==null?"N/A":name) + "</td>" +
+																		  "<td>" + (cmd==null?"N/A":cmd) + "</td>" +
 																		  "<td>" + jn.deadline + "</td>" +
 																		  "</tr>");
 				}
@@ -617,21 +637,29 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				output.print("<TABLE style=\"text-align:center; border-collapse:collapse; border:1px black solid; width:100%\">");
 				
 				output.print("<THEAD>" +
-								"<TR style=\"border-top:1px black solid\"><TH style=\"width:15%\">Job Name</TH>" +
-																		 "<TH style=\"width:15%\">Job Type</TH>" +
+								"<TR style=\"border-top:1px black solid\"><TH style=\"width:15%\">ID</TH>" +
+																		 "<TH style=\"width:10%\">Type</TH>" +
+																		 "<TH style=\"width:10%\">Name</TH>" +
+																		 "<TH style=\"width:25%\">Command</TH>" +
 																		 "<TH style=\"width:15%\">Finished Time</TH>" +
 																		 "<TH style=\"width:15%\">Prediction Time</TH>" +
-																		 "<TH style=\"width:15%\">Start Time</TH>" +
-																		 "<TH style=\"width:15%\">Finish Time</TH></TR>"+
+//																		 "<TH style=\"width:15%\">Start Time</TH>" +
+//																		 "<TH style=\"width:15%\">Finish Time</TH>" +
+																		 "</TR>" +
 							 "</THEAD>");
 				
 				for(JobNode jn:policy.GetFinishJob()) {
+					String name = jn.GetDiscreteAttribute("Name");
+					String cmd = jn.GetDiscreteAttribute("Command");
 					output.print("<tr style=\"border-top:1px solid black\"><td>" + jn.UID + "</td>" +
 																		  "<td>" + jn.jobType.getTypeName() + "</td>" +
+																		  "<td>" + (name==null?"N/A":name) + "</td>" +
+																		  "<td>" + (cmd==null?"N/A":cmd) + "</td>" +
 																		  "<td>" + jn.completionTime + "</td>" +
 																		  "<td>" + jn.GetContinuousAttribute("PredictionTime") + "</td>" +
-																		  "<td>" + jn.startTime + "</td>" +
-																		  "<td>" + jn.finishTime + "</td></tr>");
+//																		  "<td>" + jn.startTime + "</td>" +
+//																		  "<td>" + jn.finishTime + "</td>" +
+																		  "</tr>");
 				}
 				
 				output.print("</TBODY>");
