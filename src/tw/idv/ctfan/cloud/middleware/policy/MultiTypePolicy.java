@@ -420,7 +420,7 @@ public class MultiTypePolicy extends Policy {
 		
 		JobNode nextJob = null;
 		int jobTypeSize = this.m_jobTypeList.size();
-		int endJobType = (nextJobType+jobTypeSize-1)%jobTypeSize;
+		int endJobType = (nextJobType+jobTypeSize-1)%jobTypeSize;		
 		
 		for(int jobIndex = nextJobType; 
 					jobIndex != endJobType; 
@@ -428,12 +428,27 @@ public class MultiTypePolicy extends Policy {
 			JobType jt = m_jobTypeList.get(jobIndex);
 			System.out.println("Get Next Job is checking: " + jt.getTypeName());
 			
+			// First finding jobs with Deadline
 			for(int i=0; i<this.m_waitingJobList.size(); i++) {
-				if(this.m_waitingJobList.get(i).jobType == jt) {
-					nextJob = this.m_waitingJobList.get(i);
-					break;
+				nextJob = this.m_waitingJobList.get(i);
+				if(nextJob.jobType == jt && nextJob.deadline > 0) {
+					nextJobType = (nextJobType+1)%m_jobTypeList.size();
+					System.out.println("Return Deadline Job");
+					return nextJob;
 				}
+				nextJob = null;
 			}
+			
+			// Next find jobs without Deadline
+			for(int i=0; i<this.m_waitingJobList.size(); i++) {
+				nextJob = this.m_waitingJobList.get(i);
+				if(nextJob.jobType == jt) {
+					nextJobType = (nextJobType+1)%m_jobTypeList.size();
+					System.out.println("Return General Job");
+					return nextJob;
+				}
+				nextJob = null;
+			}			
 		}
 		
 		// Updating nextJobType
@@ -570,10 +585,10 @@ public class MultiTypePolicy extends Policy {
 								"Java Cluster 1",
 								"Java Cluster 2",
 								"Java Cluster 3",
-								"MPI Cluster 1",
-								"MPI Cluster 2",
-							    "Hadoop Cluster 1",
-							    "Hadoop Cluster 2",
+//								"MPI Cluster 1",
+//								"MPI Cluster 2",
+//							    "Hadoop Cluster 1",
+//							    "Hadoop Cluster 2",
 		};
 		
 		String[][] Machines = {

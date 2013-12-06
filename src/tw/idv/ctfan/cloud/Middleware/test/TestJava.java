@@ -163,13 +163,17 @@ public class TestJava {
 				stream.write("ComputePi".getBytes());
 				stream.write("\n".getBytes());
 				
-				stream.write("Deadline:".getBytes());
 				//if(rand.nextInt(2)==0)
-				if(i%2==0)
+				if(i%2==0) {
+					stream.write("Deadline:".getBytes());
 					stream.write(Integer.toString(120000).getBytes());
-				else
-					stream.write(Integer.toString(100000).getBytes());
-				stream.write("\n".getBytes());
+					stream.write("\n".getBytes());
+				}
+				else {
+//					stream.write("Deadline:".getBytes());
+//					stream.write(Integer.toString(100000).getBytes());
+//					stream.write("\n".getBytes());
+				}
 				
 				stream.write("BinaryDataLength:".getBytes());
 				stream.write(Integer.toString(binary.size()).getBytes());
@@ -182,7 +186,7 @@ public class TestJava {
 				//System.out.println("" + i + "\tdone");
 				
 //				if(i>6)
-					Thread.sleep(5000);
+					Thread.sleep(100);
 			}
 			
 			
