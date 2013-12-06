@@ -104,7 +104,7 @@ public class JobDispatchingAgent extends Agent {
 //							msgContent += jn.jobType.OnDispatchJobMsg(jn) + "\n";
 							msgContent = jn.EncapsulateJob();
 							
-							System.out.println(msgContent);
+//							System.out.println(msgContent);
 							
 							byte[] binaryFile;
 							try {
