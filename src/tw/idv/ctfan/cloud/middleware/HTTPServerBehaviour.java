@@ -87,7 +87,9 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 					endOfHeader = true;
 					break;
 				}
-				System.out.println("" + (++line) + ": " + field);
+				line++;
+//				System.out.println("" + (line) + ": " + field);
+//				Thread.sleep(10);
 				
 				String[] info = field.split(" ");
 				if(info.length==0) break;
@@ -344,7 +346,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				}
 			}
 			
-			System.out.println("ClientMessageReceieveBehaviour Terminated");
+			System.out.println("ClientMessageReceieveBehaviour Terminated : " + file);
 			
 			
 		} catch(Exception e){
@@ -445,6 +447,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				output.print("<H1 style=\"font-size:64px; text-align:center; margin:5px\"><IMG style=\"width:64px\" src=\"http://120.126.145.102/mtp/DMCL_logo.gif\" />Federated Cloud Information Viewer</H1>");
 				output.print("<h3 style=\"text-align:right; margin:3px\">Copyright: C.T.Fan</h3>");
 				output.print("<h3 style=\"margin:3px\">Uptime: "+ m_initTime.toString() +"</h3>");
+				output.print("<h3 style=\"margin:3px\">Current: "+ (new Date()).toString() + " <small>Millisecond: " + System.currentTimeMillis() +"</small></h3>");
 				output.print("</DIV>");
 				output.print("<HR/>");
 
@@ -458,6 +461,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 					output.print("<option value=\""+jt.getTypeName()+"\">" + jt.getTypeName() + "</option>");
 				}				
 				output.print("</select>");
+				output.print("<BR />");
 				
 				output.print("Binary File: <INPUT type=\"file\" name=\"binaryFile\" accept=\"application/java-archive\" /><br/>");
 				
@@ -469,7 +473,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 					output.print(s);
 				}
 				
-				output.print("<INPUT type=\"submit\" value=\"submit\" />");
+				output.print("<INPUT type=\"submit\" value=\"Submit\" />");
 				output.print("</FORM>");
 				output.print("</DIV>");
 				
@@ -493,7 +497,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 					for(JobNode jn : policy.GetRunningJob()) {
 						if(jn.runningCluster!=null&&jn.runningCluster==cn) {
 							long time = jn.GetContinuousAttribute("PredictionTime");
-							if(time<=0) time = 2000000;
+							if(time<=0) time = 50000;
 							remainTime += time-jn.completionTime;
 						}
 					}
@@ -556,8 +560,8 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 					for(JobNode jn : policy.GetRunningJob()) {
 						if(jn.runningCluster!=null&&jn.runningCluster==cn) {
 							long time = jn.GetContinuousAttribute("PredictionTime");
-							if(time<=0) time = 2000000;
-							remainTime += time-jn.completionTime;
+							if(time<=0) time = 50000;
+							remainTime += (time-jn.completionTime);
 						}
 					}
 					output.print("<TR style=\"border-top:1px solid black\"><TD>" + cn.clusterName + "</TD>" +
@@ -641,10 +645,9 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 																		 "<TH style=\"width:10%\">Type</TH>" +
 																		 "<TH style=\"width:10%\">Name</TH>" +
 																		 "<TH style=\"width:25%\">Command</TH>" +
-																		 "<TH style=\"width:15%\">Finished Time</TH>" +
-																		 "<TH style=\"width:15%\">Prediction Time</TH>" +
-//																		 "<TH style=\"width:15%\">Start Time</TH>" +
-//																		 "<TH style=\"width:15%\">Finish Time</TH>" +
+																		 "<TH style=\"width:10%\">Finished Time</TH>" +
+																		 "<TH style=\"width:10%\">Prediction Time</TH>" +
+																		 "<TH style=\"width:10%\">Deadline</TH>" +
 																		 "</TR>" +
 							 "</THEAD>");
 				
@@ -657,8 +660,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 																		  "<td>" + (cmd==null?"N/A":cmd) + "</td>" +
 																		  "<td>" + jn.completionTime + "</td>" +
 																		  "<td>" + jn.GetContinuousAttribute("PredictionTime") + "</td>" +
-//																		  "<td>" + jn.startTime + "</td>" +
-//																		  "<td>" + jn.finishTime + "</td>" +
+																		  "<td>" + jn.deadline + "</td>" +
 																		  "</tr>");
 				}
 				
