@@ -166,6 +166,11 @@ public class TestJava {
 				//if(rand.nextInt(2)==0)
 				if(i%2==0 && i>5) {
 					stream.write("Deadline:".getBytes());
+					stream.write(Integer.toString(12000000).getBytes());
+					stream.write("\n".getBytes());
+				}
+				else if(i>20) {
+					stream.write("Deadline:".getBytes());
 					stream.write(Integer.toString(120000).getBytes());
 					stream.write("\n".getBytes());
 				}

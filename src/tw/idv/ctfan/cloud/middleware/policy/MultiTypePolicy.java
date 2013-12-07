@@ -457,14 +457,27 @@ public class MultiTypePolicy extends Policy {
 //			System.out.println("Get Next Job is checking: " + jt.getTypeName());
 			
 			// First finding jobs with Deadline
+			int leastDeadlineJBindex = -1;
+			long[] finalDeadline = new long[this.m_waitingJobList.size()];
+			Arrays.fill(finalDeadline, 0);
 			for(int i=0; i<this.m_waitingJobList.size(); i++) {
 				nextJob = this.m_waitingJobList.get(i);
 				if(nextJob.jobType == jt && nextJob.deadline > 0) {
-					nextJobType = (nextJobType+1)%m_jobTypeList.size();
-//					System.out.println("Return Deadline Job");
-					return nextJob;
+					finalDeadline[i] = nextJob.submitTime + nextJob.deadline;
+					
+					if(leastDeadlineJBindex != -1) {
+						if(finalDeadline[leastDeadlineJBindex]>finalDeadline[i])
+							leastDeadlineJBindex = i;
+					} else {
+						leastDeadlineJBindex = i; 
+					}					
 				}
 				nextJob = null;
+			}
+			if(leastDeadlineJBindex>=0) {
+				nextJobType = (nextJobType+1)%m_jobTypeList.size();
+				System.out.println("Return Deadline Job");
+				return this.m_waitingJobList.get(leastDeadlineJBindex);
 			}
 			
 			// Next find jobs without Deadline
@@ -510,7 +523,7 @@ public class MultiTypePolicy extends Policy {
 		Arrays.fill(deadlineJobCount, 0);
 		JobNode nextJob = GetNextJob();
 		if(nextJob==null) {
-			System.out.println("No Next Job Found.");
+//			System.out.println("No Next Job Found.");
 			return null;
 		}
 		boolean isDeadlineJob = (nextJob.deadline>0);
@@ -596,16 +609,51 @@ public class MultiTypePolicy extends Policy {
 //		System.out.println("VM Manage is checking: " + jt.getTypeName());
 		nextVMManageType = (nextVMManageType+1)%this.m_jobTypeList.size();
 		
-		for(int VMindex = 0; VMindex<this.m_availableClusterList.size(); VMindex++ ) {
-			if(this.m_availableClusterList.get(VMindex).jobType == jt) {
-				int jobCount = 0;
-				for(JobNode jn:this.m_waitingJobList) {
-					if(jn.jobType==jt && jn.deadline>0) jobCount++;
+		long[] clusterFinishTime = new long[this.m_runningClusterList.size()];
+		Arrays.fill(clusterFinishTime, Long.MAX_VALUE);
+		
+		// Calculating the finish time
+		for(int VMindex = 0; VMindex<clusterFinishTime.length; VMindex++) {
+			ClusterNode cn = this.m_runningClusterList.get(VMindex);
+			if(cn.jobType == jt) {
+				clusterFinishTime[VMindex] = 0;
+				for(JobNode jn:this.m_runningJobList) {
+					if(jn.runningCluster == cn) {
+						clusterFinishTime[VMindex] += jn.GetContinuousAttribute("PredictionTime") - jn.completionTime;
+					}
+				}
+			}
+		}
+		
+		// Calculating every job's finish time
+		long[] jobFinishTime = new long[this.m_waitingJobList.size()];
+		Arrays.fill(jobFinishTime, 0);
+		int notMeetDeadlineJobCount = 0;
+		for(int JBindex=0; JBindex<jobFinishTime.length; JBindex++) {
+			JobNode jn = this.m_waitingJobList.get(JBindex);
+			if(jn.deadline>0&&jn.jobType==jt) {
+				jobFinishTime[JBindex] = jn.submitTime;
+				int leastVMindex=0;
+				for(int VMindex=1; VMindex<clusterFinishTime.length; VMindex++) {
+					if(clusterFinishTime[VMindex]<clusterFinishTime[leastVMindex]) {
+						leastVMindex = VMindex;
+					}
 				}
 				
-				if(jobCount>5) {
-					return new VMManagementDecision(this.m_availableClusterList.get(VMindex), VMManagementDecision.Command.START_VM);
+				clusterFinishTime[leastVMindex] += jn.GetContinuousAttribute("PredictionTime");
+				jobFinishTime[JBindex] += clusterFinishTime[leastVMindex];
+				
+				if( (jn.submitTime+jn.deadline)<jobFinishTime[JBindex] ) {
+					System.out.println("Job " + jn.UID + " may exceeds deadline: " + (jobFinishTime[JBindex]-(jn.submitTime+ jn.deadline)) );
+					notMeetDeadlineJobCount++;
 				}
+			}
+		}
+		
+		if(notMeetDeadlineJobCount>0) {
+			for(ClusterNode cn:this.m_availableClusterList) {
+				if(cn.jobType == jt)
+					return new VMManagementDecision(cn, VMManagementDecision.Command.START_VM);
 			}
 		}
 				

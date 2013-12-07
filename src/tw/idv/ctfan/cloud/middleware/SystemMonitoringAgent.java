@@ -208,7 +208,7 @@ public class SystemMonitoringAgent extends Agent {
 			synchronized(policy) {
 				policy.AppendNewJob(m_job);
 			}
-			m_job.DisplayDetailedInfo();
+//			m_job.DisplayDetailedInfo();
 		}
 	}
 	
