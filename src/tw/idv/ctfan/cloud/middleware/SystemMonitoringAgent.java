@@ -206,7 +206,7 @@ public class SystemMonitoringAgent extends Agent {
 			m_job.jobType.SetJobInfo(m_job);
 			m_binary = null;
 			synchronized(policy) {
-				policy.GetWaitingJob().add(m_job);
+				policy.AppendNewJob(m_job);
 			}
 			m_job.DisplayDetailedInfo();
 		}

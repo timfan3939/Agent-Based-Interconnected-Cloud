@@ -61,6 +61,19 @@ public abstract class Policy {
 	
 	public abstract void InitClusterList();
 	
+	/**
+	 * this function is used to add a newly submitted job
+	 * 
+	 * @param newJob The job being added.
+	 */
+	public void AppendNewJob(JobNode newJob) {
+		this.m_waitingJobList.add(newJob);
+		
+		this.OnNewJobAdded(newJob);
+	}
+	
+	public abstract void OnNewJobAdded(JobNode newJob);
+	
 	public ArrayList<ACLMessage> MsgToRRA() {
 		return msgQueueToRRA;
 	}

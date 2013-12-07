@@ -380,16 +380,44 @@ public class MultiTypePolicy extends Policy {
 		return element;
 	}
 	
+	public void OnNewJobAdded(JobNode newJob){
+		ClusterNode cn = null;
+		for(ClusterNode cn2:this.m_availableClusterList) {
+			if(newJob.jobType == cn2.jobType) {
+				cn = cn2;
+				break;
+			}
+		}
+		
+		if(cn!=null) {
+			long prediction = 0;
+			try {
+				newJob.runningCluster = cn;
+				prediction = this.GetPredictionResult(newJob);
+				newJob.AddContinuousAttribute("PredictionTime", prediction);
+			} catch (Exception e) {
+				prediction = MultiTypePolicy.defaultPredictionTime;
+			} finally {
+				newJob.AddContinuousAttribute("PredictionTime", prediction);
+				newJob.runningCluster = null;
+				System.out.println("New Job " + newJob.UID + " Prediction Time: " + prediction);
+			}
+		} else {
+			newJob.AddContinuousAttribute("PredictionTime", MultiTypePolicy.defaultPredictionTime);
+		}
+		
+	}
+	
 	public long GetPredictionResult(JobNode jn) {
 		if(set == null)
-			return 0;
+			return MultiTypePolicy.defaultPredictionTime;
 		
 		long[] element = this.FillConditinAttributes(jn);
 		
 		long result = 0;
 		long[] d = set.GetDecision(set.new Element(element, -1));
-		if(d==null) return 0;
-		else if(d.length==0) return 0;
+		if(d==null) return MultiTypePolicy.defaultPredictionTime;
+		else if(d.length==0) return MultiTypePolicy.defaultPredictionTime;
 		
 		for(long i: d) {
 			result += this.decisionExecutionTime[(int) i];
@@ -522,7 +550,7 @@ public class MultiTypePolicy extends Policy {
 				nextJob.runningCluster = null;
 			}
 			else {
-				predictionResult[i] = defaultPredictionTime;
+				predictionResult[i] = -1;
 			}
 		}
 		

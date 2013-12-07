@@ -614,7 +614,8 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 																	     "<TH style=\"width:10%\">Type</TH>" +
 																	     "<TH style=\"width:10%\">Name</TH>" +
 																	     "<TH style=\"width:15%\">Command</TH>" +
-																	     "<TH style=\"width:20%\">Deadline</TH>" +
+																	     "<TH style=\"width:10%\">Deadline</TH>" +
+																	     "<TH style=\"width:10%\">Estimated Time</TH>" +
 							 "</THEAD>");
 				
 				for(JobNode jn:policy.GetWaitingJob()) {
@@ -625,6 +626,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 																		  "<td>" + (name==null?"N/A":name) + "</td>" +
 																		  "<td>" + (cmd==null?"N/A":cmd) + "</td>" +
 																		  "<td>" + jn.deadline + "</td>" +
+																		  "<td>" + jn.GetContinuousAttribute("PredictionTime") + "</td>" +
 																		  "</tr>");
 				}
 				
