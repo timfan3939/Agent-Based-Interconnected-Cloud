@@ -392,8 +392,8 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 	private class StatusResponse extends OneShotBehaviour {
 		private static final long serialVersionUID = 1L;
 		Socket client;
-		private static final String styleRight = "border: 3px black solid; float: right; display:inline-block; margin:5px; width:35%";
-		private static final String styleLeft = "border: 3px black solid; float: left; display:inline-block; margin:5px; width:60%";
+		private static final String styleRight = "border: 3px black solid; float: right; display:inline-block; margin:5px; width:35%; clear:right";
+		private static final String styleLeft = "border: 3px black solid; float: left; display:inline-block; margin:5px; width:60%; clear:left";
 		
 		public StatusResponse(Agent a, Socket s) {
 			super(a);
@@ -463,7 +463,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				}				
 				output.print("</select>");
 				output.print("<BR />");
-				
+								
 				output.print("Binary File: <INPUT type=\"file\" name=\"binaryFile\" accept=\"application/java-archive\" /><br/>");
 				
 				for(int i=0; i<5; i++) {
@@ -476,8 +476,15 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				
 				output.print("<INPUT type=\"submit\" value=\"Submit\" />");
 				output.print("</FORM>");
-				output.print("</DIV>");
 				
+
+				// Show Job Type's Information
+				for(JobType jt:policy.GetJobTypeList()) {
+					output.print("<hr/>");
+					output.print(jt.HTTPViewerMessage());
+				}
+				
+				output.print("</DIV>");				
 
 				// cluster+running list
 				output.print("<DIV style=\"" + styleLeft + "\">");
@@ -543,6 +550,8 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 
 				
 
+				
+				// Private Cluster information
 				output.print("<DIV style=\"" + styleLeft + "\">");
 				output.print("<H1>Public Cluster/Job Information</H1>");
 				output.print("<TABLE style=\"text-align:center; border-collapse:collapse; border:1px black solid; width:100%\">");

@@ -28,6 +28,20 @@ public class JavaJobType extends JobType {
 	}
 
 	@Override
+	public String HTTPViewerMessage() {
+		return "<h1>Java Job Notice</h1>" +
+				"<p>Accepted job type: java runnable archive, with only one Long type command.  The long type command will be treated as the size of the job.</p>" +
+				"<p>Must have attributes</p>" +
+				"<ul>" +
+				"<li>JobType:Java</li>" +
+				"<li>Command:&ltThe Long type command to execute the job&gt</li>" +
+				"<li>Name:&ltProgram name&gt (Optional)</li>" +
+				"<li>Deadline:&ltThe Deadline of the job in second&gt (Optional)</li>" +
+				"</ul>" +
+				"";
+	}
+
+	@Override
 	public int DecodeClusterLoadInfo(String line) {
 		if(line.compareTo("Free")==0)
 			return 0;
