@@ -458,18 +458,16 @@ public class MultiTypePolicy extends Policy {
 			
 			// First finding jobs with Deadline
 			int leastDeadlineJBindex = -1;
-			long[] finalDeadline = new long[this.m_waitingJobList.size()];
-			Arrays.fill(finalDeadline, 0);
+			long shortestDeadline = 0;
 			for(int i=0; i<this.m_waitingJobList.size(); i++) {
 				nextJob = this.m_waitingJobList.get(i);
-				if(nextJob.jobType == jt && nextJob.deadline > 0) {
-					finalDeadline[i] = nextJob.submitTime + nextJob.deadline;
-					
-					if(leastDeadlineJBindex != -1) {
-						if(finalDeadline[leastDeadlineJBindex]>finalDeadline[i])
-							leastDeadlineJBindex = i;
+				if(nextJob.jobType == jt && nextJob.isDeadlineJob()) {					
+					if(leastDeadlineJBindex != -1 && shortestDeadline>nextJob.GetTrueDeadline()) { 
+						leastDeadlineJBindex = i;
+						shortestDeadline=nextJob.GetTrueDeadline();
 					} else {
 						leastDeadlineJBindex = i; 
+						shortestDeadline = nextJob.GetTrueDeadline();
 					}					
 				}
 				nextJob = null;
@@ -526,7 +524,6 @@ public class MultiTypePolicy extends Policy {
 //			System.out.println("No Next Job Found.");
 			return null;
 		}
-		boolean isDeadlineJob = (nextJob.deadline>0);
 		
 		for(int i=0; i<runningClusterSize; i++) {
 			ClusterNode cn = this.m_runningClusterList.get(i);
@@ -536,7 +533,7 @@ public class MultiTypePolicy extends Policy {
 					if(time <= 0) time = 2000000;
 					remainTime[i] += (time-jn.completionTime);
 					jobCount[i]++;
-					if(jn.deadline>0)
+					if(jn.isDeadlineJob())
 						deadlineJobCount[i]++;					
 				}
 			}
@@ -587,14 +584,16 @@ public class MultiTypePolicy extends Policy {
 			return null;
 		
 		// Special case if a job has deadline
-		else if(isDeadlineJob && jobCount[least]<2 && 
-				( (System.currentTimeMillis() + totalResult[least] ) < (nextJob.deadline*1000+nextJob.submitTime) ) ) {
+		else if(nextJob.isDeadlineJob() && jobCount[least]<2 && 
+				( (System.currentTimeMillis() + totalResult[least] ) < (nextJob.GetTrueDeadline()) ) ) {
 			DispatchDecision dd = new DispatchDecision(nextJob, this.m_runningClusterList.get(least));
 			nextJob.AddContinuousAttribute("PredictionTime", predictionResult[least]);
 			return dd;
 		}
+		
 		else if(jobCount[least]!=0 && (totalResult[least]>20000 || jobCount[least]>=3 ))
 			return null;
+		
 		else {
 			DispatchDecision dd = new DispatchDecision(nextJob, this.m_runningClusterList.get(least));
 			nextJob.AddContinuousAttribute("PredictionTime", predictionResult[least]);
@@ -612,7 +611,7 @@ public class MultiTypePolicy extends Policy {
 		long[] clusterFinishTime = new long[this.m_runningClusterList.size()];
 		Arrays.fill(clusterFinishTime, Long.MAX_VALUE);
 		
-		// Calculating the finish time
+		// Calculating the finish time of every cluster
 		for(int VMindex = 0; VMindex<clusterFinishTime.length; VMindex++) {
 			ClusterNode cn = this.m_runningClusterList.get(VMindex);
 			if(cn.jobType == jt) {
@@ -626,13 +625,10 @@ public class MultiTypePolicy extends Policy {
 		}
 		
 		// Calculating every job's finish time
-		long[] jobFinishTime = new long[this.m_waitingJobList.size()];
-		Arrays.fill(jobFinishTime, 0);
 		int notMeetDeadlineJobCount = 0;
-		for(int JBindex=0; JBindex<jobFinishTime.length; JBindex++) {
+		for(int JBindex=0; JBindex<this.m_waitingJobList.size(); JBindex++) {
 			JobNode jn = this.m_waitingJobList.get(JBindex);
-			if(jn.deadline>0&&jn.jobType==jt) {
-				jobFinishTime[JBindex] = jn.submitTime;
+			if(jn.isDeadlineJob()&&jn.jobType==jt) {
 				int leastVMindex=0;
 				for(int VMindex=1; VMindex<clusterFinishTime.length; VMindex++) {
 					if(clusterFinishTime[VMindex]<clusterFinishTime[leastVMindex]) {
@@ -641,10 +637,10 @@ public class MultiTypePolicy extends Policy {
 				}
 				
 				clusterFinishTime[leastVMindex] += jn.GetContinuousAttribute("PredictionTime");
-				jobFinishTime[JBindex] += clusterFinishTime[leastVMindex];
+				long jobFinishTime = clusterFinishTime[leastVMindex] + jn.GetContinuousAttribute("PredictionTime");
 				
-				if( (jn.submitTime+jn.deadline)<jobFinishTime[JBindex] ) {
-					System.out.println("Job " + jn.UID + " may exceeds deadline: " + (jobFinishTime[JBindex]-(jn.submitTime+ jn.deadline)) );
+				if( (jn.GetTrueDeadline())<jobFinishTime ) {
+					System.out.println("Job " + jn.UID + " may exceeds deadline: " + (jobFinishTime-(jn.GetTrueDeadline())) );
 					notMeetDeadlineJobCount++;
 				}
 			}

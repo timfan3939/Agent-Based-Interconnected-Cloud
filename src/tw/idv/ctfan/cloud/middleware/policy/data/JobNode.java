@@ -52,6 +52,14 @@ public class JobNode implements Comparable<JobNode> {
 	 */
 	public long deadline;
 	
+	public boolean isDeadlineJob() {
+		return deadline>0;
+	}
+	
+	public long GetTrueDeadline() {
+		return (this.isDeadlineJob()?(this.submitTime+this.deadline*1000):-1);
+	}
+	
 	/**
 	 * The type of the job.
 	 * @see JobType
