@@ -392,8 +392,8 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 	private class StatusResponse extends OneShotBehaviour {
 		private static final long serialVersionUID = 1L;
 		Socket client;
-		private static final String styleRight = "border: 3px black solid; float: right; display:inline-block; margin:5px; width:35%; clear:right";
-		private static final String styleLeft = "border: 3px black solid; float: left; display:inline-block; margin:5px; width:60%; clear:left";
+		private static final String styleRight = "border: 3px black solid; float: right; display:inline-block; margin:5px; width:35%; clear:right; overflow: auto";
+		private static final String styleLeft = "border: 3px black solid; float: left; display:inline-block; margin:5px; width:60%; clear:left; overflow: auto";
 		
 		public StatusResponse(Agent a, Socket s) {
 			super(a);
@@ -515,7 +515,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 								     									  "<TD>" + cn.memory+"</TD></TR>");
 					output.print("<tr><td>&nbsp;</td><td colspan=\"3\">");
 					
-					output.print("<table style=\"text-align:center; border-collapse:collapse; border:1px black solid;width:100%;background-color:#dddddd;\">");
+					output.print("<table style=\"text-align:center; border-collapse:collapse; border:1px black solid;width:100%;background-color:#dddddd; overflow: auto\">");
 					output.print("<thead>" +
 							"<tr style=\"border-top:1px solid black\"><th style=\"width:10%\">ID</th>" +
 							                                         "<th style=\"width:10%\">Type</th>" +
@@ -580,7 +580,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 								     									  "<TD>" + cn.memory+"</TD></TR>");
 					output.print("<tr><td>&nbsp;</td><td colspan=\"3\">");
 					
-					output.print("<table style=\"text-align:center; border-collapse:collapse; border:1px black solid;width:100%;background-color:#dddddd;\">");
+					output.print("<table style=\"text-align:center; border-collapse:collapse; border:1px black solid;width:100%;background-color:#dddddd; overflow: auto\">");
 					output.print("<thead>" +
 							"<tr style=\"border-top:1px solid black\"><th style=\"width:10%\">ID</th>" +
 							                                         "<th style=\"width:10%\">Type</th>" +
