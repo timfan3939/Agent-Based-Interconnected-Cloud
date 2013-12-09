@@ -683,10 +683,10 @@ public class MultiTypePolicy extends Policy {
 								"Java Cluster 1",
 								"Java Cluster 2",
 								"Java Cluster 3",
-//								"MPI Cluster 1",
-//								"MPI Cluster 2",
-//							    "Hadoop Cluster 1",
-//							    "Hadoop Cluster 2",
+								"MPI Cluster 1",
+								"MPI Cluster 2",
+							    "Hadoop Cluster 1",
+							    "Hadoop Cluster 2",
 		};
 		
 		String[][] Machines = {

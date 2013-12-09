@@ -126,13 +126,13 @@ public class TestAllJob {
 				}
 				
 				// TODO: this section is still no implemented yet
-//				stream.write("Deadline:".getBytes());
-//				//if(rand.nextInt(2)==0)
-//				if(i%2==0)
-//					stream.write(Integer.toString(120000).getBytes());
-//				else
-//					stream.write(Integer.toString(100000).getBytes());
-//				stream.write("\n".getBytes());
+				stream.write("Deadline:".getBytes());
+				//if(rand.nextInt(2)==0)
+				if(i%2==0)
+					stream.write(Integer.toString(120).getBytes());
+				else
+					stream.write(Integer.toString(100).getBytes());
+				stream.write("\n".getBytes());
 				
 				stream.write("BinaryDataLength:".getBytes());
 				stream.write(Integer.toString(binary.size()).getBytes());
@@ -144,10 +144,10 @@ public class TestAllJob {
 				
 				//System.out.println("" + i + "\tdone");
 				
-				if(jobTypes[job]==hadoop)
+//				if(jobTypes[job]==hadoop)
 					Thread.sleep(10000);
-				else
-					Thread.sleep(100);
+//				else
+//					Thread.sleep(100);
 			}
 			
 			
