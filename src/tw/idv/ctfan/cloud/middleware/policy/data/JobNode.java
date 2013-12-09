@@ -100,12 +100,17 @@ public class JobNode implements Comparable<JobNode> {
 	 */
 	static public HashMap<String, AttributeType> attributeType = new HashMap<String, AttributeType>();
 	
+	private static final long m_initTime = System.currentTimeMillis();
+	private static long counter = 0;
+	
 	
 	/**
 	 * Default Constructor
 	 */
 	public JobNode(){
-		this.UID = System.nanoTime();
+//		this.UID = System.nanoTime();
+		this.UID = m_initTime + counter;
+		counter++;
 		this.completionTime = -1;
 		this.deadline = -1;
 		attributes = new HashMap<String, String>();
