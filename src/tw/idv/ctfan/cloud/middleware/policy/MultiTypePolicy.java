@@ -400,7 +400,7 @@ public class MultiTypePolicy extends Policy {
 			} finally {
 				newJob.AddContinuousAttribute("PredictionTime", prediction);
 				newJob.runningCluster = null;
-				System.out.println("New Job " + newJob.UID + " Prediction Time: " + prediction);
+//				System.out.println("New Job " + newJob.UID + " Prediction Time: " + prediction);
 			}
 		} else {
 			newJob.AddContinuousAttribute("PredictionTime", MultiTypePolicy.defaultPredictionTime);
@@ -462,12 +462,14 @@ public class MultiTypePolicy extends Policy {
 			for(int i=0; i<this.m_waitingJobList.size(); i++) {
 				nextJob = this.m_waitingJobList.get(i);
 				if(nextJob.jobType == jt && nextJob.isDeadlineJob()) {					
-					if(leastDeadlineJBindex != -1 && shortestDeadline>nextJob.GetTrueDeadline()) { 
+					if(leastDeadlineJBindex >= 0 && shortestDeadline>nextJob.GetTrueDeadline()) {
+						System.out.println("Job " + nextJob.UID + " Deadline: " + nextJob.GetTrueDeadline() + " with diff " + (shortestDeadline-nextJob.GetTrueDeadline()));						
 						leastDeadlineJBindex = i;
 						shortestDeadline=nextJob.GetTrueDeadline();
-					} else {
+					} else if(leastDeadlineJBindex < 0){
 						leastDeadlineJBindex = i; 
 						shortestDeadline = nextJob.GetTrueDeadline();
+						System.out.println("Job " + nextJob.UID + " Deadline: " + nextJob.GetTrueDeadline());
 					}					
 				}
 				nextJob = null;
@@ -496,7 +498,7 @@ public class MultiTypePolicy extends Policy {
 		return nextJob;
 	}
 	
-	private static final long defaultPredictionTime = 50000;
+	private static final long defaultPredictionTime = 70000;
 
 	/**
 	 * This function dispatch the job by predicting the execution time of a job on every machine.  After that, 
@@ -584,8 +586,9 @@ public class MultiTypePolicy extends Policy {
 			return null;
 		
 		// Special case if a job has deadline
-		else if(nextJob.isDeadlineJob() && jobCount[least]<2 && 
-				( (System.currentTimeMillis() + totalResult[least] ) < (nextJob.GetTrueDeadline()) ) ) {
+		else if( ( nextJob.isDeadlineJob() && jobCount[least]<2 && 
+				 	( (System.currentTimeMillis() + totalResult[least] ) < (nextJob.GetTrueDeadline()) ) ) || 
+				 ( deadlineJobCount[least]==1 && jobCount[least]==1 && nextJob.isDeadlineJob()) ) {
 			DispatchDecision dd = new DispatchDecision(nextJob, this.m_runningClusterList.get(least));
 			nextJob.AddContinuousAttribute("PredictionTime", predictionResult[least]);
 			return dd;
@@ -593,6 +596,13 @@ public class MultiTypePolicy extends Policy {
 		
 		else if(jobCount[least]!=0 && (totalResult[least]>20000 || jobCount[least]>=3 ))
 			return null;
+		
+		// Pre submit a job.  Currently not implemented yet.
+//		else if(jobCount[least]==1 && remainTime[least]<10000) {
+//			DispatchDecision dd = new DispatchDecision(nextJob, this.m_runningClusterList.get(least));
+//			nextJob.AddContinuousAttribute("PredictionTime", predictionResult[least]);
+//			return dd;
+//		}
 		
 		else {
 			DispatchDecision dd = new DispatchDecision(nextJob, this.m_runningClusterList.get(least));
@@ -610,12 +620,13 @@ public class MultiTypePolicy extends Policy {
 		
 		long[] clusterFinishTime = new long[this.m_runningClusterList.size()];
 		Arrays.fill(clusterFinishTime, Long.MAX_VALUE);
+		long currentTimeMilli = System.currentTimeMillis();
 		
 		// Calculating the finish time of every cluster
 		for(int VMindex = 0; VMindex<clusterFinishTime.length; VMindex++) {
 			ClusterNode cn = this.m_runningClusterList.get(VMindex);
 			if(cn.jobType == jt) {
-				clusterFinishTime[VMindex] = 0;
+				clusterFinishTime[VMindex] = currentTimeMilli;
 				for(JobNode jn:this.m_runningJobList) {
 					if(jn.runningCluster == cn) {
 						clusterFinishTime[VMindex] += jn.GetContinuousAttribute("PredictionTime") - jn.completionTime;
@@ -637,7 +648,8 @@ public class MultiTypePolicy extends Policy {
 				}
 				
 				clusterFinishTime[leastVMindex] += jn.GetContinuousAttribute("PredictionTime");
-				long jobFinishTime = clusterFinishTime[leastVMindex] + jn.GetContinuousAttribute("PredictionTime");
+				long jobFinishTime = clusterFinishTime[leastVMindex];
+//				System.out.println("Job " + jn.UID + " (" + jobFinishTime + " - " + jn.GetTrueDeadline() + " = " + (jobFinishTime-(jn.GetTrueDeadline())) + ")");
 				
 				if( (jn.GetTrueDeadline())<jobFinishTime ) {
 					System.out.println("Job " + jn.UID + " may exceeds deadline: " + (jobFinishTime-(jn.GetTrueDeadline())) );
