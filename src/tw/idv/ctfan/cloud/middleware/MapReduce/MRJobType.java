@@ -36,6 +36,21 @@ public class MRJobType extends JobType {
 	public MRJobType() {
 		super("MapReduce");
 	}
+	
+	@Override
+	public String HTTPViewerMessage() {
+		return "<h1>MapReduce Job Notice</h1>" +
+				"<p>Accepted job type: Java hadoop runnable archive, which takes input folder and output folder as the parameter.  The size of the job will be the total file size of the input folder.</p>" +
+				"<p>Must have attributes</p>" +
+				"<ul>" +
+				"<li>JobType:MapReduce</li>" +
+				"<li>InputFolder:&ltpath/to/inputFolder&gt</li>" +
+				"<li>OutputFolder:&ltpath/to/outputFolder&gt</li>" +
+				"<li>Name:&ltProgram name&gt (Optional)</li>" +
+				"<li>Deadline:&ltThe Deadline of the job in second&gt (Optional)</li>" +
+				"</ul>" +
+				"";
+	}
 
 	@Override
 	public int DecodeClusterLoadInfo(String line) {

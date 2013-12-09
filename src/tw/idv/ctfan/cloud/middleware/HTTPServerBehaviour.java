@@ -27,6 +27,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 	SystemMonitoringAgent myAgent;
 	
 	static final Date m_initTime = new Date();
+	static final long m_initMilliTime = System.currentTimeMillis();
 	
 	private static final int HTTP_POST = 0x301;
 	private static final int HTTP_GET  = 0x302;
@@ -391,8 +392,8 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 	private class StatusResponse extends OneShotBehaviour {
 		private static final long serialVersionUID = 1L;
 		Socket client;
-		private static final String styleRight = "border: 3px black solid; float: right; display:inline-block; margin:5px; width:35%";
-		private static final String styleLeft = "border: 3px black solid; float: left; display:inline-block; margin:5px; width:60%";
+		private static final String styleRight = "border: 3px black solid; float: right; display:inline-block; margin:5px; width:35%; clear:right";
+		private static final String styleLeft = "border: 3px black solid; float: left; display:inline-block; margin:5px; width:60%; clear:left";
 		
 		public StatusResponse(Agent a, Socket s) {
 			super(a);
@@ -446,7 +447,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 //				output.print("<H1><img src=\"http://dmclab.csie.ntpu.edu.tw/web/media/logo_action.gif\" />Hybrid Cloud Information Viewer</H1>");
 				output.print("<H1 style=\"font-size:64px; text-align:center; margin:5px\"><IMG style=\"width:64px\" src=\"http://120.126.145.102/mtp/DMCL_logo.gif\" />Federated Cloud Information Viewer</H1>");
 				output.print("<h3 style=\"text-align:right; margin:3px\">Copyright: C.T.Fan</h3>");
-				output.print("<h3 style=\"margin:3px\">Uptime: "+ m_initTime.toString() +"</h3>");
+				output.print("<h3 style=\"margin:3px\">Uptime: "+ m_initTime.toString() + " <small>Millisecond: " + m_initMilliTime +"</small></h3>");
 				output.print("<h3 style=\"margin:3px\">Current: "+ (new Date()).toString() + " <small>Millisecond: " + System.currentTimeMillis() +"</small></h3>");
 				output.print("</DIV>");
 				output.print("<HR/>");
@@ -462,7 +463,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				}				
 				output.print("</select>");
 				output.print("<BR />");
-				
+								
 				output.print("Binary File: <INPUT type=\"file\" name=\"binaryFile\" accept=\"application/java-archive\" /><br/>");
 				
 				for(int i=0; i<5; i++) {
@@ -475,8 +476,15 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				
 				output.print("<INPUT type=\"submit\" value=\"Submit\" />");
 				output.print("</FORM>");
-				output.print("</DIV>");
 				
+
+				// Show Job Type's Information
+				for(JobType jt:policy.GetJobTypeList()) {
+					output.print("<hr/>");
+					output.print(jt.HTTPViewerMessage());
+				}
+				
+				output.print("</DIV>");				
 
 				// cluster+running list
 				output.print("<DIV style=\"" + styleLeft + "\">");
@@ -542,6 +550,8 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 
 				
 
+				
+				// Private Cluster information
 				output.print("<DIV style=\"" + styleLeft + "\">");
 				output.print("<H1>Public Cluster/Job Information</H1>");
 				output.print("<TABLE style=\"text-align:center; border-collapse:collapse; border:1px black solid; width:100%\">");

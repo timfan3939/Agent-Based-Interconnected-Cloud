@@ -64,6 +64,14 @@ public abstract class JobType {
 	
 	
 	/**
+	 * You can use this function to display HTML message to the user.<br/>
+	 * The attributes to submit your job is recommeded to be display in this section.
+	 * @return The HTML code that describes your job.
+	 */
+	public abstract String HTTPViewerMessage();
+	
+	
+	/**
 	 * 
 	 * <b>Removed because JobNode can encapsulate a job itself</b>
 	 * 

@@ -25,6 +25,21 @@ public class MPIJobType extends JobType {
 
 	public MPIJobType() {
 		super("MPI");
+	}	
+
+	@Override
+	public String HTTPViewerMessage() {
+		return "<h1>MPI Job Notice</h1>" +
+				"<p>Accepted job type: MPI program (Compiled), with number of thread and string type command.  The number of thread will be treated as the size of the job.</p>" +
+				"<p>Must have attributes</p>" +
+				"<ul>" +
+				"<li>JobType:MPI</li>" +
+				"<li>Command:&ltString type command allows you to have user defined parameter&gt</li>" +
+				"<li>Name:&ltProgram name&gt (Optional)</li>" +
+				"<li>Deadline:&ltThe Deadline of the job in second&gt (Optional)</li>" +
+				"<li>Thread:&ltNumber of threads&gt</li>" +
+				"</ul>" +
+				"";
 	}
 
 	@Override
