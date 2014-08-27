@@ -44,6 +44,9 @@ public class ClusterNode implements Comparable<ClusterNode>
 	static public HashMap<String, AttributeType> attributeType = new HashMap<String, AttributeType>();
 	private ArrayList<VirtualMachineNode> machines = new ArrayList<VirtualMachineNode>();
 	
+	// Initing time
+	public long initTime;
+	
 	private boolean ReservedAttributeKey(String key) {
 		if(key.equals("ClusterName")) return true;
 		if(key.equals("Core")) return true;
@@ -137,11 +140,15 @@ public class ClusterNode implements Comparable<ClusterNode>
 	}
 	
 	public void StartCluster() throws BadServerResponse, VmBadPowerState, VmHvmRequired, VmIsTemplate, OtherOperationInProgress, OperationNotAllowed, BootloaderFailed, UnknownBootloader, NoHostsAvailable, LicenceRestriction, XenAPIException, XmlRpcException {
+		long startTime = System.currentTimeMillis();
+		
 		System.out.println("Starting Cluster " + this.clusterName);
 		for(VirtualMachineNode vmn : machines) {
 			System.out.println("Starting VM " + vmn.vmNameLabel);
 			vmn.StartVM();
 		}
+		
+		initTime = System.currentTimeMillis() - startTime;
 	}
 	
 	public ClusterNode(String clusterName, JobType jt) {
@@ -150,6 +157,8 @@ public class ClusterNode implements Comparable<ClusterNode>
 		this.load = 0;
 		this.core = 0;
 		this.memory = 0;
+		
+		this.initTime = -1;
 		
 		this.jobType = jt;
 	}
