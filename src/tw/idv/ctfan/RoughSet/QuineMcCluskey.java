@@ -488,6 +488,9 @@ public class QuineMcCluskey {
 	public boolean[] GetSmallestReductAttribute(boolean[] core) {
 		if(!calculated) return null;
 		
+		// just a quick fix of the null exception
+		if(m_reducedPrimeImplicants == null) return null;
+		
 		if(core==null) {
 			core = new boolean[m_numOfCondAttr];
 			Arrays.fill(core, false);

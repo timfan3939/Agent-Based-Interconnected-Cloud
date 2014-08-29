@@ -26,7 +26,7 @@ public class MultiTypePolicy extends Policy {
 		
 	FileOutputStream fout;
 	
-	private final int recalculateRoughSet = 5;
+	private final int recalculateRoughSet = 2;
 	private int lastFinishedNumber = 0;
 		
 	public static Policy GetPolicy() {
@@ -416,14 +416,21 @@ public class MultiTypePolicy extends Policy {
 		
 		long result = 0;
 		long[] d = set.GetDecision(set.new Element(element, -1));
-		if(d==null) return MultiTypePolicy.defaultPredictionTime;
-		else if(d.length==0) return MultiTypePolicy.defaultPredictionTime;
+		if(d==null){
+			System.out.println("No Match Objects");
+			return MultiTypePolicy.defaultPredictionTime;
+		}
+		else if(d.length==0){
+			System.out.println("No Match Objects");
+			return MultiTypePolicy.defaultPredictionTime;
+		}
 		
 		for(long i: d) {
 			result += this.decisionExecutionTime[(int) i];
 		}
 		
 		result /= d.length;
+		System.out.println("Final Result " + result );
 				
 		return result;
 	}
@@ -498,7 +505,7 @@ public class MultiTypePolicy extends Policy {
 		return nextJob;
 	}
 	
-	private static final long defaultPredictionTime = 70000;
+	private static final long defaultPredictionTime = 60000;
 
 	/**
 	 * This function dispatch the job by predicting the execution time of a job on every machine.  After that, 
@@ -507,10 +514,24 @@ public class MultiTypePolicy extends Policy {
 	 * @return Dispatch Command
 	 * @see DispatchDecision
 	 */
+	
+//	private long startGetNewJobDestination = 0;
+//	private long counterGetNewJobDestination = 0;
+//	
+//	private void WritePredictionTime(String remark) {
+//		WriteLog("" + counterGetNewJobDestination + "\t" +
+//				this.m_finishJobList.size() + "\t" +
+//				(System.currentTimeMillis() - startGetNewJobDestination) + "\t" +
+//				remark);
+//		counterGetNewJobDestination++;
+//	}
 	@Override
 	public DispatchDecision GetNewJobDestination() {
+//		startGetNewJobDestination = System.currentTimeMillis();
+		
 		if(this.m_runningClusterList.size()==0){
 			System.out.println("No VMs are running, Hense no job to be dispatched.");
+//			WritePredictionTime("No VM running");
 			return null;
 		}
 		
@@ -524,6 +545,7 @@ public class MultiTypePolicy extends Policy {
 		JobNode nextJob = GetNextJob();
 		if(nextJob==null) {
 //			System.out.println("No Next Job Found.");
+//			WritePredictionTime("No Job");
 			return null;
 		}
 		
@@ -582,8 +604,10 @@ public class MultiTypePolicy extends Policy {
 			}
 		}
 		
-		if(least == -1 )
+		if(least == -1 ) {
+//			WritePredictionTime("No Available VM found");
 			return null;
+		}
 		
 		// Special case if a job has deadline
 		else if( ( nextJob.isDeadlineJob() && jobCount[least]<2 && 
@@ -591,11 +615,14 @@ public class MultiTypePolicy extends Policy {
 				 ( deadlineJobCount[least]==1 && jobCount[least]==1 && nextJob.isDeadlineJob()) ) {
 			DispatchDecision dd = new DispatchDecision(nextJob, this.m_runningClusterList.get(least));
 			nextJob.AddContinuousAttribute("PredictionTime", predictionResult[least]);
+//			WritePredictionTime("Job dispatched");
 			return dd;
 		}
 		
-		else if(jobCount[least]!=0 && (totalResult[least]>20000 || jobCount[least]>=3 ))
+		else if(jobCount[least]!=0 && (totalResult[least]>20000 || jobCount[least]>=3 )) {
+//			WritePredictionTime("");
 			return null;
+		}
 		
 		// Pre submit a job.  Currently not implemented yet.
 //		else if(jobCount[least]==1 && remainTime[least]<10000) {
@@ -607,6 +634,7 @@ public class MultiTypePolicy extends Policy {
 		else {
 			DispatchDecision dd = new DispatchDecision(nextJob, this.m_runningClusterList.get(least));
 			nextJob.AddContinuousAttribute("PredictionTime", predictionResult[least]);
+//			WritePredictionTime("Job Dispatched");
 			return dd;
 		}
 	}
@@ -652,7 +680,7 @@ public class MultiTypePolicy extends Policy {
 //				System.out.println("Job " + jn.UID + " (" + jobFinishTime + " - " + jn.GetTrueDeadline() + " = " + (jobFinishTime-(jn.GetTrueDeadline())) + ")");
 				
 				if( (jn.GetTrueDeadline())<jobFinishTime ) {
-					System.out.println("Job " + jn.UID + " may exceeds deadline: " + (jobFinishTime-(jn.GetTrueDeadline())) );
+//					System.out.println("Job " + jn.UID + " may exceeds deadline: " + (jobFinishTime-(jn.GetTrueDeadline())) );
 					notMeetDeadlineJobCount++;
 				}
 			}
@@ -680,16 +708,20 @@ public class MultiTypePolicy extends Policy {
 	@Override
 	public void InitClusterList() {
 		String[] ClusterName = {
-								"Java Cluster 1",
-								"Java Cluster 2",
-								"Java Cluster 3",
-								"MPI Cluster 1",
-								"MPI Cluster 2",
 							    "Hadoop Cluster 1",
 							    "Hadoop Cluster 2",
+//								"Java Cluster 1",
+//								"Java Cluster 2",
+//								"Java Cluster 3",
+//								"MPI Cluster 1",
+//								"MPI Cluster 2",
 		};
 		
-		String[][] Machines = {
+		String[][] Machines = {				
+				// Hadoop Clusters
+				{"hdp206", "hdp205", "hdp204", "hdp203"},
+				{"hdp214", "hdp216", "hdp212"},
+				
 				// Java Clusters
 				{"hdp201"},
 				{"hdp209"},
@@ -698,23 +730,19 @@ public class MultiTypePolicy extends Policy {
 				// MPI Clusters
 				{"hdp202", "hdp207", "hdp208"},
 				{"hdp211", "hdp213", "hdp215", "hdp217"},
-				
-				// Hadoop Clusters
-				{"hdp206", "hdp205", "hdp204", "hdp203"},
-				{"hdp214", "hdp216", "hdp212"},
 		};
 		
 		JobType java = new JavaJobType();
 		JobType hadoop = new MRJobType();
 		JobType MPI = new MPIJobType();
 		JobType[] clusterType = {
+				hadoop,
+				hadoop,
 				java,
 				java,
 				java,
 				MPI,
 				MPI,
-				hadoop,
-				hadoop,
 		};
 		
 		m_jobTypeList.add(java);
