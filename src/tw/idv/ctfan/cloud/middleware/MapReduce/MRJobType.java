@@ -102,7 +102,9 @@ public class MRJobType extends JobType {
 			jn.AddContinuousAttribute("InputFileSize", fileSize);
 			jn.AddContinuousAttribute("InputFileCount", fileCount);		
 			
-			fs.close();
+			// removed in 140830 because some says that you don't need this step.
+			// the stream is still running
+//			fs.close();
 		}
 		catch (Exception e) {
 			System.err.println("Getting File system info error");

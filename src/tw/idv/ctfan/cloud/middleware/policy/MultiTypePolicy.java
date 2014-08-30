@@ -26,7 +26,7 @@ public class MultiTypePolicy extends Policy {
 		
 	FileOutputStream fout;
 	
-	private final int recalculateRoughSet = 2;
+	private final int recalculateRoughSet = 5;
 	private int lastFinishedNumber = 0;
 		
 	public static Policy GetPolicy() {
@@ -166,7 +166,13 @@ public class MultiTypePolicy extends Policy {
 		for(int i=0; i<attributes.size(); i++) {
 			Attribute attribute = attributes.get(i);
 			if(attribute.attributeName.equals("Job.Command") ||
-					attribute.attributeName.equals("Job.PredictionTime")) {
+					attribute.attributeName.equals("Job.PredictionTime") ||
+					// following are added because of hadoop (140830)
+					attribute.attributeName.equals("Job.OutputFolder") ||
+					attribute.attributeName.equals("Job.InputFolder")||
+					attribute.attributeName.equals("Job.JobType")||
+					attribute.attributeName.equals("Cluster.ClusterName")
+				) {
 				attributes.remove(attribute);
 				i--;
 			}
@@ -198,8 +204,11 @@ public class MultiTypePolicy extends Policy {
 		}
 		
 		public void CalculateDiv(int numSubSet) {
-			if(attributeType==AttributeType.Continuous)
+			if(attributeType==AttributeType.Continuous && numSubSet!=0)
 				this.divValue = (10*this.maxValue-10*this.minValue+10)/numSubSet;
+			// Prevents potential errors
+			else if(numSubSet == 0)
+				this.divValue = 1;
 		}
 		
 		public long CalculateGroup(long value) {
@@ -232,6 +241,9 @@ public class MultiTypePolicy extends Policy {
 	private void ComputeMaxMinAttribute(){
 		numberOfConditionElement = 0;
 		numSubSet = m_finishJobList.size()/this.maxSubSetSize;
+		// Added to prevent it becomes zero
+		if(numSubSet == 0) 
+			numSubSet = 1;
 		boolean isFirst; 
 		
 		// Getting every possible attributes and find the minimum and maximum of the value
