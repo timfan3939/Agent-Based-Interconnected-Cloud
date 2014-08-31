@@ -41,7 +41,7 @@ public class MultiTypePolicy extends Policy {
 		onlyInstance = this;
 		
 		try {
-			fout = new FileOutputStream(new File("C:\\ctfan\\middlewareLog\\" + System.currentTimeMillis() + ".log"));
+			fout = new FileOutputStream(new File("C:\\ctfan\\middlewareLog\\" + System.currentTimeMillis() + ".html"));
 		} catch (Exception e) {
 			System.err.println("Error while opening log file");
 			e.printStackTrace();
@@ -53,10 +53,11 @@ public class MultiTypePolicy extends Policy {
 		RefreshRoughSet();
 		System.out.println("=====Policy ready=====");
 		WriteLog("=====Policy ready=====");
+		WriteLog("<table>");
 		
 	}
 	
-	private void WriteLog(String msg) {
+	public void WriteLog(String msg) {
 		try {
 			fout.write(msg.getBytes());
 			fout.write('\n');
@@ -405,7 +406,9 @@ public class MultiTypePolicy extends Policy {
 			long prediction = 0;
 			try {
 				newJob.runningCluster = cn;
-				prediction = this.GetPredictionResult(newJob);
+//				prediction = this.GetPredictionResult(newJob);
+				// The above line is commented and the following line is added to do the deadline constraint job.
+				prediction = 48000;
 				newJob.AddContinuousAttribute("PredictionTime", prediction);
 			} catch (Exception e) {
 				prediction = MultiTypePolicy.defaultPredictionTime;
@@ -576,7 +579,7 @@ public class MultiTypePolicy extends Policy {
 		}
 		
 		try {
-			RefreshRoughSet();
+//			RefreshRoughSet();
 		} catch(Exception e) {
 			System.out.println("Error while Refreshing the RoughSet");
 			e.printStackTrace();
@@ -587,7 +590,9 @@ public class MultiTypePolicy extends Policy {
 			if(nextJob.jobType == destination.jobType)
 			try {
 				nextJob.runningCluster = destination;
-				predictionResult[i] = this.GetPredictionResult(nextJob);
+//				predictionResult[i] = this.GetPredictionResult(nextJob);
+				// Above line is commented and the following line is added to do the test about deadline constraint.
+				predictionResult[i] = 48000;
 			} catch(Exception e) {
 				e.printStackTrace();
 				System.out.println("Prediction Error");
@@ -720,24 +725,24 @@ public class MultiTypePolicy extends Policy {
 	@Override
 	public void InitClusterList() {
 		String[] ClusterName = {
-							    "Hadoop Cluster 1",
-							    "Hadoop Cluster 2",
-//								"Java Cluster 1",
-//								"Java Cluster 2",
-//								"Java Cluster 3",
+								"Java Cluster 1",
+								"Java Cluster 2",
+								"Java Cluster 3",
+//							    "Hadoop Cluster 1",
+//							    "Hadoop Cluster 2",
 //								"MPI Cluster 1",
 //								"MPI Cluster 2",
 		};
 		
-		String[][] Machines = {				
-				// Hadoop Clusters
-				{"hdp206", "hdp205", "hdp204", "hdp203"},
-				{"hdp214", "hdp216", "hdp212"},
-				
+		String[][] Machines = {	
 				// Java Clusters
 				{"hdp201"},
 				{"hdp209"},
-				{"hdp210"},
+				{"hdp210"},				
+							
+				// Hadoop Clusters
+				{"hdp206", "hdp205", "hdp204", "hdp203"},
+				{"hdp214", "hdp216", "hdp212"},
 				
 				// MPI Clusters
 				{"hdp202", "hdp207", "hdp208"},
@@ -748,11 +753,11 @@ public class MultiTypePolicy extends Policy {
 		JobType hadoop = new MRJobType();
 		JobType MPI = new MPIJobType();
 		JobType[] clusterType = {
+				java,
+				java,
+				java,
 				hadoop,
 				hadoop,
-				java,
-				java,
-				java,
 				MPI,
 				MPI,
 		};

@@ -229,6 +229,20 @@ public class SystemMonitoringAgent extends Agent {
 					policy.GetFinishJob().add(jn);
 					jn.finishTime = System.currentTimeMillis();
 					jn.completionTime = Long.parseLong(subLine[3]);
+					String name = jn.GetDiscreteAttribute("Name");
+					String cmd = jn.GetDiscreteAttribute("Command");
+					((MultiTypePolicy)policy).WriteLog("<tr style=\"border-top:1px solid black\"><td>" + jn.UID + "</td>" +
+							  "<td>" + jn.jobType.getTypeName() + "</td>" +
+							  "<td>" + (name==null?"N/A":name) + "</td>" +
+							  "<td>" + (cmd==null?"N/A":cmd) + "</td>" +
+							  "<td>" + jn.runningCluster.clusterName + "</td>" +
+							  "<td>" + jn.submitTime + "</td>" +
+							  "<td>" + jn.startTime + "</td>" +
+							  "<td>" + jn.finishTime + "</td>" +
+							  "<td>" + jn.completionTime + "</td>" +
+							  "<td>" + jn.GetContinuousAttribute("PredictionTime") + "</td>" +
+							  "<td>" + jn.deadline + "</td>" +
+							  "</tr>");
 				}
 				else if(subLine[1].equals("Running")){
 					jn.lastSeen = Long.parseLong(subLine[2]);
