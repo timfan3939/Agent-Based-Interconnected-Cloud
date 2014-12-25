@@ -122,7 +122,11 @@ public class TestJava {
 				//System.out.println("" + i + "\tdone");
 				
 //				if(i>6)
-					Thread.sleep(70000);
+				for(int t=0; t<1; t++){
+					System.out.print("" + (t) + "0 " );
+					Thread.sleep(10000);
+				}
+				System.out.println();
 			}
 			
 			

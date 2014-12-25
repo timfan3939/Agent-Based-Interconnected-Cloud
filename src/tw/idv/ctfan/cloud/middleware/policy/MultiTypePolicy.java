@@ -408,7 +408,7 @@ public class MultiTypePolicy extends Policy {
 				newJob.runningCluster = cn;
 //				prediction = this.GetPredictionResult(newJob);
 				// The above line is commented and the following line is added to do the deadline constraint job.
-				prediction = 48000;
+				prediction = 70000;
 				newJob.AddContinuousAttribute("PredictionTime", prediction);
 			} catch (Exception e) {
 				prediction = MultiTypePolicy.defaultPredictionTime;
@@ -592,7 +592,7 @@ public class MultiTypePolicy extends Policy {
 				nextJob.runningCluster = destination;
 //				predictionResult[i] = this.GetPredictionResult(nextJob);
 				// Above line is commented and the following line is added to do the test about deadline constraint.
-				predictionResult[i] = 48000;
+				predictionResult[i] = 70000;
 			} catch(Exception e) {
 				e.printStackTrace();
 				System.out.println("Prediction Error");
