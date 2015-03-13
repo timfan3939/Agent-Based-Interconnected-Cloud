@@ -309,7 +309,7 @@ public abstract class AdminAgent extends Agent {
 				return;
 			}
 			
-			AID reciever = new AID(tw.idv.ctfan.cloud.middleware.SystemMonitoringAgent.NAME, AID.ISGUID);
+			AID reciever = new AID(tw.idv.ctfan.cloud.middleware.SystemMonitoringAgent.NAME + "@" + m_masterIP + ":1099/                                                                                                                                                           ", AID.ISGUID);
 			reciever.addAddresses("http://" + m_masterIP + ":7778/acc");
 			heartBeat.addReceiver(reciever);
 			

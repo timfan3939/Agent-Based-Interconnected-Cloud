@@ -31,7 +31,8 @@ public class SystemMonitoringAgent extends Agent {
 	/**
 	 * I'm busy on other feature.  This feature
 	 */
-	public static final String NAME = "SyMA@120.126.145.102:1099/JADE";
+//	public static final String NAME = "SyMA@120.126.145.102:1099/JADE";
+	public static final String NAME = "SyMA";
 	
 	public void setup() {
 		super.setup();
