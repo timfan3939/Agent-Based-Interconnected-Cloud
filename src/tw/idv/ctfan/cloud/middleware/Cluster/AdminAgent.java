@@ -259,6 +259,7 @@ public abstract class AdminAgent extends Agent {
 					cmd.add("job" + newJob.UID + m_jobType.GetExtension());
 					cmd.add(OnEncodeNewJobAgent(newJob));
 					
+					//create Job Agent
 					myAgent.getContainerController().createNewAgent(Long.toString(newJob.UID), GetJobAgentClassName() ,cmd.toArray()).start();
 					System.out.println("===== Agent " + newJob.UID + " Start=====");
 					doneYet = true;				
@@ -309,7 +310,8 @@ public abstract class AdminAgent extends Agent {
 				return;
 			}
 			
-			AID reciever = new AID(tw.idv.ctfan.cloud.middleware.SystemMonitoringAgent.NAME, AID.ISGUID);
+//			AID reciever = new AID(tw.idv.ctfan.cloud.middleware.SystemMonitoringAgent.NAME, AID.ISGUID);
+			AID reciever = new AID("SyMA@" + myAgent.getHap(), AID.ISGUID);
 			reciever.addAddresses("http://" + m_masterIP + ":7778/acc");
 			heartBeat.addReceiver(reciever);
 			

@@ -116,11 +116,11 @@ public class ResourceReconfigurationAgent extends Agent {
 				
 				for(JobType jt: policy.GetJobTypeList()) {
 					for(ClusterNode cn: policy.GetAvailableCluster()) {
-//						System.out.println(cn.jobType.getTypeName() + " " + jt.getTypeName());
+						System.out.println(cn.jobType.getTypeName() + " " + jt.getTypeName());
 						if(cn.jobType == jt) {
 							openingCluster.add(cn);
 							policy.GetAvailableCluster().remove(cn);
-//							System.out.println("Cluster " + openingCluster.size());
+							System.out.println("Cluster " + openingCluster.size());
 							
 							break;
 						}

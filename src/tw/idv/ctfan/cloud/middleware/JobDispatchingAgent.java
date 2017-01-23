@@ -28,7 +28,7 @@ public class JobDispatchingAgent extends Agent {
 	
 	private static final long serialVersionUID = 6274680676517501589L;
 	
-	private final String fileDirectory = "C:\\ctfan\\middlewareFile\\";
+	private final String fileDirectory = "D:\\MYPAPER\\testfile\\middlewareFile\\";
 
 	ThreadedBehaviourFactory tbf;
 	
@@ -141,6 +141,9 @@ public class JobDispatchingAgent extends Agent {
 							
 							policy.GetWaitingJob().remove(jn);
 							policy.GetRunningJob().add(jn);
+//							for(int i = 0;i < policy.GetWaitingJob().size(); i++){
+//								System.out.println("waiting job:"+policy.GetWaitingJob().get(i).UID);
+//							}
 							jn.runningCluster = dest;
 						} else {
 //							System.out.println("No Dispatching Job to do.");

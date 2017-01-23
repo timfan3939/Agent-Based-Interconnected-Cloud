@@ -1,21 +1,29 @@
 package tw.idv.ctfan.cloud.middleware;
 
+import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.TimeZone;
 
 import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
 import tw.idv.ctfan.cloud.middleware.policy.*;
 import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
+import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.ThreadedBehaviourFactory;
+import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import jade.wrapper.StaleProxyException;
 
 public class SystemMonitoringAgent extends Agent {
 	
@@ -26,12 +34,12 @@ public class SystemMonitoringAgent extends Agent {
 	/**
 	 * Where the binary files will be stored.
 	 */
-	private final String fileDirectory = "C:\\ctfan\\middlewareFile\\";
-	
+	private final String fileDirectory = "D:\\MYPAPER\\testfile\\middlewareFile\\";
 	/**
 	 * I'm busy on other feature.  This feature
 	 */
-	public static final String NAME = "SyMA@120.126.145.102:1099/JADE";
+//	public static final String NAME = "SyMA@120.126.145.102:1099/JADE";
+	public static final String NAME = "SyMA@10.133.200.245:1099/JADE";
 	
 	public void setup() {
 		super.setup();
@@ -85,7 +93,23 @@ public class SystemMonitoringAgent extends Agent {
 				
 				JobNode jn = new JobNode();
 				byte[] jobBinaryFile = null;
-				
+				File saveFile=new File("D:\\MYPAPER\\testfile\\exetime\\"+jn.UID+"exetime.txt");
+				try
+				{
+					//==格式化
+					SimpleDateFormat nowdate = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
+					//==GMT標準時間往後加八小時
+					nowdate.setTimeZone(TimeZone.getTimeZone("GMT+8"));
+					//==取得目前時間
+					String sdate = nowdate.format(new java.util.Date());
+					FileWriter fwriter=new FileWriter(saveFile, true);
+					fwriter.write(jn.UID + " starttime:" + sdate+ ",time:"+System.currentTimeMillis()+"\n");
+					fwriter.close();
+				}
+				catch(Exception e)
+				{
+					e.printStackTrace();
+				}
 				String line = "";
 				String head = "";
 				String tail = "";				
@@ -104,12 +128,14 @@ public class SystemMonitoringAgent extends Agent {
 					}
 					if(ch < 0) break;
 					
-					
+					//parse job
 					if(ch!='\n') continue;
 					line = new String(buff, 0, bufflen);
 //					System.out.println(line);
 					head = line.substring(0, line.indexOf(':'));
 					tail = line.substring(line.indexOf(':')+1);
+					
+					//System.out.println("line:"+line+",head:"+head+",tail:"+tail);
 					
 					if(head.matches("BinaryDataLength")) {
 						int jobLength = Integer.parseInt(tail);
@@ -126,14 +152,16 @@ public class SystemMonitoringAgent extends Agent {
 						jn.deadline = Long.parseLong(tail);
 						bufflen = 0;
 					} else if(!head.isEmpty()&&!tail.isEmpty()){
+						//System.out.println("line:::"+line+",head:::"+head+",tail:::"+tail);
 						jn.AddDiscreteAttribute(head, tail);
 					}
 				}
-				
 				s.close();
-				
 					
 				if(jobBinaryFile!=null) {
+					
+					jn.DisplayDetailedInfo();
+					//System.out.println("myAgentLocalName:"+myAgent.getLocalName()+",job UID:" + jn.UID +",size"+ jobBinaryFile.length);
 					myAgent.addBehaviour(tbf.wrap(new GetJobInfoBehaviour(myAgent, jn, jobBinaryFile)));
 				}				
 				
@@ -173,6 +201,7 @@ public class SystemMonitoringAgent extends Agent {
 		@Override
 		public void action() {
 			String jobType = m_job.GetDiscreteAttribute("JobType");
+			System.out.println("\njobType:"+jobType);
 			if(jobType == null) {
 				System.err.println("Job Type not found");
 				m_binary = null;
@@ -181,8 +210,10 @@ public class SystemMonitoringAgent extends Agent {
 			JobType jt = null;
 			synchronized (policy) {
 				for(JobType jobTypeIter : policy.GetJobTypeList()){
+//					System.out.println("\nforsize"+policy.GetJobTypeList());
 					if(jobTypeIter.getTypeName().compareTo(jobType)==0){
 						jt = jobTypeIter;
+						//System.out.println("\njt"+jt);
 						break;
 					}
 				}
@@ -205,8 +236,27 @@ public class SystemMonitoringAgent extends Agent {
 			}
 			m_job.jobType.SetJobInfo(m_job);
 			m_binary = null;
-			synchronized(policy) {
-				policy.AppendNewJob(m_job);
+//			System.out.println("test1:"+m_job.jobType.getTypeName());
+			if(m_job.jobType.getTypeName() != "Workflow"){
+				System.out.println("not workflow job");
+				synchronized(policy) {
+					policy.AppendNewJob(m_job);
+				}
+			}
+			else{
+				
+				System.out.println("workflow job");
+				ArrayList<String> cmd = new ArrayList<String>();
+				cmd.add(myAgent.getLocalName());
+				cmd.add(fileDirectory);
+				cmd.add("job" + m_job.UID + jt.GetExtension());
+				//cmd.add(OnEncodeNewJobAgent(m_job));
+				try {
+					myAgent.getContainerController().createNewAgent(Long.toString(m_job.UID), tw.idv.ctfan.cloud.middleware.Workflow.WorkflowAgent.class.getName(), cmd.toArray()).start();
+				} catch (StaleProxyException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 //			m_job.DisplayDetailedInfo();
 		}
@@ -227,6 +277,32 @@ public class SystemMonitoringAgent extends Agent {
 				if(subLine[1].matches("Finished")) {
 					policy.GetRunningJob().remove(jn);
 					policy.GetFinishJob().add(jn);
+					
+/************************************/
+					
+					if(jn.UID == Long.valueOf(jn.getdispatchsequence(Integer.valueOf(String.valueOf((jn.getdispatchnum()-1)))))){
+						
+						File saveFile=new File("D:\\MYPAPER\\testfile\\exetime\\"+jn.UID/1000+"exetime.txt");
+						try
+						{
+							//==格式化
+							SimpleDateFormat nowdate = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
+							//==GMT標準時間往後加八小時
+							nowdate.setTimeZone(TimeZone.getTimeZone("GMT+8"));
+							//==取得目前時間
+							String sdate = nowdate.format(new java.util.Date());
+							FileWriter fwriter=new FileWriter(saveFile, true);
+							fwriter.write(jn.UID/1000 + " endtime:" + sdate
+									+ ",time:"+System.currentTimeMillis()+"\n");
+							fwriter.close();
+						}
+						catch(Exception e)
+						{
+							e.printStackTrace();
+						}
+					}
+					
+/**************************************/
 					jn.finishTime = System.currentTimeMillis();
 					jn.completionTime = Long.parseLong(subLine[3]);
 					String name = jn.GetDiscreteAttribute("Name");
@@ -286,7 +362,7 @@ public class SystemMonitoringAgent extends Agent {
 					block();
 					return;
 				}
-//				System.out.println("Got Message");
+				System.out.println("Got Message");
 				synchronized(policy) {
 					switch(msg.getPerformative())
 					{

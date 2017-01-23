@@ -67,8 +67,9 @@ public abstract class Policy {
 	 * @param newJob The job being added.
 	 */
 	public void AppendNewJob(JobNode newJob) {
-		this.m_waitingJobList.add(newJob);
 		
+		this.m_waitingJobList.add(newJob);
+		System.out.println("added job" + newJob.UID);
 		this.OnNewJobAdded(newJob);
 	}
 	
@@ -123,5 +124,4 @@ public abstract class Policy {
 	{
 		return onlyInstance;
 	}
-
 }
