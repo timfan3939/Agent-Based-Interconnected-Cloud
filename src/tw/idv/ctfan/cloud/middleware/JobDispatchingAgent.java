@@ -28,7 +28,7 @@ public class JobDispatchingAgent extends Agent {
 	
 	private static final long serialVersionUID = 6274680676517501589L;
 	
-	private final String fileDirectory = "D:\\MYPAPER\\testfile\\middlewareFile\\";
+	private final String fileDirectory = "C:\\ctfan\\MYPAPER\\testfile\\middlewareFile\\";
 
 	ThreadedBehaviourFactory tbf;
 	

@@ -2,41 +2,25 @@ package tw.idv.ctfan.cloud.middleware.Workflow;
 
 import jade.core.Agent;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.io.*;
-import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import tw.idv.ctfan.cloud.middleware.*;
-//import sun.management.resources.agent;
 //import sun.org.mozilla.javascript.internal.json.JsonParser;
 import tw.idv.ctfan.cloud.middleware.policy.*;
-import tw.idv.ctfan.cloud.middleware.policy.Decision.DispatchDecision;
-import tw.idv.ctfan.cloud.middleware.policy.Decision.MigrationDecision;
-import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
-import jade.core.AID;
-import jade.core.Agent;
-import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.ThreadedBehaviourFactory;
-import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
-import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.MessageTemplate;
-import jade.tools.introspector.gui.MyDialog;
-import jade.wrapper.StaleProxyException;
 import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
 import tw.idv.ctfan.cloud.middleware.Java.JavaJobType;
 import tw.idv.ctfan.cloud.middleware.Workflow.WorkflowStatus;
 
 import org.json.*;
-
-import FIPA.stringsHelper;
 
 public class WorkflowAgent extends Agent{
 	private static final long serialVersionUID = -5271213701466983534L;
@@ -45,7 +29,7 @@ public class WorkflowAgent extends Agent{
 	public String zipFilePath;
 	public String destDirectory;
 	String m_pathToFile;
-	private final String fileDirectory = "D:\\MYPAPER\\testfile\\middlewareFile\\";
+	private final String fileDirectory = "C:\\ctfan\\MYPAPER\\testfile\\middlewareFile\\";
 	
 	public boolean childrenIDTF[][] = new boolean[100][100] ;
 	public int tpsort [] = new int[100];
@@ -89,10 +73,10 @@ public class WorkflowAgent extends Agent{
 		
 		@Override
 		public void action() {
-			zipFilePath = "D:\\MYPAPER\\testfile\\middlewareFile\\" + myAgent.getLocalName() + ".zip";
-			destDirectory = "D:\\MYPAPER\\testfile\\unziptest\\" + myAgent.getLocalName() + "\\";
+			zipFilePath = "C:\\ctfan\\MYPAPER\\testfile\\middlewareFile\\" + myAgent.getLocalName() + ".zip";
+			destDirectory = "C:\\ctfan\\MYPAPER\\testfile\\unziptest\\" + myAgent.getLocalName() + "\\";
 			
-			File saveFile=new File("D:\\MYPAPER\\testfile\\exetime\\"+myAgent.getLocalName()+"exetime.txt");
+			File saveFile=new File("C:\\ctfan\\MYPAPER\\testfile\\exetime\\"+myAgent.getLocalName()+"exetime.txt");
 			try
 			{
 				FileWriter fwriter=new FileWriter(saveFile, true);
@@ -122,8 +106,8 @@ public class WorkflowAgent extends Agent{
 				}			
 				
 				// read Job json file
-				FileReader fd = new FileReader("D:\\MYPAPER\\testfile\\unziptest\\" + myAgent.getLocalName() + "\\workflow.json");
-				String content = new String(Files.readAllBytes(Paths.get("D:\\MYPAPER\\testfile\\unziptest\\" + myAgent.getLocalName() + "\\workflow.json")));
+				FileReader fd = new FileReader("C:\\ctfan\\MYPAPER\\testfile\\unziptest\\" + myAgent.getLocalName() + "\\workflow.json");
+				String content = new String(Files.readAllBytes(Paths.get("C:\\ctfan\\MYPAPER\\testfile\\unziptest\\" + myAgent.getLocalName() + "\\workflow.json")));
 				JSONObject jsonObject = new JSONObject(content);
 				 
 				//read the taskworkflow array		
@@ -424,7 +408,8 @@ public class WorkflowAgent extends Agent{
 						
 						File file1=new File(m_pathToFile);  
 						File file2=new File(destDirectory + m_task.UID + m_task.jobType.GetExtension());  
-						boolean flag = file1.renameTo(file2);
+//						boolean flag = file1.renameTo(file2);
+						java.nio.file.Files.copy(file1.toPath(), file2.toPath());
 						File f1 = new File(destDirectory + m_task.UID + m_task.jobType.GetExtension());
 					    File f2 = new File(fileDirectory + m_task.UID + m_task.jobType.GetExtension());
 					    InputStream in = new FileInputStream(f1);

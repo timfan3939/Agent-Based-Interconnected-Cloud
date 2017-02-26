@@ -11,8 +11,8 @@ import com.xensource.xenapi.VM;
 import tw.idv.ctfan.RoughSet.RoughSet;
 import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
 import tw.idv.ctfan.cloud.middleware.Java.JavaJobType;
-import tw.idv.ctfan.cloud.middleware.MPI.MPIJobType;
-import tw.idv.ctfan.cloud.middleware.MapReduce.MRJobType;
+//import tw.idv.ctfan.cloud.middleware.MPI.MPIJobType;
+//import tw.idv.ctfan.cloud.middleware.MapReduce.MRJobType;
 import tw.idv.ctfan.cloud.middleware.Workflow.WorkflowJobType;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.DispatchDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.MigrationDecision;
@@ -810,93 +810,80 @@ public class MultiTypePolicy extends Policy {
 
 	@Override
 	public ArrayList<VMController> InitVMMasterList() {
+		String prefix = "10.133.200.";
+		String ControllerIP[] = {
+				"2",	
+				"3",	
+				"4",	
+				"5",	
+				"6",	
+				"7",	
+				"8",	
+				"9",	
+				"10",	
+				"11",	
+				"12",	
+				"242",	
+				"243",	
+				"244",	
+				"245",	
+				"246",	
+				"247",	
+				"248",	
+				"249",	
+				"252",	
+				"253",
+		};
 		
-		this.m_vmControllerList.add(new VMController("10.133.200.4", "root", "unigrid", VMController.VirtualMachineType.Private));
-		this.m_vmControllerList.add(new VMController("10.133.200.3", "root", "unigrid", VMController.VirtualMachineType.Public));
+//		this.m_vmControllerList.add(new VMController("10.133.200.4", "root", "unigrid", VMController.VirtualMachineType.Private));
+//		this.m_vmControllerList.add(new VMController("10.133.200.3", "root", "unigrid", VMController.VirtualMachineType.Public));
+//		this.m_vmControllerList.add(new VMController("10.133.200.9", "root", "unigrid", VMController.VirtualMachineType.Public));
+//		this.m_vmControllerList.add(new VMController("10.133.200.12", "root", "unigrid", VMController.VirtualMachineType.Public));
+//		this.m_vmControllerList.add(new VMController("10.133.200.247", "root", "unigrid", VMController.VirtualMachineType.Public));
+		
+		for( int i = 0; i<ControllerIP.length; i++){
+			this.m_vmControllerList.add(new VMController(prefix + ControllerIP[i], "root", "unigrid", VMController.VirtualMachineType.Public));
+		}
 		
 		return m_vmControllerList;
 	}
 
 	@Override
 	public void InitClusterList() {
-		String[] ClusterName = {
-								"Java Cluster 1",
-								"Java Cluster 2",
-								"Java Cluster 3",
-								"Java Cluster 4",
-								"Java Cluster 5",
-								"Java Cluster 6",
-								"Java Cluster 7",
-								"Java Cluster 8"
-//							    "Hadoop Cluster 1",
-//							    "Hadoop Cluster 2",
-//								"MPI Cluster 1",
-//								"MPI Cluster 2",
-		};
-		
-		String[][] Machines = {	
-				// Java Clusters
-				
-				{"hdp201"},
-				{"java202"},
-				{"java203"},
-				{"java205"},
-				{"java206"},
-				{"hdp209"},
-				{"hdp210"},				
-				{"java213"},
-//				// Hadoop Clusters
-//				{"hdp206", "hdp205", "hdp204", "hdp203"},
-//				{"hdp214", "hdp216", "hdp212"},
-//				
-//				// MPI Clusters
-//				{"hdp202", "hdp207", "hdp208"},
-//				{"hdp211", "hdp213", "hdp215", "hdp217"},
-		};
-		
 		JobType java = new JavaJobType();
-		JobType hadoop = new MRJobType();
-		JobType MPI = new MPIJobType();
 		JobType Workflow = new WorkflowJobType();
-		JobType[] clusterType = {
-				java,
-				java,
-				java,
-				java,
-				java,
-				java,
-				java,
-				java,
-//				hadoop,
-//				hadoop,
-//				MPI,
-//				MPI,
-//				Workflow,
-//				Workflow
-		};
+		
+		ArrayList<String> ClusterName = new ArrayList<String>();
+		ArrayList<String[]> Machines = new ArrayList<String[]>();
+		ArrayList<JobType> clusterType = new ArrayList<JobType>();
+		
+//		for(int i=31; i<=92; i++) {
+		for(int i=31; i<=40; i++) {
+			ClusterName.add("Java " + i);
+			String[] m = {String.format("hdp%3d", i).replace(' ', '0')};
+			Machines.add(m);
+			clusterType.add(java);
+		}
+		clusterType.add(Workflow);
+		
+		
+		
 		m_jobTypeList.add(java);
-		m_jobTypeList.add(java);
-		m_jobTypeList.add(java);
-		m_jobTypeList.add(java);
-		m_jobTypeList.add(java);
-		m_jobTypeList.add(java);
-		m_jobTypeList.add(java);
-		m_jobTypeList.add(java);
-		m_jobTypeList.add(hadoop);
-		m_jobTypeList.add(MPI);
+//		m_jobTypeList.add(hadoop);
+//		m_jobTypeList.add(MPI);
 		m_jobTypeList.add(Workflow);
 		
 //		JobNode.attributeType.put("Command", JobNode.AttributeType.Discrete);
 		
 		
 		try {
-			for(int i=0; i<ClusterName.length; i++) {
-				ClusterNode cn = new ClusterNode(ClusterName[i], clusterType[i]);
-				for(int j=0; j<Machines[i].length; j++) {
+			for(int i=0; i<ClusterName.size(); i++) {
+				ClusterNode cn = new ClusterNode(ClusterName.get(i), clusterType.get(i));
+				for(int j=0; j<Machines.get(i).length; j++) {
 					VirtualMachineNode vmn = null;
 					Set<VM> vmSet;
 					for(VMController vmc:this.m_vmControllerList) {
-						vmSet = VM.getByNameLabel(vmc.xenConnection, Machines[i][j]);
+						vmSet = VM.getByNameLabel(vmc.xenConnection, Machines.get(i)[j]);
 						if(vmSet.size()==0) continue;
 						for(VM vm:vmSet) {
 							if(!vm.getIsASnapshot(vmc.xenConnection)&&
@@ -910,7 +897,7 @@ public class MultiTypePolicy extends Policy {
 						if(vmn != null) break;
 					}
 					if(vmn==null) {
-						System.err.println("VM "+Machines[i][j]+ " not found");
+						System.err.println("VM "+Machines.get(i)[j]+ " not found");
 					} else {
 						cn.AddMachine(vmn);
 					}

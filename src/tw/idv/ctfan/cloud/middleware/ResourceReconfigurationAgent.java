@@ -115,14 +115,18 @@ public class ResourceReconfigurationAgent extends Agent {
 				openingCluster = new ArrayList<ClusterNode>();
 				
 				for(JobType jt: policy.GetJobTypeList()) {
-					for(ClusterNode cn: policy.GetAvailableCluster()) {
+//					for(ClusterNode cn: policy.GetAvailableCluster()) {
+					for(int cn_i = 0; cn_i < policy.GetAvailableCluster().size(); cn_i++) {
+						ClusterNode cn = policy.GetAvailableCluster().get(cn_i);
 						System.out.println(cn.jobType.getTypeName() + " " + jt.getTypeName());
 						if(cn.jobType == jt) {
 							openingCluster.add(cn);
 							policy.GetAvailableCluster().remove(cn);
 							System.out.println("Cluster " + openingCluster.size());
 							
-							break;
+							// with this break, only one cluster will be started
+							// if commented, all the cluster will be started.
+//							break;
 						}
 					}
 				}			

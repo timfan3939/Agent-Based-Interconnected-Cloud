@@ -34,7 +34,7 @@ public class SystemMonitoringAgent extends Agent {
 	/**
 	 * Where the binary files will be stored.
 	 */
-	private final String fileDirectory = "D:\\MYPAPER\\testfile\\middlewareFile\\";
+	private final String fileDirectory = "C:\\ctfan\\MYPAPER\\testfile\\middlewareFile\\";
 	/**
 	 * I'm busy on other feature.  This feature
 	 */
@@ -93,7 +93,7 @@ public class SystemMonitoringAgent extends Agent {
 				
 				JobNode jn = new JobNode();
 				byte[] jobBinaryFile = null;
-				File saveFile=new File("D:\\MYPAPER\\testfile\\exetime\\"+jn.UID+"exetime.txt");
+				File saveFile=new File("C:\\ctfan\\MYPAPER\\testfile\\exetime\\"+jn.UID+"exetime.txt");
 				try
 				{
 					//==格式化
@@ -282,7 +282,7 @@ public class SystemMonitoringAgent extends Agent {
 					
 					if(jn.UID == Long.valueOf(jn.getdispatchsequence(Integer.valueOf(String.valueOf((jn.getdispatchnum()-1)))))){
 						
-						File saveFile=new File("D:\\MYPAPER\\testfile\\exetime\\"+jn.UID/1000+"exetime.txt");
+						File saveFile=new File("C:\\ctfan\\MYPAPER\\testfile\\exetime\\"+jn.UID/1000+"exetime.txt");
 						try
 						{
 							//==格式化
@@ -362,7 +362,7 @@ public class SystemMonitoringAgent extends Agent {
 					block();
 					return;
 				}
-				System.out.println("Got Message");
+//				System.out.println("Got Message");
 				synchronized(policy) {
 					switch(msg.getPerformative())
 					{

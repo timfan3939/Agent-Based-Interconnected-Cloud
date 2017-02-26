@@ -12,12 +12,14 @@ import tw.idv.ctfan.cloud.middleware.Java.JavaJobType;
 public class TestWorkflow {
 	public static void main(String[] args) {
 		try{
-			String m_URL = "10.133.200.245";
+			String m_URL = "120.126.145.103";
 			String m_port = "50031";
 //			String m_pathToFile = "D:\\MYPAPER\\testfile\\testfile.zip";
-			String m_pathToFile1 = "D:\\MYPAPER\\testfile\\testfile multi job\\1\\testfile.zip";
-			String m_pathToFile2 = "D:\\MYPAPER\\testfile\\testfile multi job\\2\\testfile.zip";
-			int size = 2;
+//			String m_pathToFile1 = "C:\\ctfan\\MYPAPER\\testfile\\job_test.zip";
+//			String m_pathToFile2 = "C:\\ctfan\\MYPAPER\\testfile\\job_test.zip";
+			String m_pathToFile1 = "C:\\ctfan\\MYPAPER\\testfile\\WJ.zip";
+			String m_pathToFile2 = m_pathToFile1;
+			int size = 5;
 			int testSize[] = new int[size];
 //			java.util.Random rand = new java.util.Random();
 //			for(int i=0; i<size; i++)
@@ -123,7 +125,7 @@ public class TestWorkflow {
 //				if(i>6)
 //				for(int t=0; t<1; t++){
 //					System.out.print("" + (t) + "0 " );
-					Thread.sleep(1000);
+					Thread.sleep(100000);
 //				}
 //				System.out.println();
 				}else if(i==1){
