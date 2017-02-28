@@ -1,4 +1,4 @@
-package tw.idv.ctfan.cloud.middleware.policy.data;
+package tw.idv.ctfan.cloud.Middleware.policy.data;
 
 import org.apache.xmlrpc.XmlRpcException;
 

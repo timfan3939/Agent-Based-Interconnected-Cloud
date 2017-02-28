@@ -1,4 +1,4 @@
-package tw.idv.ctfan.cloud.middleware;
+package tw.idv.ctfan.cloud.Middleware;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -6,12 +6,12 @@ import java.util.Map;
 import com.xensource.xenapi.Types;
 import com.xensource.xenapi.VM;
 
-import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
-import tw.idv.ctfan.cloud.middleware.policy.MultiTypePolicy;
-import tw.idv.ctfan.cloud.middleware.policy.Policy;
-import tw.idv.ctfan.cloud.middleware.policy.Decision.VMManagementDecision;
-import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
-import tw.idv.ctfan.cloud.middleware.policy.data.VMController;
+import tw.idv.ctfan.cloud.Middleware.Cluster.JobType;
+import tw.idv.ctfan.cloud.Middleware.policy.MultiTypePolicy;
+import tw.idv.ctfan.cloud.Middleware.policy.Policy;
+import tw.idv.ctfan.cloud.Middleware.policy.Decision.VMManagementDecision;
+import tw.idv.ctfan.cloud.Middleware.policy.data.ClusterNode;
+import tw.idv.ctfan.cloud.Middleware.policy.data.VMController;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;

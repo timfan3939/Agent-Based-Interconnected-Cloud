@@ -1,4 +1,4 @@
-package tw.idv.ctfan.cloud.middleware;
+package tw.idv.ctfan.cloud.Middleware;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -8,11 +8,11 @@ import java.net.Socket;
 import java.util.Date;
 import java.util.HashMap;
   
-import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
-import tw.idv.ctfan.cloud.middleware.policy.Policy;
-import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
-import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
-import tw.idv.ctfan.cloud.middleware.policy.data.VMController;
+import tw.idv.ctfan.cloud.Middleware.Cluster.JobType;
+import tw.idv.ctfan.cloud.Middleware.policy.Policy;
+import tw.idv.ctfan.cloud.Middleware.policy.data.ClusterNode;
+import tw.idv.ctfan.cloud.Middleware.policy.data.JobNode;
+import tw.idv.ctfan.cloud.Middleware.policy.data.VMController;
 
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
@@ -367,7 +367,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 			try {
 				PrintStream output = new PrintStream(client.getOutputStream());
 				output.print("HTTP/1.0 501 Not Implemented" + EOL);
-				output.print("Server: tw.idv.ctfan.cloud.middleware.HTTPServerBehaviour" + EOL);
+				output.print("Server: tw.idv.ctfan.cloud.Middleware.HTTPServerBehaviour" + EOL);
 				output.print("Date: " + new Date() + EOL);
 				output.print("Content-Type: text/html" + EOL);
 				output.print(EOL);
@@ -694,7 +694,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				//=====
 				
 			} catch(Exception e) {
-				System.err.println("Error in tw.idv.ctfan.cloud.middleware.HTTPServerBehaviour.StatusResponse");
+				System.err.println("Error in tw.idv.ctfan.cloud.Middleware.HTTPServerBehaviour.StatusResponse");
 				e.printStackTrace();
 			} 
 		} }

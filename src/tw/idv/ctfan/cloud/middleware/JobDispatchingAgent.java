@@ -1,15 +1,15 @@
-package tw.idv.ctfan.cloud.middleware;
+package tw.idv.ctfan.cloud.Middleware;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-import tw.idv.ctfan.cloud.middleware.policy.*;
-import tw.idv.ctfan.cloud.middleware.policy.Decision.DispatchDecision;
-import tw.idv.ctfan.cloud.middleware.policy.Decision.MigrationDecision;
-import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
-import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
+import tw.idv.ctfan.cloud.Middleware.policy.*;
+import tw.idv.ctfan.cloud.Middleware.policy.Decision.DispatchDecision;
+import tw.idv.ctfan.cloud.Middleware.policy.Decision.MigrationDecision;
+import tw.idv.ctfan.cloud.Middleware.policy.data.ClusterNode;
+import tw.idv.ctfan.cloud.Middleware.policy.data.JobNode;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.OneShotBehaviour;

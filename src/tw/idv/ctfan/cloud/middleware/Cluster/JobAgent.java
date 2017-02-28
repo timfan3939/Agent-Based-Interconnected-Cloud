@@ -1,4 +1,4 @@
-package tw.idv.ctfan.cloud.middleware.Cluster;
+package tw.idv.ctfan.cloud.Middleware.Cluster;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;

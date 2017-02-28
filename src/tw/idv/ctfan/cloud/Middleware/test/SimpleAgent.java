@@ -1,4 +1,4 @@
-package tw.idv.ctfan.cloud.middleware.test;
+package tw.idv.ctfan.cloud.Middleware.test;
 
 import jade.core.AID;
 import jade.core.Agent;

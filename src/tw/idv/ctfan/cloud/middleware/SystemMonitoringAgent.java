@@ -1,14 +1,14 @@
-package tw.idv.ctfan.cloud.middleware;
+package tw.idv.ctfan.cloud.Middleware;
 
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
-import tw.idv.ctfan.cloud.middleware.policy.*;
-import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
-import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
+import tw.idv.ctfan.cloud.Middleware.Cluster.JobType;
+import tw.idv.ctfan.cloud.Middleware.policy.*;
+import tw.idv.ctfan.cloud.Middleware.policy.data.ClusterNode;
+import tw.idv.ctfan.cloud.Middleware.policy.data.JobNode;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;

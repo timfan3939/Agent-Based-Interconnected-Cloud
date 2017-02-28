@@ -1,4 +1,4 @@
-package tw.idv.ctfan.cloud.middleware.MapReduce;
+package tw.idv.ctfan.cloud.Middleware.MapReduce;
 
 import java.io.BufferedInputStream;
 import java.net.InetSocketAddress;

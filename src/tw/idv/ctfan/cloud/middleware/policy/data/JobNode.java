@@ -1,8 +1,8 @@
-package tw.idv.ctfan.cloud.middleware.policy.data;
+package tw.idv.ctfan.cloud.Middleware.policy.data;
 
 import java.util.HashMap;
 
-import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
+import tw.idv.ctfan.cloud.Middleware.Cluster.JobType;
 
 /**
  * 

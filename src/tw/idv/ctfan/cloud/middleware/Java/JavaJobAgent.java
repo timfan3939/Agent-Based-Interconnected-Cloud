@@ -1,4 +1,4 @@
-package tw.idv.ctfan.cloud.middleware.Java;
+package tw.idv.ctfan.cloud.Middleware.Java;
 
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
@@ -6,7 +6,7 @@ import jade.core.behaviours.Behaviour;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 
-import tw.idv.ctfan.cloud.middleware.Cluster.JobAgent;
+import tw.idv.ctfan.cloud.Middleware.Cluster.JobAgent;
 
 public class JavaJobAgent extends JobAgent {
 	private static final long serialVersionUID = 1L;

@@ -1,12 +1,12 @@
-package tw.idv.ctfan.cloud.middleware.test;
+package tw.idv.ctfan.cloud.Middleware.test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.net.Socket;
 
-import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
-import tw.idv.ctfan.cloud.middleware.MapReduce.MRJobType;
+import tw.idv.ctfan.cloud.Middleware.Cluster.JobType;
+import tw.idv.ctfan.cloud.Middleware.MapReduce.MRJobType;
 
 public class TestMR {
 
