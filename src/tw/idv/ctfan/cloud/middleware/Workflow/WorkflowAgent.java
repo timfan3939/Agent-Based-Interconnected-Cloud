@@ -31,19 +31,19 @@ public class WorkflowAgent extends Agent{
 	String m_pathToFile;
 	private final String fileDirectory = "C:\\ctfan\\MYPAPER\\testfile\\middlewareFile\\";
 	
-	public boolean childrenIDTF[][] = new boolean[100][100] ;
-	public int tpsort [] = new int[100];
-	public int taskID[] = new int[100];
-	public int parentsID[][] = new int[100][100];
-	public int childrenID[][] = new int[100][100];
-	public int parentnum[] = new int[100];
-	public int childnum[] = new int[100];	
-	public String program[] = new String[100];
-	public int taskLVsort[][] = new int[100][100];
+	public boolean childrenIDTF[][] = new boolean[210][210] ;
+	public int tpsort [] = new int[210];
+	public int taskID[] = new int[210];
+	public int parentsID[][] = new int[210][210];
+	public int childrenID[][] = new int[210][210];
+	public int parentnum[] = new int[210];
+	public int childnum[] = new int[210];	
+	public String program[] = new String[210];
+	public int taskLVsort[][] = new int[210][210];
 	public int VMnum = 0;
-	public int taskexetime[] = new int[100];
-	public int taskLVexetime[] = new int[100];
-	private static final int BUFFER_SIZE = 4096;
+	public int taskexetime[] = new int[210];
+	public int taskLVexetime[] = new int[210];
+	private static final int BUFFER_SIZE = 40960;
 	public ArrayList<Integer> dispatchorder = new ArrayList<Integer>();
 	//static WorkflowStatus Test2 = new WorkflowStatus();
 	Policy policy = MultiTypePolicy.GetPolicy();
@@ -117,13 +117,13 @@ public class WorkflowAgent extends Agent{
 						// get taskname from the JSON object
 						String taskname = jTemp.getString("taskname");
 						/***********************test******************************************/
-						System.out.println("taskname =" + taskname);
+//						System.out.println("taskname =" + taskname);
 						/*********************************************************************/
 						
 						// get program from the JSON object
 						String programname = jTemp.getString("program");
 						/*************************test****************************************/
-						System.out.println("programname =" + programname);
+//						System.out.println("programname =" + programname);
 						/*********************************************************************/
 						program[i] = programname;
 						//m_task.taskprogram = programname;
@@ -131,7 +131,7 @@ public class WorkflowAgent extends Agent{
 						// get taskID from the JSON object
 						int TID =  jTemp.getInt("task_id");
 						/*************************test****************************************/
-						System.out.println("TID =" + TID);
+//						System.out.println("TID =" + TID);
 						/*********************************************************************/
 						taskID[i] = TID;
 						//m_task.TID = TID;
@@ -139,7 +139,7 @@ public class WorkflowAgent extends Agent{
 						// get taskID from the JSON object
 						int command =  jTemp.getInt("command");
 						/*************************test****************************************/
-						System.out.println("exetime =" + command);
+//						System.out.println("exetime =" + command);
 						/*********************************************************************/
 						taskexetime[i] = command;
 						//m_task.TID = TID;
@@ -152,19 +152,19 @@ public class WorkflowAgent extends Agent{
 								// get _outV from the JSON object
 								Integer PID =  jTemp2.getInt("_outV");
 								/********************test*********************************************/
-								System.out.println("PID =" + PID);
+//								System.out.println("PID =" + PID);
 								/*********************************************************************/
 								parentsID[i][j] = PID;
 							}
 							// get _outE array from the JSON object
 							parentnum[i] = inE.length();
 							/*********************test********************************************/
-							System.out.println("parentnum =" + parentnum[i]);
+//							System.out.println("parentnum =" + parentnum[i]);
 							/*********************************************************************/
 						}else{
 							parentnum[i] = 0;
 							/*********************test********************************************/
-							System.out.println("parentnum =" + parentnum[i]);
+//							System.out.println("parentnum =" + parentnum[i]);
 							/*********************************************************************/
 						}
 						
@@ -176,7 +176,7 @@ public class WorkflowAgent extends Agent{
 								// get _inV from the JSON object
 								Integer CID =  jTemp3.getInt("_inV");
 								/*******************test**********************************************/
-								System.out.println("CID =" + CID);
+//								System.out.println("CID =" + CID);
 								/*********************************************************************/
 								childrenID[i][k]=CID;
 								childrenIDTF[i][CID-1] = true;
@@ -184,13 +184,13 @@ public class WorkflowAgent extends Agent{
 							// get _outE array from the JSON object
 							childnum[i] = outE.length();
 							/*********************test********************************************/
-							System.out.println("childnum =" + childnum[i] + "\n");
+//							System.out.println("childnum =" + childnum[i] + "\n");
 							/*********************************************************************/
 						}
 						else{
 							childnum[i] = 0;
 							/************************test*****************************************/
-							System.out.println("childnum =" + childnum[i] + "\n");
+							System.out.println("childnum =" + childnum[i]);
 							/*********************************************************************/
 						}
 					}
@@ -205,7 +205,7 @@ public class WorkflowAgent extends Agent{
 					topological(taskworkflow.length());
 					/*********************************************************************/
 					/********************************test*********************************/
-					System.out.println("\n"+"topological sort result");
+					System.out.println("topological sort result");
 					for(int i = 0; i < taskworkflow.length();i++){
 						System.out.println("task:" + (tpsort[i] + 1));
 					}
@@ -244,7 +244,7 @@ public class WorkflowAgent extends Agent{
 					}
 					/*********************************************************************/
 					/*******************************test**********************************/
-					System.out.println("\n"+"level sort result");
+					System.out.println("level sort result");
 					for(int i = 0; i < taskworkflow.length();i++){
 						System.out.println("task " + taskID[i] +" level:" + taskLV[i] + 
 								"\t" + "  taskexetime: " + taskexetime[i] + 
@@ -288,11 +288,11 @@ public class WorkflowAgent extends Agent{
 								break;
 							}
 						}
-						System.out.println("\n");
+						System.out.println("");
 						if(count==taskworkflow.length())
 							break;
 					}
-					System.out.print("VM number: " + VMnum + "\n");
+					System.out.print("VM number: " + VMnum + "");
 					/**************dispatchorder******************/
 					int newsort[]=new int[taskworkflow.length()];
 					for(int i = 0; i < taskworkflow.length(); i++){
@@ -316,7 +316,7 @@ public class WorkflowAgent extends Agent{
 					for(int i = 0; i < dispatchorder.size(); i++){
 						System.out.print(dispatchorder.get(i) + " ");
 					}
-					System.out.println("\n");
+					System.out.println("");
 					/*********************longest path******************************/
 					//File saveFile=new File("D:\\MYPAPER\\testfile\\exetime\\"+myAgent.getLocalName()+"exetime.txt");
 					int longestpath = newsort[0];
@@ -388,13 +388,14 @@ public class WorkflowAgent extends Agent{
 						m_task.UID = agentlocalname*1000 + (long)newsort[i]+1;
 						m_task.setparentsnum(parentnum[newsort[i]]);
 						m_task.setdispatchnum(dispatchorder.size());
-						System.out.println("dispatchnum:"+m_task.getdispatchnum());
+//						System.out.println("dispatchnum:"+m_task.getdispatchnum());
 						for(int d = 0; d < newsort.length; d++){
 							m_task.setdispatchsequence(String.valueOf(agentlocalname*1000 + ((long)newsort[d]+1)));
 						}
-						for(int d = 0; d < newsort.length; d++){
-							System.out.println("dispatchsequence:"+m_task.getdispatchsequence(d)+"\n");
-						}
+//						for(int d = 0; d < newsort.length; d++){
+//							System.out.println("dispatchsequence:"+m_task.getdispatchsequence(d));
+//						}
+//						System.out.println("");
 						for(int p = 0; p < parentnum[newsort[i]]; p++){
 							m_task.setparentsUID(String.valueOf(agentlocalname*1000 + (long)parentsID[newsort[i]][p]));
 						}
@@ -402,9 +403,9 @@ public class WorkflowAgent extends Agent{
 //						m_task.submitTime = System.currentTimeMillis();
 						m_task.AddDiscreteAttribute("Command", cmd);
 						m_task.AddDiscreteAttribute("JobType", "Java");
-						//m_task.AddContinuousAttribute("JobSize", size);
-						//m_task.deadline = Long.parseLong(String.valueOf(taskLVexetime[newsort[i]]*1000));
-						//m_task.DisplayDetailedInfo();
+//						m_task.AddContinuousAttribute("JobSize", size);
+//						m_task.deadline = Long.parseLong(String.valueOf(taskLVexetime[newsort[i]]*1000));
+//						m_task.DisplayDetailedInfo();
 						
 						File file1=new File(m_pathToFile);  
 						File file2=new File(destDirectory + m_task.UID + m_task.jobType.GetExtension());  
@@ -482,7 +483,7 @@ public class WorkflowAgent extends Agent{
 //					System.out.println("\nforsize"+policy.GetJobTypeList());
 					if(jobTypeIter.getTypeName().compareTo(jobType)==0){
 						jt = jobTypeIter;
-						System.out.println("\njt"+jt);
+//						System.out.println("\njt"+jt);
 						break;
 					}
 				}
@@ -602,7 +603,7 @@ public class WorkflowAgent extends Agent{
 		public void action() {
 			try {
 				ACLMessage msg = myAgent.receive(MessageTemplate.MatchAll());
-				
+				System.err.println("Workflow Agent got a message");
 				Thread.sleep(315000);
 				myAgent.doDelete();
 				

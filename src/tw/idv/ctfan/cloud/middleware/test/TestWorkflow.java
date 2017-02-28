@@ -17,9 +17,9 @@ public class TestWorkflow {
 //			String m_pathToFile = "D:\\MYPAPER\\testfile\\testfile.zip";
 //			String m_pathToFile1 = "C:\\ctfan\\MYPAPER\\testfile\\job_test.zip";
 //			String m_pathToFile2 = "C:\\ctfan\\MYPAPER\\testfile\\job_test.zip";
-			String m_pathToFile1 = "C:\\ctfan\\MYPAPER\\testfile\\WJ.zip";
+			String m_pathToFile1 = "C:\\ctfan\\MYPAPER\\testfile\\WJ - Montage 20 tasks size 5.zip";
 			String m_pathToFile2 = m_pathToFile1;
-			int size = 5;
+			int size = 1;
 			int testSize[] = new int[size];
 //			java.util.Random rand = new java.util.Random();
 //			for(int i=0; i<size; i++)
@@ -181,9 +181,9 @@ public class TestWorkflow {
 					// The deadline seems to be in second
 					// The overhead of the system is around 20 second
 					// set the overhead as 25 sec
-					stream.write("Deadline:".getBytes());
-					stream.write(Integer.toString(75).getBytes());
-					stream.write("\n".getBytes());
+//					stream.write("Deadline:".getBytes());
+//					stream.write(Integer.toString(75).getBytes());
+//					stream.write("\n".getBytes());
 					
 					stream.write("BinaryDataLength:".getBytes());
 					stream.write(Integer.toString(binary.size()).getBytes());

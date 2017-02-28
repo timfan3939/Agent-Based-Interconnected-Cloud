@@ -123,6 +123,7 @@ public class ResourceReconfigurationAgent extends Agent {
 							openingCluster.add(cn);
 							policy.GetAvailableCluster().remove(cn);
 							System.out.println("Cluster " + openingCluster.size());
+							cn_i--;
 							
 							// with this break, only one cluster will be started
 							// if commented, all the cluster will be started.

@@ -307,7 +307,7 @@ public class MultiTypePolicy extends Policy {
 				}
 			}	break;
 			}
-			System.out.println(attribute);
+//			System.out.println(attribute);
 		}
 		
 		this.numberOfConditionElement = 0;
@@ -395,7 +395,7 @@ public class MultiTypePolicy extends Policy {
 	}
 	
 	public void OnNewJobAdded(JobNode newJob){
-		System.out.println("ininin");
+//		System.out.println("ininin");
 		ClusterNode cn = null;
 		for(ClusterNode cn2:this.m_availableClusterList) {
 			if(newJob.jobType == cn2.jobType) {
@@ -857,13 +857,88 @@ public class MultiTypePolicy extends Policy {
 		ArrayList<String[]> Machines = new ArrayList<String[]>();
 		ArrayList<JobType> clusterType = new ArrayList<JobType>();
 		
-//		for(int i=31; i<=92; i++) {
-		for(int i=31; i<=40; i++) {
-			ClusterName.add("Java " + i);
-			String[] m = {String.format("hdp%3d", i).replace(' ', '0')};
+		// 1-cpu VMs
+		ClusterName.add("hdp031");
+		ClusterName.add("hdp032");
+		ClusterName.add("hdp033");
+//		ClusterName.add("hdp034");
+//		ClusterName.add("hdp035");
+//		ClusterName.add("hdp036");
+//		ClusterName.add("hdp037");
+//		ClusterName.add("hdp038");
+//		ClusterName.add("hdp039");
+//		ClusterName.add("hdp040");
+//		
+//		ClusterName.add("hdp041");
+//		ClusterName.add("hdp042");
+//		ClusterName.add("hdp043");
+//		ClusterName.add("hdp044");
+//		ClusterName.add("hdp045");
+//		ClusterName.add("hdp046");
+//		ClusterName.add("hdp047");
+//		ClusterName.add("hdp048");
+//		ClusterName.add("hdp049");
+//		ClusterName.add("hdp050");
+//
+//		ClusterName.add("hdp051");
+//		ClusterName.add("hdp052");
+		
+		// 4-cpu VMs
+		ClusterName.add("hdp053");
+		ClusterName.add("hdp054");
+		ClusterName.add("hdp055");
+		ClusterName.add("hdp056");
+//		ClusterName.add("hdp057");
+//		ClusterName.add("hdp058");
+//		ClusterName.add("hdp059");
+//		ClusterName.add("hdp060");		
+//
+//		ClusterName.add("hdp061");
+//		ClusterName.add("hdp062");
+		
+		// 2-cpu VMs
+//		ClusterName.add("hdp063");
+//		ClusterName.add("hdp064");
+//		ClusterName.add("hdp065");
+//		ClusterName.add("hdp066");
+//		ClusterName.add("hdp067");
+//		ClusterName.add("hdp068");
+//		ClusterName.add("hdp069");
+//		ClusterName.add("hdp070");		
+//
+//		ClusterName.add("hdp071");
+//		ClusterName.add("hdp072");
+//		ClusterName.add("hdp073");
+//		ClusterName.add("hdp074");
+//		ClusterName.add("hdp075");
+//		ClusterName.add("hdp076");
+//		ClusterName.add("hdp077");
+//		ClusterName.add("hdp078");
+//		ClusterName.add("hdp079");
+//		ClusterName.add("hdp080");		
+//
+//		ClusterName.add("hdp081");
+//		ClusterName.add("hdp082");
+		
+		// other unused vms
+//		ClusterName.add("hdp083");
+//		ClusterName.add("hdp084");
+//		ClusterName.add("hdp085");
+//		ClusterName.add("hdp086");
+//		ClusterName.add("hdp087");
+//		ClusterName.add("hdp088");
+//		ClusterName.add("hdp089");
+//		ClusterName.add("hdp090");
+//		ClusterName.add("hdp091");
+//		ClusterName.add("hdp092");
+		
+
+		for(int cn=0; cn<ClusterName.size(); cn++) {
+			String[] m = {new String(ClusterName.get(cn))};
 			Machines.add(m);
 			clusterType.add(java);
 		}
+		
 		clusterType.add(Workflow);
 		
 		
