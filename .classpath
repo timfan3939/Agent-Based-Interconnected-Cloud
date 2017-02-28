@@ -5,5 +5,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Jade"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Hadoop"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Xen"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JSon"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

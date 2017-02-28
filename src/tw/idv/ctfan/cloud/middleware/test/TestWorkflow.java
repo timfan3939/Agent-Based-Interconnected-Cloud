@@ -5,34 +5,29 @@ import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.net.Socket;
 
+import tw.idv.ctfan.cloud.Middleware.Workflow.WorkflowJobType;
 import tw.idv.ctfan.cloud.Middleware.Cluster.JobType;
 import tw.idv.ctfan.cloud.Middleware.Java.JavaJobType;
 
-public class TestJava {
+public class TestWorkflow {
 	public static void main(String[] args) {
-		try {
-		
-			//String m_URL = "10.133.200.1";
-			//String m_URL = "120.126.145.117";
-			//String m_URL = "120.126.145.114";
-//			String m_URL = "10.133.70.64";
-//			String m_URL = "120.126.145.3";
-//			String m_URL = "120.126.145.102";
-			String m_URL = "10.133.200.245";
+		try{
+			String m_URL = "120.126.145.103";
 			String m_port = "50031";
-//			String m_pathToFile = "C:\\ctfan\\Calculus.jar";
-			String m_pathToFile = "D:\\MYPAPER\\testfile\\ComputePi.jar";
-			
-
-			int size = 3;
+//			String m_pathToFile = "D:\\MYPAPER\\testfile\\testfile.zip";
+//			String m_pathToFile1 = "C:\\ctfan\\MYPAPER\\testfile\\job_test.zip";
+//			String m_pathToFile2 = "C:\\ctfan\\MYPAPER\\testfile\\job_test.zip";
+			String m_pathToFile1 = "C:\\ctfan\\MYPAPER\\testfile\\WJ - Montage 20 tasks size 5.zip";
+			String m_pathToFile2 = m_pathToFile1;
+			int size = 1;
 			int testSize[] = new int[size];
 //			java.util.Random rand = new java.util.Random();
 //			for(int i=0; i<size; i++)
 //				testSize[i] = rand.nextInt(100000)+50000;
 			for(int i=0; i<size; i++)
-				testSize[i] = 59000; // Exact 1 minute job
-				//testSize[i] = 19000; // Exact 1 minute job 
-			JobType java = new JavaJobType();
+				testSize[i] = 59000; // Exact 1 minute job 
+			//JobType java = new JavaJobType();
+			JobType Workflow = new WorkflowJobType();
 			
 //			int testSize[] = {50000, 53333, 56666, 60000, 63333, 66666, 70000, 73333, 76666, 80000,
 //					70906, 75966, 71628, 78253, 74603, 67247, 50262, 60559, 74905, 61142,
@@ -59,7 +54,10 @@ public class TestJava {
 			for(int i=0; i<testSize.length; i++)
 			{
 				System.out.println("Sending " + i );
-				FileInputStream fin = new FileInputStream(m_pathToFile);
+//				FileInputStream fin = new FileInputStream(m_pathToFile);
+				if(i==0){
+					FileInputStream fin = new FileInputStream(m_pathToFile1);
+				
 				ByteArrayOutputStream binary = new ByteArrayOutputStream();
 
 				byte[] buff = new byte[102400];
@@ -78,7 +76,8 @@ public class TestJava {
 				DataOutputStream stream = new DataOutputStream(s.getOutputStream());
 				
 				stream.write("JobType:".getBytes());
-				stream.write(java.getTypeName().getBytes());
+				//stream.write(java.getTypeName().getBytes());
+				stream.write(Workflow.getTypeName().getBytes());
 				stream.write("\n".getBytes());
 												
 				stream.write("Command:".getBytes());
@@ -87,7 +86,7 @@ public class TestJava {
 				
 				stream.write("Name:".getBytes());
 //				stream.write("Calculus".getBytes());
-				stream.write("ComputePi".getBytes());
+				stream.write("testfile".getBytes());
 				stream.write("\n".getBytes());
 				
 				//if(rand.nextInt(2)==0)
@@ -110,7 +109,7 @@ public class TestJava {
 				// The overhead of the system is around 20 second
 				// set the overhead as 25 sec
 				stream.write("Deadline:".getBytes());
-				stream.write(Integer.toString(-1).getBytes());
+				stream.write(Integer.toString(75).getBytes());
 				stream.write("\n".getBytes());
 				
 				stream.write("BinaryDataLength:".getBytes());
@@ -124,18 +123,80 @@ public class TestJava {
 				//System.out.println("" + i + "\tdone");
 				
 //				if(i>6)
-				for(int t=0; t<1; t++){
-					System.out.print("" + (t) + "0 " );
-					Thread.sleep(10000);
+//				for(int t=0; t<1; t++){
+//					System.out.print("" + (t) + "0 " );
+					Thread.sleep(100000);
+//				}
+//				System.out.println();
+				}else if(i==1){
+					FileInputStream fin = new FileInputStream(m_pathToFile2);
+					
+					ByteArrayOutputStream binary = new ByteArrayOutputStream();
+
+					byte[] buff = new byte[102400];
+					int len = 0;
+					long counter = 0;
+					while( (len = fin.read(buff)) > 0)
+					{
+						counter += len;
+						binary.write(buff, 0, len);
+						//System.out.println("Current:\t" + counter/1024);
+					}
+					fin.close();		
+					
+					Socket s = new Socket(m_URL, Integer.parseInt(m_port));
+					
+					DataOutputStream stream = new DataOutputStream(s.getOutputStream());
+					
+					stream.write("JobType:".getBytes());
+					//stream.write(java.getTypeName().getBytes());
+					stream.write(Workflow.getTypeName().getBytes());
+					stream.write("\n".getBytes());
+													
+					stream.write("Command:".getBytes());
+					stream.write(Integer.toString(testSize[i]).getBytes());
+					stream.write("\n".getBytes());
+					
+					stream.write("Name:".getBytes());
+//					stream.write("Calculus".getBytes());
+					stream.write("testfile".getBytes());
+					stream.write("\n".getBytes());
+					
+					//if(rand.nextInt(2)==0)
+//					if(i%2==0 && i>5) {
+//						stream.write("Deadline:".getBytes());
+//						stream.write(Integer.toString(12000).getBytes());
+//						stream.write("\n".getBytes());
+//					}
+//					else if(i>20) {
+//						stream.write("Deadline:".getBytes());
+//						stream.write(Integer.toString(120).getBytes());
+//						stream.write("\n".getBytes());
+//					}
+//					else {
+//						stream.write("Deadline:".getBytes());
+//						stream.write(Integer.toString(100000).getBytes());
+//						stream.write("\n".getBytes());
+//					}
+					// The deadline seems to be in second
+					// The overhead of the system is around 20 second
+					// set the overhead as 25 sec
+//					stream.write("Deadline:".getBytes());
+//					stream.write(Integer.toString(75).getBytes());
+//					stream.write("\n".getBytes());
+					
+					stream.write("BinaryDataLength:".getBytes());
+					stream.write(Integer.toString(binary.size()).getBytes());
+					stream.write("\n".getBytes());
+					
+					stream.write(binary.toByteArray());				
+					
+					s.close();
 				}
-				System.out.println();
 			}
-			
-			
 		} catch(Exception e)
 		{
 			e.printStackTrace();
 		}
 	}
-
 }

@@ -1,5 +1,6 @@
 package tw.idv.ctfan.cloud.Middleware.policy.data;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import tw.idv.ctfan.cloud.Middleware.Cluster.JobType;
@@ -19,6 +20,8 @@ import tw.idv.ctfan.cloud.Middleware.Cluster.JobType;
  */
 
 public class JobNode implements Comparable<JobNode> {
+	
+	
 	
 	/**
 	 * Representing job's status
@@ -172,6 +175,37 @@ public class JobNode implements Comparable<JobNode> {
 		return false;
 	}
 	
+	int parentsnum;
+	public void setparentsnum(int num){
+		parentsnum = num;
+	}
+	public int getparentsnum(){
+		return parentsnum;
+	}
+
+	ArrayList<String> parentsUID = new ArrayList<String>();
+	public void setparentsUID(String PID){
+		parentsUID.add(PID);
+	}
+	public String getparentsUID(int PID){
+		return parentsUID.get(PID);
+	}
+	
+	int dispatchnum;
+	public void setdispatchnum(int num){
+		dispatchnum = num;
+	}
+	public int getdispatchnum(){
+		return dispatchnum;
+	}
+	
+	ArrayList<String> dispatchsequence = new ArrayList<String>();
+	public void setdispatchsequence(String mID){
+		dispatchsequence.add(mID);
+	}
+	public String getdispatchsequence(int mID){
+		return dispatchsequence.get(mID);
+	}
 	/**
 	 * @see JobNode#attributes
 	 * @param key

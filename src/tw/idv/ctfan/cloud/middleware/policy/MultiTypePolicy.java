@@ -13,6 +13,7 @@ import tw.idv.ctfan.cloud.Middleware.Cluster.JobType;
 import tw.idv.ctfan.cloud.Middleware.Java.JavaJobType;
 import tw.idv.ctfan.cloud.Middleware.MPI.MPIJobType;
 import tw.idv.ctfan.cloud.Middleware.MapReduce.MRJobType;
+import tw.idv.ctfan.cloud.Middleware.Workflow.WorkflowJobType;
 import tw.idv.ctfan.cloud.Middleware.policy.Decision.DispatchDecision;
 import tw.idv.ctfan.cloud.Middleware.policy.Decision.MigrationDecision;
 import tw.idv.ctfan.cloud.Middleware.policy.Decision.VMManagementDecision;
@@ -306,7 +307,7 @@ public class MultiTypePolicy extends Policy {
 				}
 			}	break;
 			}
-			System.out.println(attribute);
+//			System.out.println(attribute);
 		}
 		
 		this.numberOfConditionElement = 0;
@@ -394,6 +395,7 @@ public class MultiTypePolicy extends Policy {
 	}
 	
 	public void OnNewJobAdded(JobNode newJob){
+//		System.out.println("ininin");
 		ClusterNode cn = null;
 		for(ClusterNode cn2:this.m_availableClusterList) {
 			if(newJob.jobType == cn2.jobType) {
@@ -406,9 +408,9 @@ public class MultiTypePolicy extends Policy {
 			long prediction = 0;
 			try {
 				newJob.runningCluster = cn;
-//				prediction = this.GetPredictionResult(newJob);
+				prediction = this.GetPredictionResult(newJob);
 				// The above line is commented and the following line is added to do the deadline constraint job.
-				prediction = 70000;
+//				prediction = 70000;
 				newJob.AddContinuousAttribute("PredictionTime", prediction);
 			} catch (Exception e) {
 				prediction = MultiTypePolicy.defaultPredictionTime;
@@ -483,6 +485,7 @@ public class MultiTypePolicy extends Policy {
 			long shortestDeadline = 0;
 			for(int i=0; i<this.m_waitingJobList.size(); i++) {
 				nextJob = this.m_waitingJobList.get(i);
+//				nextJob.DisplayDetailedInfo();
 				if(nextJob.jobType == jt && nextJob.isDeadlineJob()) {					
 					if(leastDeadlineJBindex >= 0 && shortestDeadline>nextJob.GetTrueDeadline()) {
 						System.out.println("Job " + nextJob.UID + " Deadline: " + nextJob.GetTrueDeadline() + " with diff " + (shortestDeadline-nextJob.GetTrueDeadline()));						
@@ -505,13 +508,105 @@ public class MultiTypePolicy extends Policy {
 			// Next find jobs without Deadline
 			for(int i=0; i<this.m_waitingJobList.size(); i++) {
 				nextJob = this.m_waitingJobList.get(i);
-				if(nextJob.jobType == jt) {
-					nextJobType = (nextJobType+1)%m_jobTypeList.size();
-//					System.out.println("Return General Job");
-					return nextJob;
+//				if(nextJob.jobType == jt) {
+//					nextJobType = (nextJobType+1)%m_jobTypeList.size();
+////					System.out.println("Return General Job");
+//					return nextJob;
+//				}
+				int disp = 0;
+				int dispPre = 0;
+				long check = 0;
+				for(int dd = 0; dd < nextJob.getdispatchnum(); dd++){
+					check = Long.valueOf(nextJob.getdispatchsequence(dd));
+					if(nextJob.UID == check){
+						disp = dd;
+						dispPre = disp-1;
+						//System.out.println("check:"+check+",disp:"+disp+",dispPre:"+dispPre);
+					}
+				}
+				if(nextJob.jobType == jt && nextJob.getparentsnum()==0) {
+						if(disp == 0){
+							nextJobType = (nextJobType+1)%m_jobTypeList.size();
+							System.out.println("Send Job:" + nextJob.UID);
+							return nextJob;
+						}else{
+							for(int j = 0; j < m_runningJobList.size(); j++){
+								if(m_runningJobList.get(j).UID ==Long.valueOf(nextJob.getdispatchsequence(dispPre))){
+									nextJobType = (nextJobType+1)%m_jobTypeList.size();
+									System.out.println("Send Job:" + nextJob.UID);
+//									nextJob.DisplayDetailedInfo();
+									return nextJob;
+								}else{
+									for(int k = 0; k < m_finishJobList.size(); k++){
+										if(m_finishJobList.get(k).UID ==Long.valueOf(nextJob.getdispatchsequence(dispPre))){
+											nextJobType = (nextJobType+1)%m_jobTypeList.size();
+											System.out.println("Send Job:" + nextJob.UID);
+//											nextJob.DisplayDetailedInfo();
+											return nextJob;
+										}
+									}
+								}
+							}
+						}
+				}else if (nextJob.jobType == jt){
+					int countparent = 0;
+					for(int j = 0; j < nextJob.getparentsnum(); j++){
+						long a = Long.valueOf(nextJob.getparentsUID(j));
+						for(int k = 0; k < m_finishJobList.size(); k++){
+							if(m_finishJobList.get(k).UID == a){
+								countparent++;
+//								System.out.println("prepare JOB:" + nextJob.UID 
+//										+ "prepare JOB Pnum:" + nextJob.getparentsnum()
+//										+ ",JOB Pcount:"+ countparent);
+								if(countparent == nextJob.getparentsnum()){
+//									System.out.println("m_finishJob:" + m_finishJobList.get(k).UID+
+//											",Long.valueOf:"+Long.valueOf(nextJob.getdispatchsequence(dispPre)));
+									if(m_runningJobList.size()!=0){
+										for(int l = 0; l < m_runningJobList.size(); l++){
+//											System.out.println("m_runningJobList.get(l).UID:" + m_runningJobList.get(l).UID
+//													+"\nnextJob.getdispatchsequence(dispPre):"+nextJob.getdispatchsequence(dispPre));
+											if(m_runningJobList.get(l).UID ==Long.valueOf(nextJob.getdispatchsequence(dispPre))){
+												nextJobType = (nextJobType+1)%m_jobTypeList.size();
+												System.out.println("Send Job:" + nextJob.UID);
+//												nextJob.DisplayDetailedInfo();
+												return nextJob;
+											}else{
+												for(int m = 0; m < m_finishJobList.size(); m++){
+//													System.out.println("m_finishJobList.get(m).UID:" + m_runningJobList.get(l).UID
+//															+"\nnextJob.getdispatchsequence(dispPre):"+nextJob.getdispatchsequence(dispPre));
+													if(disp == 0 || m_finishJobList.get(m).UID == Long.valueOf(nextJob.getdispatchsequence(dispPre))){
+														nextJobType = (nextJobType+1)%m_jobTypeList.size();
+														System.out.println("Send Job:" + nextJob.UID);
+//														nextJob.DisplayDetailedInfo();
+														return nextJob;
+													}
+												}
+											}
+										}
+									}else{
+										for(int m = 0; m < m_finishJobList.size(); m++){
+											if(disp == 0 || m_finishJobList.get(m).UID == Long.valueOf(nextJob.getdispatchsequence(dispPre))){
+												nextJobType = (nextJobType+1)%m_jobTypeList.size();
+												System.out.println("Send Job:" + nextJob.UID);
+//												nextJob.DisplayDetailedInfo();
+												return nextJob;
+											}
+										}
+									}
+//									for(int l = 0; l < m_finishJobList.size(); l++){
+//										if(disp == 0 || m_finishJobList.get(l).UID == Long.valueOf(nextJob.getdispatchsequence(dispPre))){
+//											nextJobType = (nextJobType+1)%m_jobTypeList.size();
+//											System.out.println("Send Job:" + nextJob.UID);
+//											return nextJob;
+//										}
+//									}
+								}
+							}
+						}
+					}
 				}
 				nextJob = null;
-			}			
+			}
 		}
 		
 		// Updating nextJobType
@@ -579,7 +674,7 @@ public class MultiTypePolicy extends Policy {
 		}
 		
 		try {
-//			RefreshRoughSet();
+			RefreshRoughSet();
 		} catch(Exception e) {
 			System.out.println("Error while Refreshing the RoughSet");
 			e.printStackTrace();
@@ -590,9 +685,9 @@ public class MultiTypePolicy extends Policy {
 			if(nextJob.jobType == destination.jobType)
 			try {
 				nextJob.runningCluster = destination;
-//				predictionResult[i] = this.GetPredictionResult(nextJob);
+				predictionResult[i] = this.GetPredictionResult(nextJob);
 				// Above line is commented and the following line is added to do the test about deadline constraint.
-				predictionResult[i] = 70000;
+				//predictionResult[i] = 70000;
 			} catch(Exception e) {
 				e.printStackTrace();
 				System.out.println("Prediction Error");
@@ -715,68 +810,155 @@ public class MultiTypePolicy extends Policy {
 
 	@Override
 	public ArrayList<VMController> InitVMMasterList() {
+		String prefix = "10.133.200.";
+		String ControllerIP[] = {
+				"2",	
+				"3",	
+				"4",	
+				"5",	
+				"6",	
+				"7",	
+				"8",	
+				"9",	
+				"10",	
+				"11",	
+				"12",	
+				"242",	
+				"243",	
+				"244",	
+				"245",	
+				"246",	
+				"247",	
+				"248",	
+				"249",	
+				"252",	
+				"253",
+		};
 		
-		this.m_vmControllerList.add(new VMController("10.133.200.4", "root", "unigrid", VMController.VirtualMachineType.Private));
-		this.m_vmControllerList.add(new VMController("10.133.200.3", "root", "unigrid", VMController.VirtualMachineType.Public));
+//		this.m_vmControllerList.add(new VMController("10.133.200.4", "root", "unigrid", VMController.VirtualMachineType.Private));
+//		this.m_vmControllerList.add(new VMController("10.133.200.3", "root", "unigrid", VMController.VirtualMachineType.Public));
+//		this.m_vmControllerList.add(new VMController("10.133.200.9", "root", "unigrid", VMController.VirtualMachineType.Public));
+//		this.m_vmControllerList.add(new VMController("10.133.200.12", "root", "unigrid", VMController.VirtualMachineType.Public));
+//		this.m_vmControllerList.add(new VMController("10.133.200.247", "root", "unigrid", VMController.VirtualMachineType.Public));
+		
+		for( int i = 0; i<ControllerIP.length; i++){
+			this.m_vmControllerList.add(new VMController(prefix + ControllerIP[i], "root", "unigrid", VMController.VirtualMachineType.Public));
+		}
 		
 		return m_vmControllerList;
 	}
 
 	@Override
 	public void InitClusterList() {
-		String[] ClusterName = {
-								"Java Cluster 1",
-								"Java Cluster 2",
-								"Java Cluster 3",
-//							    "Hadoop Cluster 1",
-//							    "Hadoop Cluster 2",
-//								"MPI Cluster 1",
-//								"MPI Cluster 2",
-		};
-		
-		String[][] Machines = {	
-				// Java Clusters
-				{"hdp201"},
-				{"hdp209"},
-				{"hdp210"},				
-							
-				// Hadoop Clusters
-				{"hdp206", "hdp205", "hdp204", "hdp203"},
-				{"hdp214", "hdp216", "hdp212"},
-				
-				// MPI Clusters
-				{"hdp202", "hdp207", "hdp208"},
-				{"hdp211", "hdp213", "hdp215", "hdp217"},
-		};
-		
 		JobType java = new JavaJobType();
-		JobType hadoop = new MRJobType();
-		JobType MPI = new MPIJobType();
-		JobType[] clusterType = {
-				java,
-				java,
-				java,
-				hadoop,
-				hadoop,
-				MPI,
-				MPI,
-		};
+		JobType Workflow = new WorkflowJobType();
+		
+		ArrayList<String> ClusterName = new ArrayList<String>();
+		ArrayList<String[]> Machines = new ArrayList<String[]>();
+		ArrayList<JobType> clusterType = new ArrayList<JobType>();
+		
+		// 1-cpu VMs
+		ClusterName.add("hdp031");
+		ClusterName.add("hdp032");
+		ClusterName.add("hdp033");
+//		ClusterName.add("hdp034");
+//		ClusterName.add("hdp035");
+//		ClusterName.add("hdp036");
+//		ClusterName.add("hdp037");
+//		ClusterName.add("hdp038");
+//		ClusterName.add("hdp039");
+//		ClusterName.add("hdp040");
+//		
+//		ClusterName.add("hdp041");
+//		ClusterName.add("hdp042");
+//		ClusterName.add("hdp043");
+//		ClusterName.add("hdp044");
+//		ClusterName.add("hdp045");
+//		ClusterName.add("hdp046");
+//		ClusterName.add("hdp047");
+//		ClusterName.add("hdp048");
+//		ClusterName.add("hdp049");
+//		ClusterName.add("hdp050");
+//
+//		ClusterName.add("hdp051");
+//		ClusterName.add("hdp052");
+		
+		// 4-cpu VMs
+		ClusterName.add("hdp053");
+		ClusterName.add("hdp054");
+		ClusterName.add("hdp055");
+		ClusterName.add("hdp056");
+//		ClusterName.add("hdp057");
+//		ClusterName.add("hdp058");
+//		ClusterName.add("hdp059");
+//		ClusterName.add("hdp060");		
+//
+//		ClusterName.add("hdp061");
+//		ClusterName.add("hdp062");
+		
+		// 2-cpu VMs
+//		ClusterName.add("hdp063");
+//		ClusterName.add("hdp064");
+//		ClusterName.add("hdp065");
+//		ClusterName.add("hdp066");
+//		ClusterName.add("hdp067");
+//		ClusterName.add("hdp068");
+//		ClusterName.add("hdp069");
+//		ClusterName.add("hdp070");		
+//
+//		ClusterName.add("hdp071");
+//		ClusterName.add("hdp072");
+//		ClusterName.add("hdp073");
+//		ClusterName.add("hdp074");
+//		ClusterName.add("hdp075");
+//		ClusterName.add("hdp076");
+//		ClusterName.add("hdp077");
+//		ClusterName.add("hdp078");
+//		ClusterName.add("hdp079");
+//		ClusterName.add("hdp080");		
+//
+//		ClusterName.add("hdp081");
+//		ClusterName.add("hdp082");
+		
+		// other unused vms
+//		ClusterName.add("hdp083");
+//		ClusterName.add("hdp084");
+//		ClusterName.add("hdp085");
+//		ClusterName.add("hdp086");
+//		ClusterName.add("hdp087");
+//		ClusterName.add("hdp088");
+//		ClusterName.add("hdp089");
+//		ClusterName.add("hdp090");
+//		ClusterName.add("hdp091");
+//		ClusterName.add("hdp092");
+		
+
+		for(int cn=0; cn<ClusterName.size(); cn++) {
+			String[] m = {new String(ClusterName.get(cn))};
+			Machines.add(m);
+			clusterType.add(java);
+		}
+		
+		clusterType.add(Workflow);
+		
+		
 		
 		m_jobTypeList.add(java);
-		m_jobTypeList.add(hadoop);
-		m_jobTypeList.add(MPI);
+//		m_jobTypeList.add(hadoop);
+//		m_jobTypeList.add(MPI);
+		m_jobTypeList.add(Workflow);
 		
 //		JobNode.attributeType.put("Command", JobNode.AttributeType.Discrete);
 		
 		
 		try {
-			for(int i=0; i<ClusterName.length; i++) {
-				ClusterNode cn = new ClusterNode(ClusterName[i], clusterType[i]);
-				for(int j=0; j<Machines[i].length; j++) {
+			for(int i=0; i<ClusterName.size(); i++) {
+				ClusterNode cn = new ClusterNode(ClusterName.get(i), clusterType.get(i));
+				for(int j=0; j<Machines.get(i).length; j++) {
 					VirtualMachineNode vmn = null;
 					Set<VM> vmSet;
 					for(VMController vmc:this.m_vmControllerList) {
-						vmSet = VM.getByNameLabel(vmc.xenConnection, Machines[i][j]);
+						vmSet = VM.getByNameLabel(vmc.xenConnection, Machines.get(i)[j]);
 						if(vmSet.size()==0) continue;
 						for(VM vm:vmSet) {
 							if(!vm.getIsASnapshot(vmc.xenConnection)&&
@@ -790,7 +972,7 @@ public class MultiTypePolicy extends Policy {
 						if(vmn != null) break;
 					}
 					if(vmn==null) {
-						System.err.println("VM "+Machines[i][j]+ " not found");
+						System.err.println("VM "+Machines.get(i)[j]+ " not found");
 					} else {
 						cn.AddMachine(vmn);
 					}

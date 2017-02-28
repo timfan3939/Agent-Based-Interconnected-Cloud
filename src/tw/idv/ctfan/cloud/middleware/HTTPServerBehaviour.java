@@ -445,7 +445,7 @@ public class HTTPServerBehaviour extends CyclicBehaviour {
 				// LOGOS
 				output.print("<DIV>");
 //				output.print("<H1><img src=\"http://dmclab.csie.ntpu.edu.tw/web/media/logo_action.gif\" />Hybrid Cloud Information Viewer</H1>");
-				output.print("<H1 style=\"font-size:64px; text-align:center; margin:5px\"><IMG style=\"width:64px\" src=\"http://120.126.145.102/mtp/DMCL_logo.gif\" />Federated Cloud Information Viewer</H1>");
+//				output.print("<H1 style=\"font-size:64px; text-align:center; margin:5px\"><IMG style=\"width:64px\" src=\"http://120.126.145.102/mtp/DMCL_logo.gif\" />Federated Cloud Information Viewer</H1>");
 				output.print("<h3 style=\"text-align:right; margin:3px\">Copyright: C.T.Fan</h3>");
 				output.print("<h3 style=\"margin:3px\">Uptime: "+ m_initTime.toString() + " <small>Millisecond: " + m_initMilliTime +"</small></h3>");
 				output.print("<h3 style=\"margin:3px\">Current: "+ (new Date()).toString() + " <small>Millisecond: " + System.currentTimeMillis() +"</small></h3>");

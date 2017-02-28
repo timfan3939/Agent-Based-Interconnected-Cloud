@@ -259,6 +259,7 @@ public abstract class AdminAgent extends Agent {
 					cmd.add("job" + newJob.UID + m_jobType.GetExtension());
 					cmd.add(OnEncodeNewJobAgent(newJob));
 					
+					//create Job Agent
 					myAgent.getContainerController().createNewAgent(Long.toString(newJob.UID), GetJobAgentClassName() ,cmd.toArray()).start();
 					System.out.println("===== Agent " + newJob.UID + " Start=====");
 					doneYet = true;				

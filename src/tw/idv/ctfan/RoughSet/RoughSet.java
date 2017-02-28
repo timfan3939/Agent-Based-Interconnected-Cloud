@@ -157,7 +157,7 @@ public class RoughSet {
 		for(Element e:m_elements) {
 //			System.out.println("Testing " + i + " Object");
 			if(e.Similar(decision)) {
-				System.out.println("Match Object " + i);
+//				System.out.println("Match Object " + i);
 				result.add(e.decision);
 			}
 			i++;
