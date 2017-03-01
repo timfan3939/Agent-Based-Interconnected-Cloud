@@ -52,8 +52,22 @@ public class SystemMonitoringAgent extends Agent {
 		this.addBehaviour(tbf.wrap(new SubmitBehaviour(this) ) );
 		this.addBehaviour(tbf.wrap(new HTTPServerBehaviour(this, policy) ) );
 		this.addBehaviour(tbf.wrap(new ListeningBehaviour(this) ) );
-		this.addBehaviour(tbf.wrap(new AutoSubmitBehaviour(this, policy) ) );
+		
+		this.addBehaviour(tbf.wrap(new TickerBehaviour(this, 20000) {			
+			private static final long serialVersionUID = 4461550809195252595L;
+			private AutoSubmitBehaviour autoRunning = null;
+
+			@Override
+			protected void onTick() {
+				if((autoRunning!=null&&autoRunning.done()) || autoRunning==null){
+					myAgent.addBehaviour(tbf.wrap(autoRunning=new AutoSubmitBehaviour(myAgent)));
+				}				
+			}
+			
+		}));
 	}
+		
+		
 	
 	/**
 	 * Quick way to add a threaded behaviour from other behaviour.
@@ -71,15 +85,16 @@ public class SystemMonitoringAgent extends Agent {
 		Workflow4,
 	};
 	
-	private STATE autoSubmitState;
+	private STATE autoSubmitState = STATE.WaitforVMInitFinish;
 	
-	String rootFolder = "C:\\ctfan\\MYPAPER\\testfile\\";
+	String rootFolder = "C:\\ctfan\\MYPAPER\\testfile\\test cases\\";
 	String workflow1 = "workflow CyberShake 16 tasks size 5 parallelism 6.zip";
 	String workflow2 = "workflow Epigenmoics 28 tasks size 5 parallelism 6.zip";
 	String workflow3 = "workflow LIGO 29 tasks size 5 parallelism 6.zip";
 	String workflow4 = "workflow Montage 20 tasks size 5 parallelism 6.zip";
 	
 	private int[][] m_coreLimits = {
+			{0, 1, 1, 0, 1},
 			{0, 0, 0, 0, 6},
 			{0, 0, 1, 0, 5},
 			{0, 0, 2, 0, 4},
@@ -107,16 +122,12 @@ public class SystemMonitoringAgent extends Agent {
 			{0, 6, 0, 0, 0}
 	};
 	private int m_currentLimit = 0;
-	
-	private class AutoSubmitBehaviour extends TickerBehaviour {
+		
+	private class AutoSubmitBehaviour extends OneShotBehaviour {
 		private static final long serialVersionUID = -4269503516731428757L;
 				
-		private Policy policy;
-		
-		public AutoSubmitBehaviour(SystemMonitoringAgent agent, Policy policy) {
-			super(agent, 60);
-			this.policy = policy;
-			autoSubmitState = STATE.WaitforVMInitFinish;
+		public AutoSubmitBehaviour(Agent agent) {
+			super(agent);
 		}
 		
 		private void SubmitWorkflow(String filename) {
@@ -133,25 +144,27 @@ public class SystemMonitoringAgent extends Agent {
 					binary.write(buff, 0, len);
 				} 
 				fin.close();
-				((MultiTypePolicy)policy).WriteLog(filename + " starts.");
+				((MultiTypePolicy)policy).WriteLog(filename + " starts.\n");
 				myAgent.addBehaviour(tbf.wrap(new GetJobInfoBehaviour(myAgent, jn, binary.toByteArray())));
 			}
 			catch(Exception e) {
-				((MultiTypePolicy)policy).WriteLog(filename + " Error loading file");
+				((MultiTypePolicy)policy).WriteLog(filename + " Error loading file\n");
 			}
 			
 		}
 
 		@Override
-		protected void onTick() {
+		public void action() {
 			synchronized(policy) {
 			
 				if(autoSubmitState == STATE.WaitforVMInitFinish) {
-					if(policy.GetAvailableCluster().size() == 0) {
+					System.out.println("AutoSubmitBehaviour: WaitforVMInitFinish");
+					if(policy.GetRunningCluster().size() == 6) {
 						autoSubmitState = STATE.Workflow1;
 					}
 				}
 				else if(autoSubmitState == STATE.Workflow1) {
+					System.out.println("AutoSubmitBehaviour: Workflow1");
 					if(policy.GetRunningJob().size() == 0 && policy.GetWaitingJob().size() == 0){
 						// Set VM limit
 						((tw.idv.ctfan.cloud.middleware.policy.MultiTypePolicy)policy).SetVMUsageLimitation(m_coreLimits[m_currentLimit]);
@@ -161,6 +174,7 @@ public class SystemMonitoringAgent extends Agent {
 					}
 				}
 				else if(autoSubmitState == STATE.Workflow2) {
+					System.out.println("AutoSubmitBehaviour: Workflow2");
 					if(policy.GetRunningJob().size() == 0 && policy.GetWaitingJob().size() == 0){
 						// Set VM limit
 						((tw.idv.ctfan.cloud.middleware.policy.MultiTypePolicy)policy).SetVMUsageLimitation(m_coreLimits[m_currentLimit]);
@@ -171,6 +185,7 @@ public class SystemMonitoringAgent extends Agent {
 					
 				}
 				else if(autoSubmitState == STATE.Workflow3) {
+					System.out.println("AutoSubmitBehaviour: Workflow3");
 					if(policy.GetRunningJob().size() == 0 && policy.GetWaitingJob().size() == 0){
 						// Set VM limit
 						((tw.idv.ctfan.cloud.middleware.policy.MultiTypePolicy)policy).SetVMUsageLimitation(m_coreLimits[m_currentLimit]);
@@ -181,6 +196,7 @@ public class SystemMonitoringAgent extends Agent {
 					
 				}
 				else if(autoSubmitState == STATE.Workflow4) {
+					System.out.println("AutoSubmitBehaviour: Workflow4");
 					if(policy.GetRunningJob().size() == 0 && policy.GetWaitingJob().size() == 0){
 						// Set VM limit
 						((tw.idv.ctfan.cloud.middleware.policy.MultiTypePolicy)policy).SetVMUsageLimitation(m_coreLimits[m_currentLimit]);
@@ -195,7 +211,6 @@ public class SystemMonitoringAgent extends Agent {
 			}
 			
 		}
-		
 	}
 	
 	/**

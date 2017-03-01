@@ -469,7 +469,7 @@ public class MultiTypePolicy extends Policy {
 		 * It should cause the system to choose the VM that having more core first
 		 */
 		if(jn.runningCluster != null)
-			return MultiTypePolicy.defaultPredictionTime / jn.runningCluster.core;
+			return MultiTypePolicy.defaultPredictionTime / (jn.runningCluster.core + 1);
 		else
 			return MultiTypePolicy.defaultPredictionTime;
 	}
@@ -637,11 +637,11 @@ public class MultiTypePolicy extends Policy {
 		return nextJob;
 	}
 	
-	private static final long defaultPredictionTime = 150000;
+	private static final long defaultPredictionTime = 300000;
 	/* * * * * * * * * *
-	 * 1-core: 150000
-	 * 2-core:  75000
-	 * 4-core:  37500
+	 * 1-core: 300000
+	 * 2-core: 150000
+	 * 4-core:  60000
 	 */
 
 	/**
@@ -703,6 +703,8 @@ public class MultiTypePolicy extends Policy {
 		int[] deadlineJobCount = new int [runningClusterSize];
 		Arrays.fill(jobCount, 0);
 		Arrays.fill(deadlineJobCount, 0);
+		Arrays.fill(remainTime, 0);
+		Arrays.fill(predictionResult, 0);
 		JobNode nextJob = GetNextJob();
 		if(nextJob==null) {
 //			System.out.println("No Next Job Found.");
@@ -710,9 +712,11 @@ public class MultiTypePolicy extends Policy {
 			return null;
 		}
 		
-		int[] VMlimit = this.VMLimitation.clone();		
+		int[] VMlimit = Arrays.copyOf(this.VMLimitation, this.VMLimitation.length);
+		
 		for(int i=0; i<runningClusterSize; i++) {
 			ClusterNode cn = this.m_runningClusterList.get(i);
+			System.out.println(cn.clusterName + " has " + cn.core + "-core cpu.  VMlimit: " + VMlimit[(int)cn.core]);
 			if (VMlimit[(int) cn.core] <= 0) {
 				remainTime[i] = 2000000;
 			}
@@ -722,14 +726,22 @@ public class MultiTypePolicy extends Policy {
 				for(JobNode jn : this.m_runningJobList) {
 					if(jn.runningCluster == cn) {
 						long time = jn.GetContinuousAttribute("PredictionTime");
-						if(time <= 0) time = 2000000;
-						remainTime[i] += (time-jn.completionTime);
+//						if(time <= 0) time = 2000000;
+//						remainTime[i] += (time-jn.completionTime);
+						/**
+						 * Modified: 2017.03.01 20:13
+						 * 
+						 * Due to the test, if some on is running on a vm
+						 * the vm will not allow second job dispatched.
+						 */
+						remainTime[i] = 2000000;
 						jobCount[i]++;
 						if(jn.isDeadlineJob())
 							deadlineJobCount[i]++;					
 					}
 				}				
-			}			
+			}
+			System.out.println(cn.clusterName + " remainTime is " + remainTime[i]);
 		}
 		
 		try {
@@ -764,6 +776,7 @@ public class MultiTypePolicy extends Policy {
 		for(int i=0; i<runningClusterSize; i++) {
 			if(predictionResult[i]!=-1) {
 				totalResult[i] = remainTime[i] + predictionResult[i];
+				System.out.println("" + i + " " + totalResult[i]);
 				
 				if(least!=-1) {
 					if(totalResult[least]>totalResult[i]) {
@@ -892,6 +905,16 @@ public class MultiTypePolicy extends Policy {
 				"249",	
 				"252",	
 				"253",
+				"137",
+				"138",
+				"139",
+				"140",
+//				"141",
+				"142",
+				"143",
+				"144",
+				"145",
+				"146",
 		};
 		
 //		this.m_vmControllerList.add(new VMController("10.133.200.4", "root", "unigrid", VMController.VirtualMachineType.Private));
@@ -919,7 +942,7 @@ public class MultiTypePolicy extends Policy {
 		// 1-cpu VMs
 		ClusterName.add("hdp031");
 		ClusterName.add("hdp032");
-		ClusterName.add("hdp033");
+//		ClusterName.add("hdp033");
 //		ClusterName.add("hdp034");
 //		ClusterName.add("hdp035");
 //		ClusterName.add("hdp036");
@@ -945,8 +968,8 @@ public class MultiTypePolicy extends Policy {
 		// 4-cpu VMs
 		ClusterName.add("hdp053");
 		ClusterName.add("hdp054");
-		ClusterName.add("hdp055");
-		ClusterName.add("hdp056");
+//		ClusterName.add("hdp055");
+//		ClusterName.add("hdp056");
 //		ClusterName.add("hdp057");
 //		ClusterName.add("hdp058");
 //		ClusterName.add("hdp059");
@@ -955,16 +978,19 @@ public class MultiTypePolicy extends Policy {
 //		ClusterName.add("hdp061");
 //		ClusterName.add("hdp062");
 		
-		// 2-cpu VMs
 //		ClusterName.add("hdp063");
-//		ClusterName.add("hdp064");
 //		ClusterName.add("hdp065");
-//		ClusterName.add("hdp066");
 //		ClusterName.add("hdp067");
+		
+		// not in used
+//		ClusterName.add("hdp064");
+//		ClusterName.add("hdp066");
 //		ClusterName.add("hdp068");
-//		ClusterName.add("hdp069");
-//		ClusterName.add("hdp070");		
-//
+		
+		// 2-cpu VMs
+		ClusterName.add("hdp069");
+		ClusterName.add("hdp070");		
+
 //		ClusterName.add("hdp071");
 //		ClusterName.add("hdp072");
 //		ClusterName.add("hdp073");
