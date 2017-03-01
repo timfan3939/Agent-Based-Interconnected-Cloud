@@ -11,8 +11,8 @@ import com.xensource.xenapi.VM;
 import tw.idv.ctfan.RoughSet.RoughSet;
 import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
 import tw.idv.ctfan.cloud.middleware.Java.JavaJobType;
-import tw.idv.ctfan.cloud.middleware.MPI.MPIJobType;
-import tw.idv.ctfan.cloud.middleware.MapReduce.MRJobType;
+//import tw.idv.ctfan.cloud.middleware.MPI.MPIJobType;
+//import tw.idv.ctfan.cloud.middleware.MapReduce.MRJobType;
 import tw.idv.ctfan.cloud.middleware.Workflow.WorkflowJobType;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.DispatchDecision;
 import tw.idv.ctfan.cloud.middleware.policy.Decision.MigrationDecision;
@@ -22,6 +22,18 @@ import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
 import tw.idv.ctfan.cloud.middleware.policy.data.VMController;
 import tw.idv.ctfan.cloud.middleware.policy.data.VirtualMachineNode;
+
+/* * * * * * * * * *
+ * This policy2 is a copy of policy.
+ * Policy2 is duplicated for testing workflow on parallel system.
+ * 
+ * It should have following features:
+ * 1. All VM is up, but the number of different types of VMs used are depends on setting.
+ * 1.1 The property is set by System Monitoring Agent
+ * 2. VM having more cores will dispatched first
+ * 2.1 The VM having more cores will have fewer execution time
+ */
+
 
 public class MultiTypePolicy extends Policy {
 		
@@ -426,30 +438,40 @@ public class MultiTypePolicy extends Policy {
 	}
 	
 	public long GetPredictionResult(JobNode jn) {
-		if(set == null)
+//		if(set == null)
+//			return MultiTypePolicy.defaultPredictionTime;
+//		
+//		long[] element = this.FillConditinAttributes(jn);
+//		
+//		long result = 0;
+//		long[] d = set.GetDecision(set.new Element(element, -1));
+//		if(d==null){
+//			System.out.println("No Match Objects");
+//			return MultiTypePolicy.defaultPredictionTime;
+//		}
+//		else if(d.length==0){
+//			System.out.println("No Match Objects");
+//			return MultiTypePolicy.defaultPredictionTime;
+//		}
+//		
+//		for(long i: d) {
+//			result += this.decisionExecutionTime[(int) i];
+//		}
+//		
+//		result /= d.length;
+//		System.out.println("Final Result " + result );
+//				
+//		return result;
+		
+		/* * * * * * * * * *
+		 * Modified on 2017.03.01 14:54
+		 * Only returns the default execution time and the core available.
+		 * It should cause the system to choose the VM that having more core first
+		 */
+		if(jn.runningCluster != null)
+			return MultiTypePolicy.defaultPredictionTime / jn.runningCluster.core;
+		else
 			return MultiTypePolicy.defaultPredictionTime;
-		
-		long[] element = this.FillConditinAttributes(jn);
-		
-		long result = 0;
-		long[] d = set.GetDecision(set.new Element(element, -1));
-		if(d==null){
-			System.out.println("No Match Objects");
-			return MultiTypePolicy.defaultPredictionTime;
-		}
-		else if(d.length==0){
-			System.out.println("No Match Objects");
-			return MultiTypePolicy.defaultPredictionTime;
-		}
-		
-		for(long i: d) {
-			result += this.decisionExecutionTime[(int) i];
-		}
-		
-		result /= d.length;
-		System.out.println("Final Result " + result );
-				
-		return result;
 	}
 	
 	/**************************************************************************
@@ -615,7 +637,12 @@ public class MultiTypePolicy extends Policy {
 		return nextJob;
 	}
 	
-	private static final long defaultPredictionTime = 60000;
+	private static final long defaultPredictionTime = 150000;
+	/* * * * * * * * * *
+	 * 1-core: 150000
+	 * 2-core:  75000
+	 * 4-core:  37500
+	 */
 
 	/**
 	 * This function dispatch the job by predicting the execution time of a job on every machine.  After that, 
@@ -635,6 +662,30 @@ public class MultiTypePolicy extends Policy {
 //				remark);
 //		counterGetNewJobDestination++;
 //	}
+	
+	private int[] VMLimitation;
+	
+	public void SetVMUsageLimitation(int[] core) {
+		/* * * * * * * * * *
+		 * Added time: 2017.03.01 15:04
+		 * 
+		 * Set the upper bound limitation of specific core of VMs that can used.
+		 * core[0] is the 0-core and should always be zero
+		 * core[1] is the 1-core
+		 * core[2] is the 2-core
+		 * core[3] is the 3-core and should always be zero
+		 * core[4] is the 4-core
+		 */
+		
+		// First write a log to the file
+		this.WriteLog("1-core: " + core[1] +
+				   "   2-core: " + core[2] +
+				   "   4-core: " + core[4]);
+		
+		// Clone the setting to private holder
+		this.VMLimitation = core.clone();
+	}
+	
 	@Override
 	public DispatchDecision GetNewJobDestination() {
 //		startGetNewJobDestination = System.currentTimeMillis();
@@ -659,18 +710,26 @@ public class MultiTypePolicy extends Policy {
 			return null;
 		}
 		
+		int[] VMlimit = this.VMLimitation.clone();		
 		for(int i=0; i<runningClusterSize; i++) {
 			ClusterNode cn = this.m_runningClusterList.get(i);
-			for(JobNode jn : this.m_runningJobList) {
-				if(jn.runningCluster == cn) {
-					long time = jn.GetContinuousAttribute("PredictionTime");
-					if(time <= 0) time = 2000000;
-					remainTime[i] += (time-jn.completionTime);
-					jobCount[i]++;
-					if(jn.isDeadlineJob())
-						deadlineJobCount[i]++;					
-				}
+			if (VMlimit[(int) cn.core] <= 0) {
+				remainTime[i] = 2000000;
 			}
+			else {
+				VMlimit[(int) cn.core] --;
+				
+				for(JobNode jn : this.m_runningJobList) {
+					if(jn.runningCluster == cn) {
+						long time = jn.GetContinuousAttribute("PredictionTime");
+						if(time <= 0) time = 2000000;
+						remainTime[i] += (time-jn.completionTime);
+						jobCount[i]++;
+						if(jn.isDeadlineJob())
+							deadlineJobCount[i]++;					
+					}
+				}				
+			}			
 		}
 		
 		try {

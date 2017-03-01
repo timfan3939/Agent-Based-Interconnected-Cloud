@@ -1,6 +1,8 @@
 package tw.idv.ctfan.cloud.middleware;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.InputStream;
@@ -50,6 +52,7 @@ public class SystemMonitoringAgent extends Agent {
 		this.addBehaviour(tbf.wrap(new SubmitBehaviour(this) ) );
 		this.addBehaviour(tbf.wrap(new HTTPServerBehaviour(this, policy) ) );
 		this.addBehaviour(tbf.wrap(new ListeningBehaviour(this) ) );
+		this.addBehaviour(tbf.wrap(new AutoSubmitBehaviour(this, policy) ) );
 	}
 	
 	/**
@@ -58,6 +61,141 @@ public class SystemMonitoringAgent extends Agent {
 	 */
 	public void AddTbfBehaviour(Behaviour b) {
 		this.addBehaviour(this.tbf.wrap(b));
+	}
+
+	private enum STATE {
+		WaitforVMInitFinish,
+		Workflow1,
+		Workflow2,
+		Workflow3,
+		Workflow4,
+	};
+	
+	private STATE autoSubmitState;
+	
+	String rootFolder = "C:\\ctfan\\MYPAPER\\testfile\\";
+	String workflow1 = "workflow CyberShake 16 tasks size 5 parallelism 6.zip";
+	String workflow2 = "workflow Epigenmoics 28 tasks size 5 parallelism 6.zip";
+	String workflow3 = "workflow LIGO 29 tasks size 5 parallelism 6.zip";
+	String workflow4 = "workflow Montage 20 tasks size 5 parallelism 6.zip";
+	
+	private int[][] m_coreLimits = {
+			{0, 0, 0, 0, 6},
+			{0, 0, 1, 0, 5},
+			{0, 0, 2, 0, 4},
+			{0, 0, 3, 0, 3},
+			{0, 0, 4, 0, 2},
+			{0, 0, 6, 0, 0},
+			{0, 1, 0, 0, 5},
+			{0, 1, 1, 0, 4},
+			{0, 1, 2, 0, 3},
+			{0, 1, 3, 0, 2},
+			{0, 1, 4, 0, 1},
+			{0, 1, 5, 0, 0},
+			{0, 2, 1, 0, 3},
+			{0, 2, 2, 0, 2},
+			{0, 2, 3, 0, 1},
+			{0, 2, 4, 0, 0},
+			{0, 3, 0, 0, 3},
+			{0, 3, 1, 0, 2},
+			{0, 3, 2, 0, 1},
+			{0, 3, 3, 0, 0},
+			{0, 4, 0, 0, 2},
+			{0, 4, 2, 0, 0},
+			{0, 5, 0, 0, 1},
+			{0, 5, 1, 0, 0},
+			{0, 6, 0, 0, 0}
+	};
+	private int m_currentLimit = 0;
+	
+	private class AutoSubmitBehaviour extends TickerBehaviour {
+		private static final long serialVersionUID = -4269503516731428757L;
+				
+		private Policy policy;
+		
+		public AutoSubmitBehaviour(SystemMonitoringAgent agent, Policy policy) {
+			super(agent, 60);
+			this.policy = policy;
+			autoSubmitState = STATE.WaitforVMInitFinish;
+		}
+		
+		private void SubmitWorkflow(String filename) {
+			try {
+				JobNode jn = new JobNode();
+				jn.AddDiscreteAttribute("JobType", "Workflow");
+				jn.AddDiscreteAttribute("Name", filename);
+				
+				FileInputStream fin = new FileInputStream(rootFolder + filename);
+				ByteArrayOutputStream binary = new ByteArrayOutputStream();
+				byte buff[] = new byte[10240];
+				int len = 0;
+				while( (len = fin.read(buff)) > 0 ) {
+					binary.write(buff, 0, len);
+				} 
+				fin.close();
+				((MultiTypePolicy)policy).WriteLog(filename + " starts.");
+				myAgent.addBehaviour(tbf.wrap(new GetJobInfoBehaviour(myAgent, jn, binary.toByteArray())));
+			}
+			catch(Exception e) {
+				((MultiTypePolicy)policy).WriteLog(filename + " Error loading file");
+			}
+			
+		}
+
+		@Override
+		protected void onTick() {
+			synchronized(policy) {
+			
+				if(autoSubmitState == STATE.WaitforVMInitFinish) {
+					if(policy.GetAvailableCluster().size() == 0) {
+						autoSubmitState = STATE.Workflow1;
+					}
+				}
+				else if(autoSubmitState == STATE.Workflow1) {
+					if(policy.GetRunningJob().size() == 0 && policy.GetWaitingJob().size() == 0){
+						// Set VM limit
+						((tw.idv.ctfan.cloud.middleware.policy.MultiTypePolicy)policy).SetVMUsageLimitation(m_coreLimits[m_currentLimit]);
+						// Submit Job
+						SubmitWorkflow(workflow1);
+						autoSubmitState = STATE.Workflow2;
+					}
+				}
+				else if(autoSubmitState == STATE.Workflow2) {
+					if(policy.GetRunningJob().size() == 0 && policy.GetWaitingJob().size() == 0){
+						// Set VM limit
+						((tw.idv.ctfan.cloud.middleware.policy.MultiTypePolicy)policy).SetVMUsageLimitation(m_coreLimits[m_currentLimit]);
+						// Submit Job
+						SubmitWorkflow(workflow2);
+						autoSubmitState = STATE.Workflow3;
+					}
+					
+				}
+				else if(autoSubmitState == STATE.Workflow3) {
+					if(policy.GetRunningJob().size() == 0 && policy.GetWaitingJob().size() == 0){
+						// Set VM limit
+						((tw.idv.ctfan.cloud.middleware.policy.MultiTypePolicy)policy).SetVMUsageLimitation(m_coreLimits[m_currentLimit]);
+						// Submit Job
+						SubmitWorkflow(workflow3);
+						autoSubmitState = STATE.Workflow4;
+					}
+					
+				}
+				else if(autoSubmitState == STATE.Workflow4) {
+					if(policy.GetRunningJob().size() == 0 && policy.GetWaitingJob().size() == 0){
+						// Set VM limit
+						((tw.idv.ctfan.cloud.middleware.policy.MultiTypePolicy)policy).SetVMUsageLimitation(m_coreLimits[m_currentLimit]);
+						m_currentLimit += 1;
+						// Submit Job
+						SubmitWorkflow(workflow4);
+						autoSubmitState = STATE.Workflow1;
+					}
+					
+				}
+				
+			}
+			
+		}
+		
 	}
 	
 	/**
