@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+
+# 在一定的vm數量下，找出不同的vm的組合方式
+
+
 import random
 import math
 
