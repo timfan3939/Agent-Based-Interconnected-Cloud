@@ -1,4 +1,4 @@
-package tw.idv.ctfan.cloud.Middleware.policy.data;
+package tw.idv.ctfan.cloud.middleware.policy.data;
 
 import jade.core.ContainerID;
 
@@ -19,7 +19,7 @@ import com.xensource.xenapi.Types.VmHvmRequired;
 import com.xensource.xenapi.Types.VmIsTemplate;
 import com.xensource.xenapi.Types.XenAPIException;
 
-import tw.idv.ctfan.cloud.Middleware.Cluster.JobType;
+import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
 
 
 public class ClusterNode implements Comparable<ClusterNode>

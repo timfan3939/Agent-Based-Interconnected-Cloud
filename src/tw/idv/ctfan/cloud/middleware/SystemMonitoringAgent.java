@@ -1,4 +1,4 @@
-package tw.idv.ctfan.cloud.Middleware;
+package tw.idv.ctfan.cloud.middleware;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -10,10 +10,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.TimeZone;
 
-import tw.idv.ctfan.cloud.Middleware.Cluster.JobType;
-import tw.idv.ctfan.cloud.Middleware.policy.*;
-import tw.idv.ctfan.cloud.Middleware.policy.data.ClusterNode;
-import tw.idv.ctfan.cloud.Middleware.policy.data.JobNode;
+import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
+import tw.idv.ctfan.cloud.middleware.policy.*;
+import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
+import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
@@ -251,7 +251,7 @@ public class SystemMonitoringAgent extends Agent {
 				cmd.add("job" + m_job.UID + jt.GetExtension());
 				//cmd.add(OnEncodeNewJobAgent(m_job));
 				try {
-					myAgent.getContainerController().createNewAgent(Long.toString(m_job.UID), tw.idv.ctfan.cloud.Middleware.Workflow.WorkflowAgent.class.getName(), cmd.toArray()).start();
+					myAgent.getContainerController().createNewAgent(Long.toString(m_job.UID), tw.idv.ctfan.cloud.middleware.Workflow.WorkflowAgent.class.getName(), cmd.toArray()).start();
 				} catch (StaleProxyException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

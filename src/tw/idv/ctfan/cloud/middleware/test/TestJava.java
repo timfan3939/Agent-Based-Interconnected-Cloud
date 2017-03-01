@@ -1,12 +1,12 @@
-package tw.idv.ctfan.cloud.Middleware.test;
+package tw.idv.ctfan.cloud.middleware.test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.net.Socket;
 
-import tw.idv.ctfan.cloud.Middleware.Cluster.JobType;
-import tw.idv.ctfan.cloud.Middleware.Java.JavaJobType;
+import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
+import tw.idv.ctfan.cloud.middleware.Java.JavaJobType;
 
 public class TestJava {
 	public static void main(String[] args) {

@@ -1,7 +1,7 @@
-package tw.idv.ctfan.cloud.Middleware.MPI;
+package tw.idv.ctfan.cloud.middleware.MPI;
 
-import tw.idv.ctfan.cloud.Middleware.Cluster.AdminAgent;
-import tw.idv.ctfan.cloud.Middleware.policy.data.JobNode;
+import tw.idv.ctfan.cloud.middleware.Cluster.AdminAgent;
+import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
 
 public class MPIAdminAgent extends AdminAgent {
 	private static final long serialVersionUID = -6002055057210057475L;
@@ -14,7 +14,7 @@ public class MPIAdminAgent extends AdminAgent {
 
 	@Override
 	public String GetJobAgentClassName() {
-		return tw.idv.ctfan.cloud.Middleware.MPI.MPIJobAgent.class.getName();
+		return tw.idv.ctfan.cloud.middleware.MPI.MPIJobAgent.class.getName();
 	}
 
 	@Override

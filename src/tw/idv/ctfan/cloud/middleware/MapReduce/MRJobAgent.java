@@ -1,11 +1,11 @@
-package tw.idv.ctfan.cloud.Middleware.MapReduce;
+package tw.idv.ctfan.cloud.middleware.MapReduce;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
-import tw.idv.ctfan.cloud.Middleware.Cluster.JobAgent;
+import tw.idv.ctfan.cloud.middleware.Cluster.JobAgent;
 
 public class MRJobAgent extends JobAgent {
 	private static final long serialVersionUID = 3217299124951417949L;

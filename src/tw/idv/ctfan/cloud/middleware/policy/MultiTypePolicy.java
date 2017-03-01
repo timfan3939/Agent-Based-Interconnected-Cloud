@@ -1,4 +1,4 @@
-package tw.idv.ctfan.cloud.Middleware.policy;
+package tw.idv.ctfan.cloud.middleware.policy;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -9,19 +9,19 @@ import java.util.Set;
 import com.xensource.xenapi.VM;
 
 import tw.idv.ctfan.RoughSet.RoughSet;
-import tw.idv.ctfan.cloud.Middleware.Cluster.JobType;
-import tw.idv.ctfan.cloud.Middleware.Java.JavaJobType;
-import tw.idv.ctfan.cloud.Middleware.MPI.MPIJobType;
-import tw.idv.ctfan.cloud.Middleware.MapReduce.MRJobType;
-import tw.idv.ctfan.cloud.Middleware.Workflow.WorkflowJobType;
-import tw.idv.ctfan.cloud.Middleware.policy.Decision.DispatchDecision;
-import tw.idv.ctfan.cloud.Middleware.policy.Decision.MigrationDecision;
-import tw.idv.ctfan.cloud.Middleware.policy.Decision.VMManagementDecision;
-import tw.idv.ctfan.cloud.Middleware.policy.data.AttributeType;
-import tw.idv.ctfan.cloud.Middleware.policy.data.ClusterNode;
-import tw.idv.ctfan.cloud.Middleware.policy.data.JobNode;
-import tw.idv.ctfan.cloud.Middleware.policy.data.VMController;
-import tw.idv.ctfan.cloud.Middleware.policy.data.VirtualMachineNode;
+import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
+import tw.idv.ctfan.cloud.middleware.Java.JavaJobType;
+import tw.idv.ctfan.cloud.middleware.MPI.MPIJobType;
+import tw.idv.ctfan.cloud.middleware.MapReduce.MRJobType;
+import tw.idv.ctfan.cloud.middleware.Workflow.WorkflowJobType;
+import tw.idv.ctfan.cloud.middleware.policy.Decision.DispatchDecision;
+import tw.idv.ctfan.cloud.middleware.policy.Decision.MigrationDecision;
+import tw.idv.ctfan.cloud.middleware.policy.Decision.VMManagementDecision;
+import tw.idv.ctfan.cloud.middleware.policy.data.AttributeType;
+import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
+import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
+import tw.idv.ctfan.cloud.middleware.policy.data.VMController;
+import tw.idv.ctfan.cloud.middleware.policy.data.VirtualMachineNode;
 
 public class MultiTypePolicy extends Policy {
 		

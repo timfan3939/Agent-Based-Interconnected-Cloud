@@ -1,7 +1,7 @@
-package tw.idv.ctfan.cloud.Middleware.policy.Decision;
+package tw.idv.ctfan.cloud.middleware.policy.Decision;
 
-import tw.idv.ctfan.cloud.Middleware.policy.data.ClusterNode;
-import tw.idv.ctfan.cloud.Middleware.policy.data.JobNode;
+import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
+import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
 
 public class MigrationDecision {
 	

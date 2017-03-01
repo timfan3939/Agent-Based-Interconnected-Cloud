@@ -1,9 +1,9 @@
-package tw.idv.ctfan.cloud.Middleware.Workflow;
+package tw.idv.ctfan.cloud.middleware.Workflow;
 
 import jade.core.ContainerID;
 import jade.lang.acl.ACLMessage;
-import tw.idv.ctfan.cloud.Middleware.Cluster.JobType;
-import tw.idv.ctfan.cloud.Middleware.policy.data.JobNode;
+import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
+import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
 
 public class WorkflowJobType extends JobType{
 	

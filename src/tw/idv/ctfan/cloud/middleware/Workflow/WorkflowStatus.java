@@ -1,4 +1,4 @@
-package tw.idv.ctfan.cloud.Middleware.Workflow;
+package tw.idv.ctfan.cloud.middleware.Workflow;
 
 import java.util.ArrayList;
 

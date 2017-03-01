@@ -1,4 +1,4 @@
-package tw.idv.ctfan.cloud.Middleware.MapReduce;
+package tw.idv.ctfan.cloud.middleware.MapReduce;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -6,8 +6,8 @@ import java.net.InetSocketAddress;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.JobClient;
 
-import tw.idv.ctfan.cloud.Middleware.Cluster.AdminAgent;
-import tw.idv.ctfan.cloud.Middleware.policy.data.JobNode;
+import tw.idv.ctfan.cloud.middleware.Cluster.AdminAgent;
+import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
 
 public class MRAdminAgent extends AdminAgent {
 	private static final long serialVersionUID = -6536487006364985284L;
@@ -36,7 +36,7 @@ public class MRAdminAgent extends AdminAgent {
 
 	@Override
 	public String GetJobAgentClassName() {
-		return tw.idv.ctfan.cloud.Middleware.MapReduce.MRJobAgent.class.getName();
+		return tw.idv.ctfan.cloud.middleware.MapReduce.MRJobAgent.class.getName();
 	}
 
 	@Override

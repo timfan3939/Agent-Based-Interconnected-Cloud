@@ -1,11 +1,11 @@
-package tw.idv.ctfan.cloud.Middleware.MPI;
+package tw.idv.ctfan.cloud.middleware.MPI;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
-import tw.idv.ctfan.cloud.Middleware.Cluster.JobAgent;
+import tw.idv.ctfan.cloud.middleware.Cluster.JobAgent;
 
 public class MPIJobAgent extends JobAgent {
 	private static final long serialVersionUID = -3787070421334031975L;

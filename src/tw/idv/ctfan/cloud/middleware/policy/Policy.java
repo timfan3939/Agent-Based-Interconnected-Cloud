@@ -1,17 +1,17 @@
-package tw.idv.ctfan.cloud.Middleware.policy;
+package tw.idv.ctfan.cloud.middleware.policy;
 
 import jade.lang.acl.ACLMessage;
 
 import java.util.ArrayList;
 
-import tw.idv.ctfan.cloud.Middleware.Cluster.JobType;
-import tw.idv.ctfan.cloud.Middleware.policy.Decision.DispatchDecision;
-import tw.idv.ctfan.cloud.Middleware.policy.Decision.MigrationDecision;
-import tw.idv.ctfan.cloud.Middleware.policy.Decision.VMManagementDecision;
-import tw.idv.ctfan.cloud.Middleware.policy.data.ClusterNode;
-import tw.idv.ctfan.cloud.Middleware.policy.data.JobNode;
-import tw.idv.ctfan.cloud.Middleware.policy.data.VMController;
-import tw.idv.ctfan.cloud.Middleware.policy.data.VirtualMachineNode;
+import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
+import tw.idv.ctfan.cloud.middleware.policy.Decision.DispatchDecision;
+import tw.idv.ctfan.cloud.middleware.policy.Decision.MigrationDecision;
+import tw.idv.ctfan.cloud.middleware.policy.Decision.VMManagementDecision;
+import tw.idv.ctfan.cloud.middleware.policy.data.ClusterNode;
+import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
+import tw.idv.ctfan.cloud.middleware.policy.data.VMController;
+import tw.idv.ctfan.cloud.middleware.policy.data.VirtualMachineNode;
 
 public abstract class Policy {
 	

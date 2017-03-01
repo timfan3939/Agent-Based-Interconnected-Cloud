@@ -1,4 +1,4 @@
-package tw.idv.ctfan.cloud.Middleware.Workflow;
+package tw.idv.ctfan.cloud.middleware.Workflow;
 
 import jade.core.Agent;
 
@@ -10,15 +10,15 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 //import sun.org.mozilla.javascript.internal.json.JsonParser;
-import tw.idv.ctfan.cloud.Middleware.policy.*;
-import tw.idv.ctfan.cloud.Middleware.policy.data.JobNode;
+import tw.idv.ctfan.cloud.middleware.policy.*;
+import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.ThreadedBehaviourFactory;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import tw.idv.ctfan.cloud.Middleware.Cluster.JobType;
-import tw.idv.ctfan.cloud.Middleware.Java.JavaJobType;
-import tw.idv.ctfan.cloud.Middleware.Workflow.WorkflowStatus;
+import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
+import tw.idv.ctfan.cloud.middleware.Java.JavaJobType;
+import tw.idv.ctfan.cloud.middleware.Workflow.WorkflowStatus;
 
 import org.json.*;
 

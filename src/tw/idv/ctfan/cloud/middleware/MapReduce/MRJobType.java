@@ -1,4 +1,4 @@
-package tw.idv.ctfan.cloud.Middleware.MapReduce;
+package tw.idv.ctfan.cloud.middleware.MapReduce;
 
 import java.net.URI;
 
@@ -10,8 +10,8 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
-import tw.idv.ctfan.cloud.Middleware.Cluster.JobType;
-import tw.idv.ctfan.cloud.Middleware.policy.data.JobNode;
+import tw.idv.ctfan.cloud.middleware.Cluster.JobType;
+import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
 
 /**
  * 

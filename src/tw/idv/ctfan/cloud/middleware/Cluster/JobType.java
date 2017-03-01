@@ -1,12 +1,12 @@
-package tw.idv.ctfan.cloud.Middleware.Cluster;
+package tw.idv.ctfan.cloud.middleware.Cluster;
 
 import jade.core.ContainerID;
 import jade.lang.acl.ACLMessage;
 
 import java.util.ArrayList;
 
-import tw.idv.ctfan.cloud.Middleware.Cluster.AdminAgent;
-import tw.idv.ctfan.cloud.Middleware.policy.data.JobNode;
+import tw.idv.ctfan.cloud.middleware.Cluster.AdminAgent;
+import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
 
 public abstract class JobType {
 	

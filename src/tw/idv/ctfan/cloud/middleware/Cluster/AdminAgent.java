@@ -1,11 +1,11 @@
-package tw.idv.ctfan.cloud.Middleware.Cluster;
+package tw.idv.ctfan.cloud.middleware.Cluster;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 
-import tw.idv.ctfan.cloud.Middleware.policy.data.JobNode;
+import tw.idv.ctfan.cloud.middleware.policy.data.JobNode;
 
 import jade.core.AID;
 import jade.core.Agent;
@@ -310,7 +310,7 @@ public abstract class AdminAgent extends Agent {
 				return;
 			}
 			
-			AID reciever = new AID(tw.idv.ctfan.cloud.Middleware.SystemMonitoringAgent.NAME, AID.ISGUID);
+			AID reciever = new AID(tw.idv.ctfan.cloud.middleware.SystemMonitoringAgent.NAME, AID.ISGUID);
 			reciever.addAddresses("http://" + m_masterIP + ":7778/acc");
 			heartBeat.addReceiver(reciever);
 			
@@ -420,7 +420,7 @@ public abstract class AdminAgent extends Agent {
 				if(m_jobList.size()==0){
 					OnTerminateCluster();
 					ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
-					AID recv = new AID(tw.idv.ctfan.cloud.Middleware.ResourceReconfigurationAgent.name + "@" + m_masterIP + ":1099:/JADE", AID.ISGUID);
+					AID recv = new AID(tw.idv.ctfan.cloud.middleware.ResourceReconfigurationAgent.name + "@" + m_masterIP + ":1099:/JADE", AID.ISGUID);
 					recv.addAddresses("http://" + m_masterIP + ":7778/acc");
 					msg.addReceiver(recv);
 					
