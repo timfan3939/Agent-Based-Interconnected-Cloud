@@ -54,16 +54,16 @@ public class WorkflowJobType extends JobType{
 	
 	@Override
 	public void SetJobInfo(JobNode jn) {
-		try {
-			long size = Long.parseLong(jn.GetDiscreteAttribute("Command"));
-			if(size>=0)
-				jn.AddContinuousAttribute("JobSize", size);
-		} catch(Exception e) {
-			System.out.println("WorkflowJobType.SetJobInfo() got some problems");
-			jn.AddContinuousAttribute("JobSize", 10);
-			jn.AddContinuousAttribute("Thread", 10);
-			e.printStackTrace();
-		}
+//		try {
+//			long size = Long.parseLong(jn.GetDiscreteAttribute("Command"));
+//			if(size>=0)
+//				jn.AddContinuousAttribute("JobSize", size);
+//		} catch(Exception e) {
+//			System.out.println("WorkflowJobType.SetJobInfo() got some problems");
+//			jn.AddContinuousAttribute("JobSize", 10);
+//			jn.AddContinuousAttribute("Thread", 10);
+//			e.printStackTrace();
+//		}
 	}
 
 	@Override

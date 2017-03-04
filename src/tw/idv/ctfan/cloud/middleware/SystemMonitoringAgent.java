@@ -88,38 +88,38 @@ public class SystemMonitoringAgent extends Agent {
 	private STATE autoSubmitState = STATE.WaitforVMInitFinish;
 	
 	String rootFolder = "C:\\ctfan\\MYPAPER\\testfile\\test cases\\";
-	String workflow1 = "workflow CyberShake 16 tasks size 5 parallelism 6.zip";
-	String workflow2 = "workflow Epigenmoics 28 tasks size 5 parallelism 6.zip";
-	String workflow3 = "workflow LIGO 29 tasks size 5 parallelism 6.zip";
-	String workflow4 = "workflow Montage 20 tasks size 5 parallelism 6.zip";
+	String workflow1 = "workflow CyberShake 20 tasks size 5 parallelism 8.zip";
+	String workflow2 = "workflow Epigenmoics 36 tasks size 5 parallelism 8.zip";
+	String workflow3 = "workflow LIGO 37 tasks size 5 parallelism 8.zip";
+	String workflow4 = "workflow Montage 25 tasks size 5 parallelism 8.zip";
 	
 	private int[][] m_coreLimits = {
-			{0, 1, 1, 0, 1},
-			{0, 0, 0, 0, 6},
-			{0, 0, 1, 0, 5},
-			{0, 0, 2, 0, 4},
-			{0, 0, 3, 0, 3},
-			{0, 0, 4, 0, 2},
-			{0, 0, 6, 0, 0},
-			{0, 1, 0, 0, 5},
-			{0, 1, 1, 0, 4},
-			{0, 1, 2, 0, 3},
-			{0, 1, 3, 0, 2},
-			{0, 1, 4, 0, 1},
-			{0, 1, 5, 0, 0},
-			{0, 2, 1, 0, 3},
-			{0, 2, 2, 0, 2},
-			{0, 2, 3, 0, 1},
-			{0, 2, 4, 0, 0},
-			{0, 3, 0, 0, 3},
-			{0, 3, 1, 0, 2},
-			{0, 3, 2, 0, 1},
-			{0, 3, 3, 0, 0},
-			{0, 4, 0, 0, 2},
-			{0, 4, 2, 0, 0},
-			{0, 5, 0, 0, 1},
-			{0, 5, 1, 0, 0},
-			{0, 6, 0, 0, 0}
+//			{0, 0, 0, 0, 8},
+//			{0, 0, 2, 0, 6},
+//			{0, 0, 4, 0, 4},
+//			{0, 0, 6, 0, 2},
+//			{0, 0, 7, 0, 1},
+//			{0, 1, 0, 0, 7},
+//			{0, 1, 2, 0, 5},
+//			{0, 1, 4, 0, 3},
+//			{0, 1, 6, 0, 1},
+//			{0, 1, 7, 0, 0},
+//			{0, 2, 1, 0, 5},
+//			{0, 2, 3, 0, 3},
+//			{0, 2, 5, 0, 1},
+//			{0, 3, 0, 0, 5},
+//			{0, 3, 2, 0, 3},
+//			{0, 3, 4, 0, 1},
+//			{0, 3, 5, 0, 0},
+//			{0, 4, 1, 0, 3},
+//			{0, 4, 3, 0, 1},
+//			{0, 5, 0, 0, 3},
+//			{0, 5, 2, 0, 1},
+//			{0, 5, 3, 0, 0},
+//			{0, 6, 1, 0, 1},
+//			{0, 7, 0, 0, 1},
+//			{0, 8, 0, 0, 0},
+			{0, 1, 0, 0, 0}  // the worst case
 	};
 	private int m_currentLimit = 0;
 		
@@ -144,11 +144,11 @@ public class SystemMonitoringAgent extends Agent {
 					binary.write(buff, 0, len);
 				} 
 				fin.close();
-				((MultiTypePolicy)policy).WriteLog(filename + " starts.\n");
+				((MultiTypePolicy)policy).WriteLog("<tr><td>" + filename + " starts.\n" + "</tr></td>");
 				myAgent.addBehaviour(tbf.wrap(new GetJobInfoBehaviour(myAgent, jn, binary.toByteArray())));
 			}
 			catch(Exception e) {
-				((MultiTypePolicy)policy).WriteLog(filename + " Error loading file\n");
+				((MultiTypePolicy)policy).WriteLog("<tr><td>" + filename + " Error loading file\n" + "</tr></td>");
 			}
 			
 		}
@@ -159,7 +159,7 @@ public class SystemMonitoringAgent extends Agent {
 			
 				if(autoSubmitState == STATE.WaitforVMInitFinish) {
 					System.out.println("AutoSubmitBehaviour: WaitforVMInitFinish");
-					if(policy.GetRunningCluster().size() == 6) {
+					if(policy.GetRunningCluster().size() == 1) {
 						autoSubmitState = STATE.Workflow1;
 					}
 				}

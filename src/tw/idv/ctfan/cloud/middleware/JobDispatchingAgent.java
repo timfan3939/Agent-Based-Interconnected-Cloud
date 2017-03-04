@@ -83,12 +83,14 @@ public class JobDispatchingAgent extends Agent {
 					{
 						// TODO: What to do when migration
 					} else if(policy.GetWaitingJob().size()>0) {
-	//					System.out.println("===Asking New Job Destination===");
+//						System.out.println("===Asking New Job Destination===");
 						DispatchDecision dispatchDecision = policy.GetNewJobDestination();
 	//					System.out.println("===Done Asking New Job Destination===");
 						
 						
 						if(dispatchDecision!=null) {
+							System.out.println("Send job " + dispatchDecision.jobToRun.UID + " to " + dispatchDecision.whereToRun.clusterName);
+							
 							ClusterNode dest = dispatchDecision.whereToRun;
 							JobNode jn = dispatchDecision.jobToRun;
 							jn.startTime = System.currentTimeMillis();

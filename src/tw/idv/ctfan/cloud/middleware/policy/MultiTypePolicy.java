@@ -500,7 +500,7 @@ public class MultiTypePolicy extends Policy {
 					jobIndex != endJobType; 
 					jobIndex = (jobIndex+1)%jobTypeSize ) {
 			JobType jt = m_jobTypeList.get(jobIndex);
-//			System.out.println("Get Next Job is checking: " + jt.getTypeName());
+			System.out.println("Get Next Job is checking: " + jt.getTypeName());
 			
 			// First finding jobs with Deadline
 			int leastDeadlineJBindex = -1;
@@ -530,11 +530,9 @@ public class MultiTypePolicy extends Policy {
 			// Next find jobs without Deadline
 			for(int i=0; i<this.m_waitingJobList.size(); i++) {
 				nextJob = this.m_waitingJobList.get(i);
-//				if(nextJob.jobType == jt) {
-//					nextJobType = (nextJobType+1)%m_jobTypeList.size();
-////					System.out.println("Return General Job");
-//					return nextJob;
-//				}
+				
+				System.out.println("checking point 1 " + nextJob.UID);
+				
 				int disp = 0;
 				int dispPre = 0;
 				long check = 0;
@@ -546,23 +544,31 @@ public class MultiTypePolicy extends Policy {
 						//System.out.println("check:"+check+",disp:"+disp+",dispPre:"+dispPre);
 					}
 				}
+				System.out.println("checking point 2 " + nextJob.UID);
 				if(nextJob.jobType == jt && nextJob.getparentsnum()==0) {
+					System.out.println("checking point 3 " + nextJob.UID);
 						if(disp == 0){
+							System.out.println("checking point 4 " + nextJob.UID);
 							nextJobType = (nextJobType+1)%m_jobTypeList.size();
-							System.out.println("Send Job:" + nextJob.UID);
+							System.out.println("Send Next Job: " + nextJob.UID);
 							return nextJob;
 						}else{
+							System.out.println("checking point 5 " + nextJob.UID);
 							for(int j = 0; j < m_runningJobList.size(); j++){
+								System.out.println("checking point 6 " + nextJob.UID);
 								if(m_runningJobList.get(j).UID ==Long.valueOf(nextJob.getdispatchsequence(dispPre))){
+									System.out.println("checking point 7 " + nextJob.UID);
 									nextJobType = (nextJobType+1)%m_jobTypeList.size();
-									System.out.println("Send Job:" + nextJob.UID);
+									System.out.println("Send Next Job: " + nextJob.UID);
 //									nextJob.DisplayDetailedInfo();
 									return nextJob;
 								}else{
+									System.out.println("checking point 8 " + nextJob.UID);
 									for(int k = 0; k < m_finishJobList.size(); k++){
+										System.out.println("checking point 10 " + nextJob.UID);
 										if(m_finishJobList.get(k).UID ==Long.valueOf(nextJob.getdispatchsequence(dispPre))){
 											nextJobType = (nextJobType+1)%m_jobTypeList.size();
-											System.out.println("Send Job:" + nextJob.UID);
+											System.out.println("Send Next Job: " + nextJob.UID);
 //											nextJob.DisplayDetailedInfo();
 											return nextJob;
 										}
@@ -571,10 +577,13 @@ public class MultiTypePolicy extends Policy {
 							}
 						}
 				}else if (nextJob.jobType == jt){
+					System.out.println("checking point 11 " + nextJob.UID);
 					int countparent = 0;
 					for(int j = 0; j < nextJob.getparentsnum(); j++){
+						System.out.println("checking point 12 " + nextJob.UID);
 						long a = Long.valueOf(nextJob.getparentsUID(j));
 						for(int k = 0; k < m_finishJobList.size(); k++){
+							System.out.println("checking point 13 " + nextJob.UID);
 							if(m_finishJobList.get(k).UID == a){
 								countparent++;
 //								System.out.println("prepare JOB:" + nextJob.UID 
@@ -584,6 +593,7 @@ public class MultiTypePolicy extends Policy {
 //									System.out.println("m_finishJob:" + m_finishJobList.get(k).UID+
 //											",Long.valueOf:"+Long.valueOf(nextJob.getdispatchsequence(dispPre)));
 									if(m_runningJobList.size()!=0){
+										System.out.println("checking point 14 " + nextJob.UID);
 										for(int l = 0; l < m_runningJobList.size(); l++){
 //											System.out.println("m_runningJobList.get(l).UID:" + m_runningJobList.get(l).UID
 //													+"\nnextJob.getdispatchsequence(dispPre):"+nextJob.getdispatchsequence(dispPre));
@@ -606,6 +616,7 @@ public class MultiTypePolicy extends Policy {
 											}
 										}
 									}else{
+										System.out.println("checking point 15 " + nextJob.UID);
 										for(int m = 0; m < m_finishJobList.size(); m++){
 											if(disp == 0 || m_finishJobList.get(m).UID == Long.valueOf(nextJob.getdispatchsequence(dispPre))){
 												nextJobType = (nextJobType+1)%m_jobTypeList.size();
@@ -627,6 +638,7 @@ public class MultiTypePolicy extends Policy {
 						}
 					}
 				}
+				System.out.println("Assigning nextJob to null");
 				nextJob = null;
 			}
 		}
@@ -678,9 +690,11 @@ public class MultiTypePolicy extends Policy {
 		 */
 		
 		// First write a log to the file
-		this.WriteLog("1-core: " + core[1] +
+		this.WriteLog("<tr><td>" +
+				       "1-core: " + core[1] +
 				   "   2-core: " + core[2] +
-				   "   4-core: " + core[4]);
+				   "   4-core: " + core[4]
+						   + "</td></tr>");
 		
 		// Clone the setting to private holder
 		this.VMLimitation = core.clone();
@@ -707,10 +721,11 @@ public class MultiTypePolicy extends Policy {
 		Arrays.fill(predictionResult, 0);
 		JobNode nextJob = GetNextJob();
 		if(nextJob==null) {
-//			System.out.println("No Next Job Found.");
+			System.out.println("No Next Job Found.");
 //			WritePredictionTime("No Job");
 			return null;
 		}
+		System.out.println("Next Job Found.");
 		
 		int[] VMlimit = Arrays.copyOf(this.VMLimitation, this.VMLimitation.length);
 		
@@ -718,14 +733,14 @@ public class MultiTypePolicy extends Policy {
 			ClusterNode cn = this.m_runningClusterList.get(i);
 			System.out.println(cn.clusterName + " has " + cn.core + "-core cpu.  VMlimit: " + VMlimit[(int)cn.core]);
 			if (VMlimit[(int) cn.core] <= 0) {
-				remainTime[i] = 2000000;
+				remainTime[i] = 3000000;
 			}
 			else {
 				VMlimit[(int) cn.core] --;
 				
 				for(JobNode jn : this.m_runningJobList) {
 					if(jn.runningCluster == cn) {
-						long time = jn.GetContinuousAttribute("PredictionTime");
+//						long time = jn.GetContinuousAttribute("PredictionTime");
 //						if(time <= 0) time = 2000000;
 //						remainTime[i] += (time-jn.completionTime);
 						/**
@@ -967,7 +982,7 @@ public class MultiTypePolicy extends Policy {
 		
 		// 4-cpu VMs
 		ClusterName.add("hdp053");
-		ClusterName.add("hdp054");
+//		ClusterName.add("hdp054");
 //		ClusterName.add("hdp055");
 //		ClusterName.add("hdp056");
 //		ClusterName.add("hdp057");
@@ -989,10 +1004,10 @@ public class MultiTypePolicy extends Policy {
 		
 		// 2-cpu VMs
 		ClusterName.add("hdp069");
-		ClusterName.add("hdp070");		
+//		ClusterName.add("hdp070");		
 
-//		ClusterName.add("hdp071");
-//		ClusterName.add("hdp072");
+//		ClusterName.add("hdp071");  // broken
+//		ClusterName.add("hdp072");  // broken
 //		ClusterName.add("hdp073");
 //		ClusterName.add("hdp074");
 //		ClusterName.add("hdp075");
