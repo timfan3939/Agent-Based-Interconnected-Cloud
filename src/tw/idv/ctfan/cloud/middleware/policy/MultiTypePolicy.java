@@ -574,65 +574,46 @@ public class MultiTypePolicy extends Policy {
 						}
 					}
 				}
-				else if (nextJob.jobType == jt) {
-					System.out.println("checking point 11 " + nextJob.UID);
-					int countparent = 0;
-					for(int j = 0; j < nextJob.getNumberOfParentTasks(); j++){
-						System.out.println("checking point 12 " + nextJob.UID);
-						long a = Long.valueOf(nextJob.getParentTasksUID(j));
-						for(int k = 0; k < m_finishJobList.size(); k++){
-							System.out.println("checking point 13 " + nextJob.UID);
-							if(m_finishJobList.get(k).UID == a){
-								countparent++;
-//								System.out.println("prepare JOB:" + nextJob.UID 
-//										+ "prepare JOB Pnum:" + nextJob.getparentsnum()
-//										+ ",JOB Pcount:"+ countparent);
-								if(countparent == nextJob.getNumberOfParentTasks()){
-//									System.out.println("m_finishJob:" + m_finishJobList.get(k).UID+
-//											",Long.valueOf:"+Long.valueOf(nextJob.getdispatchsequence(dispPre)));
-									if(m_runningJobList.size()!=0){
-										System.out.println("checking point 14 " + nextJob.UID);
-										for(int l = 0; l < m_runningJobList.size(); l++){
-//											System.out.println("m_runningJobList.get(l).UID:" + m_runningJobList.get(l).UID
-//													+"\nnextJob.getdispatchsequence(dispPre):"+nextJob.getdispatchsequence(dispPre));
-											if(m_runningJobList.get(l).UID ==Long.valueOf(nextJob.getWorkflowDispatchSequence(previousTaskDispatchOrder))){
-												nextJobType = (nextJobType+1)%m_jobTypeList.size();
-												System.out.println("Send Job:" + nextJob.UID);
-//												nextJob.DisplayDetailedInfo();
-												return nextJob;
-											}else{
-												for(int m = 0; m < m_finishJobList.size(); m++){
-//													System.out.println("m_finishJobList.get(m).UID:" + m_runningJobList.get(l).UID
-//															+"\nnextJob.getdispatchsequence(dispPre):"+nextJob.getdispatchsequence(dispPre));
-													if(taskDispatchOrder == 0 || m_finishJobList.get(m).UID == Long.valueOf(nextJob.getWorkflowDispatchSequence(previousTaskDispatchOrder))){
-														nextJobType = (nextJobType+1)%m_jobTypeList.size();
-														System.out.println("Send Job:" + nextJob.UID);
-//														nextJob.DisplayDetailedInfo();
-														return nextJob;
-													}
-												}
-											}
-										}
-									}else{
-										System.out.println("checking point 15 " + nextJob.UID);
-										for(int m = 0; m < m_finishJobList.size(); m++){
-											if(taskDispatchOrder == 0 || m_finishJobList.get(m).UID == Long.valueOf(nextJob.getWorkflowDispatchSequence(previousTaskDispatchOrder))){
-												nextJobType = (nextJobType+1)%m_jobTypeList.size();
-												System.out.println("Send Job:" + nextJob.UID);
-//												nextJob.DisplayDetailedInfo();
-												return nextJob;
-											}
-										}
-									}
-								}
+				// else task, which the job has previous jobs that have to complete first.
+				else if (nextJob.jobType == jt) {					
+					int finishedParentCount = 0;
+					
+					// calculate how many parent has finished
+					for(int parentTaskIter = 0; parentTaskIter < nextJob.getNumberOfParentTasks(); parentTaskIter++){
+						long parentTaskUID = Long.valueOf(nextJob.getParentTasksUID(parentTaskIter));
+						
+						for(int finishJobIter = 0; finishJobIter < m_finishJobList.size(); finishJobIter++){
+							if( m_finishJobList.get(finishJobIter).UID == parentTaskUID )
+								finishedParentCount++;								
+						} 
+					}
+					
+					if(finishedParentCount == nextJob.getNumberOfParentTasks()){
+						
+						for(int runningJobIter = 0; runningJobIter < m_runningJobList.size(); runningJobIter++){
+							if(m_runningJobList.get(runningJobIter).UID ==Long.valueOf(nextJob.getWorkflowDispatchSequence(previousTaskDispatchOrder))){
+								nextJobType = (nextJobType+1)%m_jobTypeList.size();
+								System.out.println("Send Job:" + nextJob.UID);
+								return nextJob;
+							}
+						}						
+						
+						for(int m = 0; m < m_finishJobList.size(); m++){
+							if(m_finishJobList.get(m).UID == Long.valueOf(nextJob.getWorkflowDispatchSequence(previousTaskDispatchOrder))){
+								nextJobType = (nextJobType+1)%m_jobTypeList.size();
+								System.out.println("Send Job:" + nextJob.UID);
+								return nextJob;
 							}
 						}
-					}
-				}
-				System.out.println("Assigning nextJob to null");
+						
+					} // if(finishedParentCount == nextJob.getNumberOfParentTasks())
+					
+				} // else if (nextJob.jobType == jt)
+				
 				nextJob = null;
-			}
-		}
+			} // for(int i=0; i<this.m_waitingJobList.size(); i++)
+			
+		} // for(int jobIndex = nextJobType; 
 		
 		// Updating nextJobType
 		nextJobType = (nextJobType+1)%m_jobTypeList.size();
