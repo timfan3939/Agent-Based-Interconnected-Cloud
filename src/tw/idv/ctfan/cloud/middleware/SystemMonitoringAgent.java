@@ -432,7 +432,7 @@ public class SystemMonitoringAgent extends Agent {
 					
 /************************************/
 					
-					if(jn.UID == Long.valueOf(jn.getDispatchSequence(Integer.valueOf(String.valueOf((jn.getParentWorkflowTotalTaskNumber()-1)))))){
+					if(jn.UID == Long.valueOf(jn.getWorkflowDispatchSequence(Integer.valueOf(String.valueOf((jn.getWorkflowTotalTaskNumber()-1)))))){
 						
 						File saveFile=new File("C:\\ctfan\\MYPAPER\\testfile\\exetime\\"+jn.UID/1000+"exetime.txt");
 						try

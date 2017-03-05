@@ -387,10 +387,10 @@ public class WorkflowAgent extends Agent{
 						String cmd = String.valueOf(taskExecutionTime[newsort[i]]*10000);						
 						newTask.UID = agentlocalname*1000 + (long)newsort[i]+1;
 						newTask.setNumberOfParentTasks(numberOfParentTasks[newsort[i]]);
-						newTask.setParentWorkflowTotalTaskNumber(taskDispatchOrderList.size());
+						newTask.setWorkflowTotalTaskNumber(taskDispatchOrderList.size());
 //						System.out.println("dispatchnum:"+m_task.getdispatchnum());
 						for(int d = 0; d < newsort.length; d++){
-							newTask.setDispatchSequence(String.valueOf(agentlocalname*1000 + ((long)newsort[d]+1)));
+							newTask.setWorkflowDispatchSequence(String.valueOf(agentlocalname*1000 + ((long)newsort[d]+1)));
 						}
 //						for(int d = 0; d < newsort.length; d++){
 //							System.out.println("dispatchsequence:"+m_task.getdispatchsequence(d));

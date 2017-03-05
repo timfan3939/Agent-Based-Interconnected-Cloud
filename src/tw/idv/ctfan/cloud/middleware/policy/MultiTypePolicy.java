@@ -531,52 +531,50 @@ public class MultiTypePolicy extends Policy {
 			for(int i=0; i<this.m_waitingJobList.size(); i++) {
 				nextJob = this.m_waitingJobList.get(i);
 				
-				System.out.println("checking point 1 " + nextJob.UID);
 				
-				int disp = 0;
-				int dispPre = 0;
-				long check = 0;
-				for(int dd = 0; dd < nextJob.getParentWorkflowTotalTaskNumber(); dd++){
-					check = Long.valueOf(nextJob.getDispatchSequence(dd));
-					if(nextJob.UID == check){
-						disp = dd;
-						dispPre = disp-1;
-						//System.out.println("check:"+check+",disp:"+disp+",dispPre:"+dispPre);
+				// Get some task info
+				int taskDispatchOrder = 0;
+				int previousTaskDispatchOrder = 0;  // equals to taskDispatchOrder - 1
+				long taskUID = 0;
+				for(int taskIter = 0; taskIter < nextJob.getWorkflowTotalTaskNumber(); taskIter++){
+					taskUID = Long.valueOf(nextJob.getWorkflowDispatchSequence(taskIter));
+					if(nextJob.UID == taskUID){
+						taskDispatchOrder = taskIter;
+						previousTaskDispatchOrder = taskDispatchOrder-1;
+						//System.out.println("check:"+taskUID+",disp:"+taskDispatchOrder+",dispPre:"+preTaskDispatchOrder);
 					}
 				}
-				System.out.println("checking point 2 " + nextJob.UID);
+				
+				
 				if(nextJob.jobType == jt && nextJob.getNumberOfParentTasks()==0) {
-					System.out.println("checking point 3 " + nextJob.UID);
-						if(disp == 0){
-							System.out.println("checking point 4 " + nextJob.UID);
-							nextJobType = (nextJobType+1)%m_jobTypeList.size();
-							System.out.println("Send Next Job: " + nextJob.UID);
-							return nextJob;
-						}else{
-							System.out.println("checking point 5 " + nextJob.UID);
-							for(int j = 0; j < m_runningJobList.size(); j++){
-								System.out.println("checking point 6 " + nextJob.UID);
-								if(m_runningJobList.get(j).UID ==Long.valueOf(nextJob.getDispatchSequence(dispPre))){
-									System.out.println("checking point 7 " + nextJob.UID);
-									nextJobType = (nextJobType+1)%m_jobTypeList.size();
-									System.out.println("Send Next Job: " + nextJob.UID);
-//									nextJob.DisplayDetailedInfo();
-									return nextJob;
-								}else{
-									System.out.println("checking point 8 " + nextJob.UID);
-									for(int k = 0; k < m_finishJobList.size(); k++){
-										System.out.println("checking point 10 " + nextJob.UID);
-										if(m_finishJobList.get(k).UID ==Long.valueOf(nextJob.getDispatchSequence(dispPre))){
-											nextJobType = (nextJobType+1)%m_jobTypeList.size();
-											System.out.println("Send Next Job: " + nextJob.UID);
-//											nextJob.DisplayDetailedInfo();
-											return nextJob;
-										}
-									}
-								}
+					if(taskDispatchOrder == 0) {
+						nextJobType = (nextJobType+1)%m_jobTypeList.size();
+						System.out.println("Send Next Job: " + nextJob.UID);
+						return nextJob;
+					}
+					else {
+						// If previous job is running, than this job should be the next to run.
+						for(int j = 0; j < m_runningJobList.size(); j++) {
+							if( m_runningJobList.get(j).UID == Long.valueOf( nextJob.getWorkflowDispatchSequence(previousTaskDispatchOrder) ) ){
+								nextJobType = (nextJobType+1)%m_jobTypeList.size();
+								System.out.println("Send Next Job: " + nextJob.UID);
+//								nextJob.DisplayDetailedInfo();
+								return nextJob;
+							} 
+						}
+						
+						// If previous job is finished, than this job should be dispatched.
+						for(int k = 0; k < m_finishJobList.size(); k++){
+							if(m_finishJobList.get(k).UID ==Long.valueOf(nextJob.getWorkflowDispatchSequence(previousTaskDispatchOrder))){
+								nextJobType = (nextJobType+1)%m_jobTypeList.size();
+								System.out.println("Send Next Job: " + nextJob.UID);
+//								nextJob.DisplayDetailedInfo();
+								return nextJob;
 							}
 						}
-				}else if (nextJob.jobType == jt){
+					}
+				}
+				else if (nextJob.jobType == jt) {
 					System.out.println("checking point 11 " + nextJob.UID);
 					int countparent = 0;
 					for(int j = 0; j < nextJob.getNumberOfParentTasks(); j++){
@@ -597,7 +595,7 @@ public class MultiTypePolicy extends Policy {
 										for(int l = 0; l < m_runningJobList.size(); l++){
 //											System.out.println("m_runningJobList.get(l).UID:" + m_runningJobList.get(l).UID
 //													+"\nnextJob.getdispatchsequence(dispPre):"+nextJob.getdispatchsequence(dispPre));
-											if(m_runningJobList.get(l).UID ==Long.valueOf(nextJob.getDispatchSequence(dispPre))){
+											if(m_runningJobList.get(l).UID ==Long.valueOf(nextJob.getWorkflowDispatchSequence(previousTaskDispatchOrder))){
 												nextJobType = (nextJobType+1)%m_jobTypeList.size();
 												System.out.println("Send Job:" + nextJob.UID);
 //												nextJob.DisplayDetailedInfo();
@@ -606,7 +604,7 @@ public class MultiTypePolicy extends Policy {
 												for(int m = 0; m < m_finishJobList.size(); m++){
 //													System.out.println("m_finishJobList.get(m).UID:" + m_runningJobList.get(l).UID
 //															+"\nnextJob.getdispatchsequence(dispPre):"+nextJob.getdispatchsequence(dispPre));
-													if(disp == 0 || m_finishJobList.get(m).UID == Long.valueOf(nextJob.getDispatchSequence(dispPre))){
+													if(taskDispatchOrder == 0 || m_finishJobList.get(m).UID == Long.valueOf(nextJob.getWorkflowDispatchSequence(previousTaskDispatchOrder))){
 														nextJobType = (nextJobType+1)%m_jobTypeList.size();
 														System.out.println("Send Job:" + nextJob.UID);
 //														nextJob.DisplayDetailedInfo();
@@ -618,7 +616,7 @@ public class MultiTypePolicy extends Policy {
 									}else{
 										System.out.println("checking point 15 " + nextJob.UID);
 										for(int m = 0; m < m_finishJobList.size(); m++){
-											if(disp == 0 || m_finishJobList.get(m).UID == Long.valueOf(nextJob.getDispatchSequence(dispPre))){
+											if(taskDispatchOrder == 0 || m_finishJobList.get(m).UID == Long.valueOf(nextJob.getWorkflowDispatchSequence(previousTaskDispatchOrder))){
 												nextJobType = (nextJobType+1)%m_jobTypeList.size();
 												System.out.println("Send Job:" + nextJob.UID);
 //												nextJob.DisplayDetailedInfo();
@@ -626,13 +624,6 @@ public class MultiTypePolicy extends Policy {
 											}
 										}
 									}
-//									for(int l = 0; l < m_finishJobList.size(); l++){
-//										if(disp == 0 || m_finishJobList.get(l).UID == Long.valueOf(nextJob.getdispatchsequence(dispPre))){
-//											nextJobType = (nextJobType+1)%m_jobTypeList.size();
-//											System.out.println("Send Job:" + nextJob.UID);
-//											return nextJob;
-//										}
-//									}
 								}
 							}
 						}

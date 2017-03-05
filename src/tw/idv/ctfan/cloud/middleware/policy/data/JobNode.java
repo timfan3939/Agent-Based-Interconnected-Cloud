@@ -195,20 +195,20 @@ public class JobNode implements Comparable<JobNode> {
 		return this.parentTasksUIDList.get(PID);
 	}
 	
-	private int parentWorkflowTotalTaskNumber;
-	public void setParentWorkflowTotalTaskNumber(int num){
-		this.parentWorkflowTotalTaskNumber = num;
+	private int workflowTotalTaskNumber;
+	public void setWorkflowTotalTaskNumber(int num){
+		this.workflowTotalTaskNumber = num;
 	}
-	public int getParentWorkflowTotalTaskNumber() {
-		return this.parentWorkflowTotalTaskNumber;
+	public int getWorkflowTotalTaskNumber() {
+		return this.workflowTotalTaskNumber;
 	}
 	
-	private ArrayList<String> dispatchSequenceList = new ArrayList<String>();
-	public void setDispatchSequence(String mID){
-		this.dispatchSequenceList.add(mID);
+	private ArrayList<String> workflowDispatchSequence = new ArrayList<String>();
+	public void setWorkflowDispatchSequence(String mID){
+		this.workflowDispatchSequence.add(mID);
 	}
-	public String getDispatchSequence(int mID){
-		return this.dispatchSequenceList.get(mID);
+	public String getWorkflowDispatchSequence(int mID){
+		return this.workflowDispatchSequence.get(mID);
 	}
 	
 	/**
