@@ -175,37 +175,47 @@ public class JobNode implements Comparable<JobNode> {
 		return false;
 	}
 	
-	int parentsnum;
-	public void setparentsnum(int num){
-		parentsnum = num;
+	/**
+	 * Chu's added part
+	 */
+	
+	private int numberOfParentTasks;
+	public void setNumberOfParentTasks(int num){
+		this.numberOfParentTasks = num;
 	}
-	public int getparentsnum(){
-		return parentsnum;
+	public int getNumberOfParentTasks(){
+		return this.numberOfParentTasks;
 	}
 
-	ArrayList<String> parentsUID = new ArrayList<String>();
-	public void setparentsUID(String PID){
-		parentsUID.add(PID);
+	private ArrayList<String> parentTasksUIDList = new ArrayList<String>();
+	public void addParentTasksUID(String PID){
+		this.parentTasksUIDList.add(PID);
 	}
-	public String getparentsUID(int PID){
-		return parentsUID.get(PID);
-	}
-	
-	int dispatchnum;
-	public void setdispatchnum(int num){
-		dispatchnum = num;
-	}
-	public int getdispatchnum(){
-		return dispatchnum;
+	public String getParentTasksUID(int PID){
+		return this.parentTasksUIDList.get(PID);
 	}
 	
-	ArrayList<String> dispatchsequence = new ArrayList<String>();
-	public void setdispatchsequence(String mID){
-		dispatchsequence.add(mID);
+	private int parentWorkflowTotalTaskNumber;
+	public void setParentWorkflowTotalTaskNumber(int num){
+		this.parentWorkflowTotalTaskNumber = num;
 	}
-	public String getdispatchsequence(int mID){
-		return dispatchsequence.get(mID);
+	public int getParentWorkflowTotalTaskNumber() {
+		return this.parentWorkflowTotalTaskNumber;
 	}
+	
+	private ArrayList<String> dispatchSequenceList = new ArrayList<String>();
+	public void setDispatchSequence(String mID){
+		this.dispatchSequenceList.add(mID);
+	}
+	public String getDispatchSequence(int mID){
+		return this.dispatchSequenceList.get(mID);
+	}
+	
+	/**
+	 * Chu's added part ended here
+	 */
+	
+	
 	/**
 	 * @see JobNode#attributes
 	 * @param key
